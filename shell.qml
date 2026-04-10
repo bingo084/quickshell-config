@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs as App
 
 ShellRoot {
     Variants {
@@ -16,8 +17,12 @@ ShellRoot {
             implicitHeight: 30
 
             Text {
-                anchors.centerIn: parent
-                text: "Hello World"
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: 10
+                }
+                text: Qt.formatDateTime(App.Clock.date, "ddd, MMM dd, hh:mm:ss")
             }
         }
     }
