@@ -2,5 +2,5 @@ import QtQuick
 import qs.services
 
 Text {
-    text: (Audio.volume ? Math.round(Audio.volume * 100) : "--") + "%"
+    text: (Audio.ready ? Math.round(Audio.volume * 100) : "--") + "%"
 }

@@ -4,7 +4,9 @@ import Quickshell
 import Quickshell.Services.Pipewire
 
 Singleton {
-    property real volume: Pipewire.defaultAudioSink?.audio.volume
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+    readonly property real volume: sink?.audio.volume ?? 0
+    readonly property bool ready: Pipewire.ready && !isNaN(volume)
 
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink]
