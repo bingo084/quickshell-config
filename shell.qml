@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import qs.widgets
 
@@ -16,21 +17,15 @@ ShellRoot {
             }
             implicitHeight: 30
 
-            Audio {
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    right: clock.left
-                    rightMargin: 10
-                }
-            }
-
-            Clock {
-              id: clock
+            RowLayout {
                 anchors {
                     verticalCenter: parent.verticalCenter
                     right: parent.right
                     rightMargin: 10
                 }
+
+                Audio {}
+                Clock {}
             }
         }
     }
