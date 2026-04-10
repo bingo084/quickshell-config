@@ -16,7 +16,16 @@ ShellRoot {
             }
             implicitHeight: 30
 
+            Audio {
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: clock.left
+                    rightMargin: 10
+                }
+            }
+
             Clock {
+              id: clock
                 anchors {
                     verticalCenter: parent.verticalCenter
                     right: parent.right
