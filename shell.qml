@@ -8,6 +8,7 @@ ShellRoot {
         model: Quickshell.screens
         // qmllint disable uncreatable-type
         PanelWindow {
+            id: bar
             required property ShellScreen modelData
             screen: modelData
             anchors {
@@ -24,6 +25,9 @@ ShellRoot {
                     leftMargin: 10
                 }
 
+                Workspaces {
+                    screen: bar.modelData
+                }
                 Title {}
             }
 
