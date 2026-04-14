@@ -20,6 +20,16 @@ ShellRoot {
             RowLayout {
                 anchors {
                     verticalCenter: parent.verticalCenter
+                    left: parent.left
+                    leftMargin: 10
+                }
+
+                Title {}
+            }
+
+            RowLayout {
+                anchors {
+                    verticalCenter: parent.verticalCenter
                     right: parent.right
                     rightMargin: 10
                 }
