@@ -1,6 +1,8 @@
 import QtQuick
-import Quickshell.Wayland
+import Quickshell
+import qs.services
 
 Text {
-    text: ToplevelManager.activeToplevel?.title ?? ""
+    required property ShellScreen screen
+    text: Niri.title(screen.name)
 }

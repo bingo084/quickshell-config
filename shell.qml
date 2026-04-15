@@ -28,7 +28,9 @@ ShellRoot {
                 Workspaces {
                     screen: bar.modelData
                 }
-                Title {}
+                Title {
+                    screen: bar.modelData
+                }
             }
 
             RowLayout {
