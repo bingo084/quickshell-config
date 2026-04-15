@@ -28,6 +28,9 @@ ShellRoot {
                 Workspaces {
                     screen: bar.modelData
                 }
+                Windows {
+                    screen: bar.modelData
+                }
                 Title {
                     screen: bar.modelData
                 }
