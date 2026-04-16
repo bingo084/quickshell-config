@@ -31,9 +31,6 @@ ShellRoot {
                 Windows {
                     screen: bar.modelData
                 }
-                Title {
-                    screen: bar.modelData
-                }
             }
 
             RowLayout {
