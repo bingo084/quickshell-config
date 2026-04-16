@@ -26,6 +26,7 @@ RowLayout {
                 required property int index
                 required property int id
                 required property string title
+                required property string appId
                 required property int workspaceId
                 required property bool isFocused
                 required property string iconPath
@@ -46,8 +47,15 @@ RowLayout {
                         visible: window.iconPath !== ""
                     }
                     Text {
-                        text: window.title
+                        text: _format(window.title, window.appId)
                         color: window.isFocused ? "#007aff" : "black"
+
+                        function _format(title: string, appId: string): string {
+                            if ((appId === "google-chrome")) {
+                                return title.replace(/ - Google Chrome$/, "");
+                            }
+                            return title;
+                        }
                     }
                 }
                 MouseArea {
