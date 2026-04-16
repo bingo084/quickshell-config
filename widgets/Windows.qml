@@ -63,7 +63,15 @@ RowLayout {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Niri.focusWindow(window.id)
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                    onClicked: mouse => {
+                        if (mouse.button == Qt.LeftButton)
+                            Niri.focusWindow(window.id);
+                        else if (mouse.button == Qt.RightButton)
+                            Niri.toggleOverview();
+                        else if (mouse.button == Qt.MiddleButton)
+                            Niri.closeWindow(window.id);
+                    }
                 }
             }
         }
