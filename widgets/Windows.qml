@@ -30,6 +30,7 @@ RowLayout {
                 required property int workspaceId
                 required property bool isFocused
                 required property string iconPath
+                readonly property string fixedIconPath: title === "飞书" ? "/usr/share/icons/hicolor/256x256/apps/bytedance-feishu.png" : iconPath
                 readonly property color baseColor: isFocused ? "#eeeeee" : "#ffffff"
                 visible: workspace.id === window.workspaceId
                 implicitWidth: row.implicitWidth + 10
@@ -43,8 +44,8 @@ RowLayout {
 
                     IconImage {
                         implicitSize: 18
-                        source: window.iconPath ? "file://" + window.iconPath : ""
-                        visible: window.iconPath !== ""
+                        source: window.fixedIconPath ? "file://" + window.fixedIconPath : ""
+                        visible: window.fixedIconPath !== ""
                     }
                     Text {
                         text: _format(window.title, window.appId)
