@@ -19,7 +19,7 @@ RowLayout {
             required property int id
             required property bool isActive
             required property string output
-            model: isActive && output === root.screen.name ? Niri.windows : 0
+            model: isActive && output === root.screen.name ? Niri.sortedWindows : 0
 
             Rectangle {
                 id: window
