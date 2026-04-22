@@ -25,6 +25,7 @@ ShellRoot {
                     leftMargin: 10
                 }
 
+                Power {}
                 Workspaces {
                     screen: bar.modelData
                 }
