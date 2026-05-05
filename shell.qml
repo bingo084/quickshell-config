@@ -42,6 +42,7 @@ ShellRoot {
                 }
 
                 Audio {}
+                Battery {}
                 Clock {}
             }
         }
