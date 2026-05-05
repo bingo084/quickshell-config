@@ -8,8 +8,6 @@ import qs.services
 
 WrapperRectangle {
     id: root
-    implicitWidth: 32
-    implicitHeight: 30
     radius: 4
     color: Qt.darker("#ffffff", area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
 
@@ -74,6 +72,7 @@ WrapperRectangle {
         }
 
         IconImage {
+            implicitSize: 18
             source: OsInfo.logo()
         }
     }
@@ -81,17 +80,15 @@ WrapperRectangle {
         id: menu
         implicitWidth: background.implicitWidth
         implicitHeight: background.implicitHeight
-
+        color: "transparent"
         anchor {
             item: root
             // qmllint disable missing-type
-            edges: Edges.Bottom | Edges.Left
-            gravity: Edges.Bottom | Edges.Left
-            adjustment: PopupAdjustment.FlipY | PopupAdjustment.SlideX
+            edges: Edges.Bottom
+            gravity: Edges.Bottom
             // qmllint enable missing-type
-            margins.top: 6
+            margins.bottom: -4
         }
-        color: "transparent"
 
         WrapperRectangle {
             id: background
