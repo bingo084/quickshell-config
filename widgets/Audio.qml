@@ -13,43 +13,6 @@ BarButton {
     property bool outputExpanded: false
     property bool inputExpanded: false
 
-    function changeNodeVolumeFromWheel(node, wheel) {
-        Audio.setNodeVolume(node, node.audio.volume + (wheel.angleDelta.y > 0 ? 0.01 : -0.01));
-        wheel.accepted = true;
-    }
-
-    component VolumeSlider: Rectangle {
-        id: slider
-        required property var node
-        readonly property bool ready: node?.audio != null
-
-        Layout.fillWidth: true
-        Layout.preferredHeight: 6
-        radius: height / 2
-        color: "#ededed"
-        enabled: ready
-        opacity: ready ? 1 : 0.55
-
-        Rectangle {
-            width: parent.width * (slider.ready ? Math.min(slider.node.audio.volume, 1) : 0)
-            height: parent.height
-            radius: parent.radius
-            color: slider.ready && slider.node.audio.muted ? "#a0a0a0" : "#007aff"
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onPressed: mouse => Audio.setNodeVolume(slider.node, mouse.x / slider.width)
-            onPositionChanged: mouse => {
-                if (pressed)
-                    Audio.setNodeVolume(slider.node, mouse.x / slider.width);
-            }
-            onWheel: wheel => root.changeNodeVolumeFromWheel(slider.node, wheel)
-        }
-    }
-
     component DeviceControl: ColumnLayout {
         id: control
         required property var node
@@ -68,7 +31,7 @@ BarButton {
             IconButton {
                 icon: Audio.volumeIconName(control.node)
                 checked: control.muted
-                onClicked: Audio.toggleNodeMuted(control.node)
+                onClicked: Audio.toggleMuted(control.node)
             }
 
             WrapperRectangle {
@@ -190,7 +153,7 @@ BarButton {
                 icon: Audio.volumeIconName(stream.node)
                 checked: stream.node.audio.muted
                 subtle: true
-                onClicked: Audio.toggleNodeMuted(stream.node)
+                onClicked: Audio.toggleMuted(stream.node)
             }
         }
 
@@ -207,10 +170,13 @@ BarButton {
             // qmllint enable unresolved-type
             popup.visible = !popup.visible;
         } else {
-            Audio.toggleNodeMuted(Audio.sink);
+            Audio.toggleMuted();
         }
     }
-    onWheel: wheel => root.changeNodeVolumeFromWheel(Audio.sink, wheel)
+    onWheel: wheel => {
+        Audio.adjustVolume(wheel.angleDelta.y > 0 ? 0.01 : -0.01);
+        wheel.accepted = true;
+    }
 
     content: RowLayout {
         spacing: 4

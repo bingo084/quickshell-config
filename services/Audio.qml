@@ -16,7 +16,7 @@ Singleton {
     readonly property bool muted: ready && sink.audio.muted
     readonly property int percent: Math.round(volume * 100)
 
-    function volumeIconName(node) {
+    function volumeIconName(node): string {
         const volume = node?.audio?.volume ?? 0;
         const prefix = node?.type === PwNodeType.AudioSource ? "microphone-sensitivity" : "audio-volume";
         const muted = node?.audio?.muted || volume <= 0;
@@ -24,7 +24,7 @@ Singleton {
         return `${prefix}-${level}-symbolic`;
     }
 
-    function nodeIconName(node) {
+    function nodeIconName(node): string {
         const props = node?.properties ?? {};
         if (node?.type === PwNodeType.AudioOutStream)
             return props["application.icon-name"] || "application-x-executable-symbolic";
@@ -37,25 +37,30 @@ Singleton {
         return "audio-card-symbolic";
     }
 
-    function setSink(node) {
+    function setSink(node: PwNode) {
         Pipewire.preferredDefaultAudioSink = node;
     }
 
-    function setSource(node) {
+    function setSource(node: PwNode) {
         Pipewire.preferredDefaultAudioSource = node;
     }
 
-    function setNodeVolume(node, value) {
+    function setVolume(value: real, node = root.sink) {
         if (node?.audio == null)
             return;
-
         const next = Math.min(1, Math.max(0, value));
         node.audio.volume = next;
         if (next > 0 && node.audio.muted)
             node.audio.muted = false;
     }
 
-    function toggleNodeMuted(node) {
+    function adjustVolume(delta: real, node = root.sink) {
+        if (node?.audio == null)
+            return;
+        setVolume(node.audio.volume + delta, node);
+    }
+
+    function toggleMuted(node = root.sink) {
         if (node?.audio != null)
             node.audio.muted = !node.audio.muted;
     }
