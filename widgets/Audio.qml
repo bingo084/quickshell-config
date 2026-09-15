@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.components
 import qs.services
 
 WrapperRectangle {
@@ -297,9 +298,9 @@ WrapperRectangle {
         onClicked: mouse => {
             if (mouse.button === Qt.LeftButton) {
                 // qmllint disable unresolved-type
-                menu.anchor.updateAnchor();
+                popup.anchor.updateAnchor();
                 // qmllint enable unresolved-type
-                menu.visible = !menu.visible;
+                popup.visible = !popup.visible;
             } else {
                 Audio.toggleNodeMuted(Audio.sink);
             }
@@ -321,99 +322,80 @@ WrapperRectangle {
         }
     }
 
-    PopupWindow {
-        id: menu
-        implicitWidth: background.implicitWidth
-        implicitHeight: background.implicitHeight
-        color: "transparent"
-        anchor {
-            item: root
-            // qmllint disable missing-type
-            edges: Edges.Bottom
-            gravity: Edges.Bottom
-            // qmllint enable missing-type
-            margins.bottom: -4
-        }
+    BarPopup {
+        id: popup
+        anchorItem: root
 
-        WrapperRectangle {
-            id: background
-            radius: 8
-            color: "#ffffff"
-            border.color: "#dcdcdc"
-            border.width: 1
-            margin: 8
+        ColumnLayout {
+            spacing: 8
 
-            ColumnLayout {
+            RowLayout {
+                Layout.preferredWidth: 300
                 spacing: 8
 
-                RowLayout {
-                    Layout.preferredWidth: 300
-                    spacing: 8
-
-                    Text {
-                        Layout.fillWidth: true
-                        color: "#1a1a1a"
-                        font.bold: true
-                        text: "Audio"
-                    }
-
-                    IconButton {
-                        icon: "preferences-system-symbolic"
-                        fallbackIcon: "emblem-system-symbolic"
-                        subtle: true
-                        onClicked: {
-                            menu.visible = false;
-                            Quickshell.execDetached(["pavucontrol"]);
-                        }
-                    }
-                }
-
-                DeviceSection {
-                    node: Audio.sink
-                    devices: Audio.sinks
-                    title: "Output"
-                    expanded: root.outputExpanded
-                    onToggleExpanded: {
-                        root.inputExpanded = false;
-                        root.outputExpanded = !root.outputExpanded;
-                    }
-                    onSelected: node => {
-                        Audio.setSink(node);
-                        root.outputExpanded = false;
-                    }
-                }
-
-                DeviceSection {
-                    node: Audio.source
-                    devices: Audio.sources
-                    title: "Input"
-                    expanded: root.inputExpanded
-                    onToggleExpanded: {
-                        root.outputExpanded = false;
-                        root.inputExpanded = !root.inputExpanded;
-                    }
-                    onSelected: node => {
-                        Audio.setSource(node);
-                        root.inputExpanded = false;
-                    }
-                }
-
-                ColumnLayout {
+                Text {
                     Layout.fillWidth: true
-                    spacing: 4
-                    visible: Audio.streams.length > 0
+                    color: "#1a1a1a"
+                    font.bold: true
+                    text: "Audio"
+                }
 
-                    SectionLabel {
-                        text: "Apps"
+                IconButton {
+                    icon: "preferences-system-symbolic"
+                    fallbackIcon: "emblem-system-symbolic"
+                    subtle: true
+                    onClicked: {
+                        popup.visible = false;
+                        Quickshell.execDetached(["pavucontrol"]);
                     }
+                }
+            }
 
-                    Repeater {
-                        model: Audio.streams
+            DeviceSection {
+                node: Audio.sink
+                devices: Audio.sinks
+                title: "Output"
+                expanded: root.outputExpanded
+                onToggleExpanded: {
+                    root.inputExpanded = false;
+                    root.outputExpanded = !root.outputExpanded;
+                }
+                onSelected: node => {
+                    Audio.setSink(node);
+                    root.outputExpanded = false;
+                }
+            }
 
-                        StreamRow {
-                            required property var modelData
-                            node: modelData
-                        }
+            DeviceSection {
+                node: Audio.source
+                devices: Audio.sources
+                title: "Input"
+                expanded: root.inputExpanded
+                onToggleExpanded: {
+                    root.outputExpanded = false;
+                    root.inputExpanded = !root.inputExpanded;
+                }
+                onSelected: node => {
+                    Audio.setSource(node);
+                    root.inputExpanded = false;
+                }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                visible: Audio.streams.length > 0
+
+                SectionLabel {
+                    text: "Apps"
+                }
+
+                Repeater {
+                    model: Audio.streams
+
+                    StreamRow {
+                        required property var modelData
+                        node: modelData
                     }
                 }
             }
