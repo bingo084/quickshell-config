@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.services
 
@@ -32,7 +33,7 @@ WrapperRectangle {
     ]
 
     function run(command) {
-        menu.visible = false;
+        popup.visible = false;
         Quickshell.execDetached(command);
     }
 
@@ -67,9 +68,9 @@ WrapperRectangle {
         margin: 6
         onClicked: {
             // qmllint disable unresolved-type
-            menu.anchor.updateAnchor();
+            popup.anchor.updateAnchor();
             // qmllint enable unresolved-type
-            menu.visible = !menu.visible;
+            popup.visible = !popup.visible;
         }
 
         IconImage {
@@ -77,40 +78,22 @@ WrapperRectangle {
             source: OsInfo.logo()
         }
     }
-    PopupWindow {
-        id: menu
-        implicitWidth: background.implicitWidth
-        implicitHeight: background.implicitHeight
-        color: "transparent"
-        anchor {
-            item: root
-            // qmllint disable missing-type
-            edges: Edges.Bottom
-            gravity: Edges.Bottom
-            // qmllint enable missing-type
-            margins.bottom: -4
-        }
 
-        WrapperRectangle {
-            id: background
-            radius: Theme.popupRadius
-            color: Theme.popupBackground
-            border.color: Theme.popupBorder
-            border.width: 1
-            margin: 6
+    BarPopup {
+        id: popup
+        anchorItem: root
+        contentMargin: 6
 
-            ColumnLayout {
-                id: column
-                spacing: 1
+        ColumnLayout {
+            spacing: 1
 
-                Repeater {
-                    model: root.menuItems
+            Repeater {
+                model: root.menuItems
 
-                    MenuButton {
-                        required property var modelData
-                        label: modelData.label
-                        command: modelData.command
-                    }
+                MenuButton {
+                    required property var modelData
+                    label: modelData.label
+                    command: modelData.command
                 }
             }
         }
