@@ -130,51 +130,6 @@ BarButton {
         }
     }
 
-    component DeviceListRow: WrapperRectangle {
-        id: device
-        required property var node
-        readonly property var props: node.properties
-        signal clicked
-
-        Layout.fillWidth: true
-        implicitHeight: 28
-        radius: 6
-        color: deviceArea.pressed ? "#d9d9d9" : deviceArea.containsMouse ? "#efefef" : "transparent"
-
-        WrapperMouseArea {
-            id: deviceArea
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            margin: 6
-            onClicked: device.clicked()
-
-            RowLayout {
-                spacing: 6
-
-                IconImage {
-                    implicitSize: 18
-                    source: Quickshell.iconPath(Audio.nodeIconName(device.node))
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    color: "#1a1a1a"
-                    elide: Text.ElideRight
-                    text: device.node?.description || device.node?.nickname || device.node?.name || "Audio"
-                }
-
-                Text {
-                    color: "#777777"
-                    font.pixelSize: 11
-                    Layout.maximumWidth: 90
-                    elide: Text.ElideRight
-                    text: device.props["device.profile.description"] || device.props["media.class"] || ""
-                    visible: text !== ""
-                }
-            }
-        }
-    }
-
     component DeviceSection: ColumnLayout {
         id: section
         required property var node
