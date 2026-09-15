@@ -18,12 +18,6 @@ BarButton {
         wheel.accepted = true;
     }
 
-    component SectionLabel: Text {
-        Layout.fillWidth: true
-        color: "#666666"
-        font.pixelSize: 11
-    }
-
     component VolumeSlider: Rectangle {
         id: slider
         required property var node
