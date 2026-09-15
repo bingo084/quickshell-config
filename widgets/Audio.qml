@@ -8,11 +8,8 @@ import qs.components
 import qs.services
 import qs.widgets.audio
 
-WrapperRectangle {
+BarButton {
     id: root
-    radius: 4
-    color: Qt.darker("#ffffff", area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
-
     property bool outputExpanded: false
     property bool inputExpanded: false
 
@@ -261,36 +258,30 @@ WrapperRectangle {
         }
     }
 
-    WrapperMouseArea {
-        id: area
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        margin: 6
-        onClicked: mouse => {
-            if (mouse.button === Qt.LeftButton) {
-                // qmllint disable unresolved-type
-                popup.anchor.updateAnchor();
-                // qmllint enable unresolved-type
-                popup.visible = !popup.visible;
-            } else {
-                Audio.toggleNodeMuted(Audio.sink);
-            }
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    onClicked: mouse => {
+        if (mouse.button === Qt.LeftButton) {
+            // qmllint disable unresolved-type
+            popup.anchor.updateAnchor();
+            // qmllint enable unresolved-type
+            popup.visible = !popup.visible;
+        } else {
+            Audio.toggleNodeMuted(Audio.sink);
         }
-        onWheel: wheel => root.changeNodeVolumeFromWheel(Audio.sink, wheel)
+    }
+    onWheel: wheel => root.changeNodeVolumeFromWheel(Audio.sink, wheel)
 
-        RowLayout {
-            spacing: 4
+    content: RowLayout {
+        spacing: 4
 
-            IconImage {
-                implicitSize: 18
-                source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
-            }
+        IconImage {
+            implicitSize: 18
+            source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
+        }
 
-            Text {
-                color: Audio.muted ? "#777777" : "#1a1a1a"
-                text: Audio.ready ? Audio.percent + "%" : "--%"
-            }
+        Text {
+            color: Audio.muted ? "#777777" : "#1a1a1a"
+            text: Audio.ready ? Audio.percent + "%" : "--%"
         }
     }
 
