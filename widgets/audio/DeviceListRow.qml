@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import qs.services
 
 WrapperRectangle {
     id: root
-    required property var node
+    required property PwNode node
     signal clicked
 
     Layout.fillWidth: true

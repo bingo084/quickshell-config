@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Services.Pipewire
 import qs.services
 
 Rectangle {
     id: root
-    required property var node
+    required property PwNode node
     readonly property bool ready: node?.audio != null
 
     Layout.fillWidth: true

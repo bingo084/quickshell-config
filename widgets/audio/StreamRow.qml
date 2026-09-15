@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import qs.services
 
 ColumnLayout {
     id: root
-    required property var node
+    required property PwNode node
 
     Layout.fillWidth: true
     spacing: 4
