@@ -5,11 +5,12 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
+import qs.config
 
 WrapperRectangle {
     id: root
-    radius: 4
-    color: Qt.darker("#ffffff", area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
+    radius: Theme.barItemRadius
+    color: Qt.darker(Theme.barItemBackground, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
 
     readonly property var deviceIcons: ({
             [UPowerDeviceType.Pen]: "input-tablet-symbolic",
@@ -78,7 +79,7 @@ WrapperRectangle {
             }
 
             Text {
-                color: "#1a1a1a"
+                color: Theme.textPrimary
                 text: UPower.displayDevice.ready ? Math.round(UPower.displayDevice.percentage * 100) + "%" : "--%"
             }
         }
@@ -100,9 +101,9 @@ WrapperRectangle {
 
         WrapperRectangle {
             id: background
-            radius: 8
-            color: "#ffffff"
-            border.color: "#dcdcdc"
+            radius: Theme.popupRadius
+            color: Theme.popupBackground
+            border.color: Theme.popupBorder
             border.width: 1
             margin: 8
 
@@ -169,7 +170,7 @@ WrapperRectangle {
                             }
                             Text {
                                 Layout.fillWidth: true
-                                color: "#1a1a1a"
+                                color: Theme.textPrimary
                                 elide: Text.ElideRight
                                 text: device.label
                             }
@@ -179,7 +180,7 @@ WrapperRectangle {
                             }
                             Text {
                                 Layout.preferredWidth: background.percentageWidth || implicitWidth
-                                color: "#1a1a1a"
+                                color: Theme.textPrimary
                                 text: Math.round(device.modelData.percentage * 100) + "%"
 
                                 onImplicitWidthChanged: background.percentageWidth = Math.max(background.percentageWidth, implicitWidth)
