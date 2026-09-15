@@ -8,11 +8,8 @@ import Quickshell.Services.UPower
 import qs.components
 import qs.config
 
-WrapperRectangle {
+BarButton {
     id: root
-    radius: Theme.barItemRadius
-    color: Qt.darker(Theme.barItemBackground, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
-
     readonly property var deviceIcons: ({
             [UPowerDeviceType.Pen]: "input-tablet-symbolic",
             [UPowerDeviceType.MediaPlayer]: "multimedia-player-symbolic",
@@ -57,32 +54,24 @@ WrapperRectangle {
         return "battery-level-" + level + "-symbolic";
     }
 
-    WrapperMouseArea {
-        id: area
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        margin: 6
+    onClicked: {
+        // qmllint disable unresolved-type
+        popup.anchor.updateAnchor();
+        // qmllint enable unresolved-type
+        popup.visible = !popup.visible;
+    }
 
-        onClicked: {
-            // qmllint disable unresolved-type
-            popup.anchor.updateAnchor();
-            // qmllint enable unresolved-type
-            popup.visible = !popup.visible;
+    content: RowLayout {
+        spacing: 4
+
+        IconImage {
+            implicitSize: 18
+            source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
         }
 
-        RowLayout {
-            id: row
-            spacing: 4
-
-            IconImage {
-                implicitSize: 18
-                source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
-            }
-
-            Text {
-                color: Theme.textPrimary
-                text: UPower.displayDevice.ready ? Math.round(UPower.displayDevice.percentage * 100) + "%" : "--%"
-            }
+        Text {
+            color: Theme.textPrimary
+            text: UPower.displayDevice.ready ? Math.round(UPower.displayDevice.percentage * 100) + "%" : "--%"
         }
     }
 
