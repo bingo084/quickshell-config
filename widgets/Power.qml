@@ -4,12 +4,13 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.config
 import qs.services
 
 WrapperRectangle {
     id: root
-    radius: 4
-    color: Qt.darker("#ffffff", area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
+    radius: Theme.barItemRadius
+    color: Qt.darker(Theme.barItemBackground, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
 
     readonly property var menuItems: [
         {
@@ -53,7 +54,7 @@ WrapperRectangle {
             onClicked: root.run(parent.command)
 
             Text {
-                color: "#1a1a1a"
+                color: Theme.textPrimary
                 text: button.label
             }
         }
@@ -92,9 +93,9 @@ WrapperRectangle {
 
         WrapperRectangle {
             id: background
-            radius: 8
-            color: "#ffffff"
-            border.color: "#dcdcdc"
+            radius: Theme.popupRadius
+            color: Theme.popupBackground
+            border.color: Theme.popupBorder
             border.width: 1
             margin: 6
 
