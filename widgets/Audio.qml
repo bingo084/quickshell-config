@@ -121,47 +121,6 @@ BarButton {
         }
     }
 
-    component StreamRow: ColumnLayout {
-        id: stream
-        required property var node
-        readonly property var props: node.properties
-
-        Layout.fillWidth: true
-        spacing: 4
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 6
-
-            IconImage {
-                implicitSize: 18
-                source: Quickshell.iconPath(Audio.nodeIconName(stream.node))
-            }
-
-            Text {
-                Layout.fillWidth: true
-                color: "#1a1a1a"
-                elide: Text.ElideRight
-                text: stream.props["application.name"] || stream.node.name
-            }
-
-            PercentText {
-                node: stream.node
-            }
-
-            IconButton {
-                icon: Audio.volumeIconName(stream.node)
-                checked: stream.node.audio.muted
-                subtle: true
-                onClicked: Audio.toggleMuted(stream.node)
-            }
-        }
-
-        VolumeSlider {
-            node: stream.node
-        }
-    }
-
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
