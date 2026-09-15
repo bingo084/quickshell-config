@@ -8,11 +8,8 @@ import qs.components
 import qs.config
 import qs.services
 
-WrapperRectangle {
+BarButton {
     id: root
-    radius: Theme.barItemRadius
-    color: Qt.darker(Theme.barItemBackground, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
-
     readonly property var menuItems: [
         {
             label: "Lock",
@@ -32,9 +29,16 @@ WrapperRectangle {
         }
     ]
 
-    function run(command) {
-        popup.visible = false;
-        Quickshell.execDetached(command);
+    onClicked: {
+        // qmllint disable unresolved-type
+        popup.anchor.updateAnchor();
+        // qmllint enable unresolved-type
+        popup.visible = !popup.visible;
+    }
+
+    content: IconImage {
+        implicitSize: 18
+        source: OsInfo.logo()
     }
 
     component MenuButton: WrapperRectangle {
@@ -52,30 +56,15 @@ WrapperRectangle {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             margin: 6
-            onClicked: root.run(parent.command)
+            onClicked: {
+                popup.visible = false;
+                Quickshell.execDetached(button.command);
+            }
 
             Text {
                 color: Theme.textPrimary
                 text: button.label
             }
-        }
-    }
-
-    WrapperMouseArea {
-        id: area
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        margin: 6
-        onClicked: {
-            // qmllint disable unresolved-type
-            popup.anchor.updateAnchor();
-            // qmllint enable unresolved-type
-            popup.visible = !popup.visible;
-        }
-
-        IconImage {
-            implicitSize: 18
-            source: OsInfo.logo()
         }
     }
 
