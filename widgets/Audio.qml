@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.services
+import qs.widgets.audio
 
 WrapperRectangle {
     id: root
@@ -18,35 +19,6 @@ WrapperRectangle {
     function changeNodeVolumeFromWheel(node, wheel) {
         Audio.setNodeVolume(node, node.audio.volume + (wheel.angleDelta.y > 0 ? 0.01 : -0.01));
         wheel.accepted = true;
-    }
-
-    component IconButton: WrapperRectangle {
-        id: button
-        required property string icon
-        property string fallbackIcon: icon
-        property bool checked: false
-        property bool subtle: false
-        signal clicked
-
-        implicitWidth: 26
-        implicitHeight: 24
-        radius: 5
-        color: checked ? "#eaf3ff" : buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : subtle ? "transparent" : "#f7f7f7"
-        border.color: subtle && !buttonArea.containsMouse && !checked ? "transparent" : checked ? "#b7d7ff" : "#e1e1e1"
-        border.width: 1
-
-        WrapperMouseArea {
-            id: buttonArea
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            margin: 4
-            onClicked: button.clicked()
-
-            IconImage {
-                implicitSize: 16
-                source: Quickshell.iconPath(button.icon, button.fallbackIcon)
-            }
-        }
     }
 
     component SectionLabel: Text {
