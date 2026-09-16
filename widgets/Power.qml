@@ -21,6 +21,11 @@ BarButton {
             command: ["systemctl", "suspend"]
         },
         {
+            label: "Log Out",
+            command: ["niri", "msg", "action", "quit", "--skip-confirmation"],
+            confirm: true
+        },
+        {
             label: "Reboot",
             command: ["systemctl", "reboot"],
             confirm: true
