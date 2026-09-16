@@ -1,5 +1,3 @@
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -12,48 +10,6 @@ BarButton {
     id: root
     property bool outputExpanded: false
     property bool inputExpanded: false
-
-    component DeviceSection: ColumnLayout {
-        id: section
-        required property var node
-        required property var devices
-        property bool expanded: false
-        property string title: ""
-        signal toggleExpanded
-        signal selected(var node)
-
-        Layout.fillWidth: true
-        spacing: 4
-        visible: node != null || devices.length > 0
-
-        SectionLabel {
-            text: section.title
-            visible: section.title !== ""
-        }
-
-        DeviceControl {
-            node: section.node
-            expanded: section.expanded
-            expandable: section.devices.length > 1
-            onToggleExpanded: section.toggleExpanded()
-        }
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 2
-            visible: section.expanded && section.devices.length > 1
-
-            Repeater {
-                model: section.devices.filter(node => node !== section.node)
-
-                DeviceListRow {
-                    required property var modelData
-                    node: modelData
-                    onClicked: section.selected(modelData)
-                }
-            }
-        }
-    }
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
