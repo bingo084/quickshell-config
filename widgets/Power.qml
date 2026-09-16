@@ -10,7 +10,8 @@ import qs.services
 
 BarButton {
     id: root
-    readonly property var menuItems: [
+    property var pendingAction: null
+    readonly property var actions: [
         {
             label: "Lock",
             command: ["loginctl", "lock-session"]
@@ -21,11 +22,13 @@ BarButton {
         },
         {
             label: "Reboot",
-            command: ["systemctl", "reboot"]
+            command: ["systemctl", "reboot"],
+            confirm: true
         },
         {
             label: "Power Off",
-            command: ["systemctl", "poweroff"]
+            command: ["systemctl", "poweroff"],
+            confirm: true
         }
     ]
 
@@ -41,10 +44,28 @@ BarButton {
         source: OsInfo.logo()
     }
 
+    function activate(action) {
+        if (action.confirm) {
+            pendingAction = action;
+        } else {
+            popup.visible = false;
+            Quickshell.execDetached(action.command);
+        }
+    }
+
+    function confirm() {
+        const action = pendingAction;
+        if (action === null)
+            return;
+
+        popup.visible = false;
+        Quickshell.execDetached(action.command);
+    }
+
     component MenuButton: WrapperRectangle {
         id: button
         required property string label
-        required property list<string> command
+        signal triggered
 
         implicitWidth: 90
         implicitHeight: 30
@@ -56,10 +77,7 @@ BarButton {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             margin: 6
-            onClicked: {
-                popup.visible = false;
-                Quickshell.execDetached(button.command);
-            }
+            onClicked: button.triggered()
 
             Text {
                 color: Theme.textPrimary
@@ -73,16 +91,58 @@ BarButton {
         anchorItem: root
         contentMargin: 6
 
-        ColumnLayout {
-            spacing: 1
+        onVisibleChanged: {
+            if (!visible)
+                root.pendingAction = null;
+        }
 
-            Repeater {
-                model: root.menuItems
+        Loader {
+            sourceComponent: root.pendingAction === null ? menuPage : confirmationPage
 
-                MenuButton {
-                    required property var modelData
-                    label: modelData.label
-                    command: modelData.command
+            Component {
+                id: menuPage
+
+                ColumnLayout {
+                    spacing: 1
+
+                    Repeater {
+                        model: root.actions
+
+                        MenuButton {
+                            required property var modelData
+                            label: modelData.label
+                            onTriggered: root.activate(modelData)
+                        }
+                    }
+                }
+            }
+
+            Component {
+                id: confirmationPage
+
+                ColumnLayout {
+                    spacing: 6
+
+                    Text {
+                        Layout.preferredWidth: 190
+                        color: Theme.textPrimary
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        text: root.pendingAction === null ? "" : `Are you sure you want to ${root.pendingAction.label}?`
+                    }
+
+                    RowLayout {
+                        spacing: 4
+
+                        MenuButton {
+                            label: "Cancel"
+                            onTriggered: root.pendingAction = null
+                        }
+                        MenuButton {
+                            label: root.pendingAction?.label ?? "Confirm"
+                            onTriggered: root.confirm()
+                        }
+                    }
                 }
             }
         }
