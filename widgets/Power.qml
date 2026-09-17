@@ -7,9 +7,11 @@ import Quickshell.Widgets
 import qs.components
 import qs.config
 import qs.services
+import qs.widgets.power
 
 BarButton {
     id: root
+    required property ShellScreen screen
     property var pendingAction: null
     readonly property var actions: [
         {
@@ -51,6 +53,7 @@ BarButton {
 
     function activate(action) {
         if (action.confirm) {
+            popup.visible = false;
             pendingAction = action;
         } else {
             popup.visible = false;
@@ -63,7 +66,7 @@ BarButton {
         if (action === null)
             return;
 
-        popup.visible = false;
+        pendingAction = null;
         Quickshell.execDetached(action.command);
     }
 
@@ -101,55 +104,25 @@ BarButton {
                 root.pendingAction = null;
         }
 
-        Loader {
-            sourceComponent: root.pendingAction === null ? menuPage : confirmationPage
+        ColumnLayout {
+            spacing: 1
 
-            Component {
-                id: menuPage
+            Repeater {
+                model: root.actions
 
-                ColumnLayout {
-                    spacing: 1
-
-                    Repeater {
-                        model: root.actions
-
-                        MenuButton {
-                            required property var modelData
-                            label: modelData.label
-                            onTriggered: root.activate(modelData)
-                        }
-                    }
-                }
-            }
-
-            Component {
-                id: confirmationPage
-
-                ColumnLayout {
-                    spacing: 6
-
-                    Text {
-                        Layout.preferredWidth: 190
-                        color: Theme.textPrimary
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        text: root.pendingAction === null ? "" : `Are you sure you want to ${root.pendingAction.label}?`
-                    }
-
-                    RowLayout {
-                        spacing: 4
-
-                        MenuButton {
-                            label: "Cancel"
-                            onTriggered: root.pendingAction = null
-                        }
-                        MenuButton {
-                            label: root.pendingAction?.label ?? "Confirm"
-                            onTriggered: root.confirm()
-                        }
-                    }
+                MenuButton {
+                    required property var modelData
+                    label: modelData.label
+                    onTriggered: root.activate(modelData)
                 }
             }
         }
+    }
+    PowerDialog {
+        screen: root.screen
+        actionLabel: root.pendingAction?.label ?? ""
+        visible: root.pendingAction !== null
+        onCanceled: root.pendingAction = null
+        onConfirmed: root.confirm()
     }
 }

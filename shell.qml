@@ -25,7 +25,9 @@ ShellRoot {
                     leftMargin: 10
                 }
 
-                Power {}
+                Power {
+                    screen: bar.modelData
+                }
                 Workspaces {
                     screen: bar.modelData
                 }
