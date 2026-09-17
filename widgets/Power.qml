@@ -15,24 +15,29 @@ BarButton {
     property var pendingAction: null
     readonly property var actions: [
         {
+            icon: "system-lock-screen-symbolic",
             label: "Lock",
             command: ["loginctl", "lock-session"]
         },
         {
+            icon: "system-suspend-symbolic",
             label: "Suspend",
             command: ["systemctl", "suspend"]
         },
         {
+            icon: "system-log-out-symbolic",
             label: "Log Out",
             command: ["niri", "msg", "action", "quit", "--skip-confirmation"],
             confirm: true
         },
         {
+            icon: "system-reboot-symbolic",
             label: "Reboot",
             command: ["systemctl", "reboot"],
             confirm: true
         },
         {
+            icon: "system-shutdown-symbolic",
             label: "Power Off",
             command: ["systemctl", "poweroff"],
             confirm: true
@@ -72,6 +77,7 @@ BarButton {
 
     component MenuButton: WrapperRectangle {
         id: button
+        required property string icon
         required property string label
         signal triggered
 
@@ -86,10 +92,16 @@ BarButton {
             cursorShape: Qt.PointingHandCursor
             margin: 6
             onClicked: button.triggered()
-
-            Text {
-                color: Theme.textPrimary
-                text: button.label
+            RowLayout {
+                IconImage {
+                    implicitSize: 16
+                    source: Quickshell.iconPath(button.icon, true)
+                }
+                Text {
+                    Layout.fillWidth: true
+                    color: Theme.textPrimary
+                    text: button.label
+                }
             }
         }
     }
@@ -112,7 +124,6 @@ BarButton {
 
                 MenuButton {
                     required property var modelData
-                    label: modelData.label
                     onTriggered: root.activate(modelData)
                 }
             }
