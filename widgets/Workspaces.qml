@@ -15,6 +15,7 @@ RowLayout {
 
         Rectangle {
             id: workspace
+            required property int id
             required property int index
             required property bool isActive
             required property string output
@@ -35,7 +36,31 @@ RowLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Niri.focusWorkspace(workspace.index)
+                onClicked: Niri.focusWorkspaceById(workspace.id)
+                onWheel: wheel => {
+                    const delta = wheel.angleDelta.y;
+                    if (delta === 0)
+                        return;
+                    const workspaces = Niri.workspaces;
+                    let active = null;
+                    for (let row = 0; row < workspaces.count; row++) {
+                        const ws = workspaces.get(row);
+                        if (ws.output === root.screen.name && ws.isActive) {
+                            active = ws;
+                            break;
+                        }
+                    }
+                    if (active === null)
+                        return;
+                    const targetIndex = active.index + (delta > 0 ? -1 : 1);
+                    for (let row = 0; row < workspaces.count; row++) {
+                        const ws = workspaces.get(row);
+                        if (ws.output === root.screen.name && ws.index === targetIndex) {
+                            Niri.focusWorkspaceById(ws.id);
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
