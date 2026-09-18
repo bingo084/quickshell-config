@@ -8,6 +8,12 @@ import qs.config
 PanelWindow {
     id: root
     required property string actionLabel
+    component TimeoutConfig: QtObject {
+        property int seconds: 10
+        property string action: "confirm"
+    }
+    readonly property TimeoutConfig timeout: TimeoutConfig {}
+    property int remainingSeconds
     signal canceled
     signal confirmed
 
@@ -23,6 +29,10 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    onVisibleChanged: {
+        if (visible)
+            root.remainingSeconds = timeout.seconds;
+    }
 
     Rectangle {
         anchors.centerIn: parent
@@ -57,7 +67,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary
-                        text: "Cancel"
+                        text: root.timeout.action === "cancel" && root.remainingSeconds > 0 ? `Cancel (${root.remainingSeconds})` : "Cancel"
                     }
                     MouseArea {
                         id: cancelArea
@@ -76,7 +86,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary
-                        text: root.actionLabel
+                        text: root.timeout.action === "confirm" && root.remainingSeconds > 0 ? `${root.actionLabel} (${root.remainingSeconds})` : root.actionLabel
                     }
                     MouseArea {
                         id: confirmArea
@@ -93,5 +103,15 @@ PanelWindow {
         sequence: "Escape"
         enabled: root.visible
         onActivated: root.canceled()
+    }
+    Timer {
+        interval: 1000
+        repeat: true
+        running: root.visible && root.remainingSeconds > 0
+        onTriggered: {
+            root.remainingSeconds--;
+            if (root.remainingSeconds === 0)
+                root.timeout.action === "confirm" ? root.confirmed() : root.canceled();
+        }
     }
 }
