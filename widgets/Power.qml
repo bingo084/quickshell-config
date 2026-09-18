@@ -26,6 +26,7 @@ BarButton {
         },
         {
             icon: "system-hibernate-symbolic",
+            fallbackIcon: "drive-harddisk-system-symbolic",
             label: "Hibernate",
             command: ["systemctl", "hibernate"],
             capability: "hibernate"
@@ -87,6 +88,8 @@ BarButton {
     component MenuButton: WrapperRectangle {
         id: button
         required property string icon
+        property string fallbackIcon
+        readonly property string resolvedIcon: fallbackIcon !== "" && !Quickshell.hasThemeIcon(icon) ? fallbackIcon : icon
         required property string label
         signal triggered
 
@@ -105,7 +108,7 @@ BarButton {
             RowLayout {
                 IconImage {
                     implicitSize: 16
-                    source: Quickshell.iconPath(button.icon, true)
+                    source: Quickshell.iconPath(button.resolvedIcon, true)
                 }
                 Text {
                     Layout.fillWidth: true
@@ -134,6 +137,7 @@ BarButton {
 
                 MenuButton {
                     required property var modelData
+                    fallbackIcon: modelData.fallbackIcon || ""
                     enabled: modelData.capability !== "hibernate" || PowerCapabilities.hibernateStatus === "yes"
                     onTriggered: root.activate(modelData)
                 }
