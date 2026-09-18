@@ -36,6 +36,7 @@ PanelWindow {
 
     Rectangle {
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: -(parent.height - height) / 4
         width: 320
         height: 150
         color: Theme.popupBackground
