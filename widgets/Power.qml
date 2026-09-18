@@ -25,6 +25,12 @@ BarButton {
             command: ["systemctl", "suspend"]
         },
         {
+            icon: "system-hibernate-symbolic",
+            label: "Hibernate",
+            command: ["systemctl", "hibernate"],
+            capability: "hibernate"
+        },
+        {
             icon: "system-log-out-symbolic",
             label: "Log Out",
             command: ["niri", "msg", "action", "quit", "--skip-confirmation"],
@@ -49,6 +55,9 @@ BarButton {
         popup.anchor.updateAnchor();
         // qmllint enable unresolved-type
         popup.visible = !popup.visible;
+        if (popup.visible) {
+            PowerCapabilities.refresh();
+        }
     }
 
     content: IconImage {
@@ -85,6 +94,7 @@ BarButton {
         implicitHeight: 30
         radius: 6
         color: buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : "transparent"
+        opacity: enabled ? 1 : 0.5
 
         WrapperMouseArea {
             id: buttonArea
@@ -124,6 +134,7 @@ BarButton {
 
                 MenuButton {
                     required property var modelData
+                    enabled: modelData.capability !== "hibernate" || PowerCapabilities.hibernateStatus === "yes"
                     onTriggered: root.activate(modelData)
                 }
             }
