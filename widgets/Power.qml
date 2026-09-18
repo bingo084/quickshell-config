@@ -13,11 +13,14 @@ BarButton {
     id: root
     required property ShellScreen screen
     property var pendingAction: null
-    readonly property var actions: [
+    readonly property var menuEntries: [
         {
             icon: "system-lock-screen-symbolic",
             label: "Lock",
             command: ["loginctl", "lock-session"]
+        },
+        {
+            separator: true
         },
         {
             icon: "system-suspend-symbolic",
@@ -30,6 +33,9 @@ BarButton {
             label: "Hibernate",
             command: ["systemctl", "hibernate"],
             capability: "hibernate"
+        },
+        {
+            separator: true
         },
         {
             icon: "system-log-out-symbolic",
@@ -133,13 +139,33 @@ BarButton {
             spacing: 1
 
             Repeater {
-                model: root.actions
+                model: root.menuEntries
 
-                MenuButton {
+                Loader {
+                    id: loader
                     required property var modelData
-                    fallbackIcon: modelData.fallbackIcon || ""
-                    enabled: modelData.capability !== "hibernate" || PowerCapabilities.hibernateStatus === "yes"
-                    onTriggered: root.activate(modelData)
+                    Layout.fillWidth: true
+                    Layout.topMargin: modelData.separator ? 1 : 0
+                    Layout.bottomMargin: modelData.separator ? 1 : 0
+                    sourceComponent: modelData.separator ? separator : actionButton
+
+                    Component {
+                        id: separator
+                        Rectangle {
+                            implicitHeight: 1
+                            color: Theme.popupBorder
+                        }
+                    }
+                    Component {
+                        id: actionButton
+                        MenuButton {
+                            icon: loader.modelData.icon
+                            fallbackIcon: loader.modelData.fallbackIcon || ""
+                            label: loader.modelData.label
+                            enabled: loader.modelData.capability !== "hibernate" || PowerCapabilities.hibernateStatus === "yes"
+                            onTriggered: root.activate(loader.modelData)
+                        }
+                    }
                 }
             }
         }
