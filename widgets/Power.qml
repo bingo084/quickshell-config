@@ -58,9 +58,6 @@ BarButton {
     ]
 
     onClicked: {
-        // qmllint disable unresolved-type
-        popup.anchor.updateAnchor();
-        // qmllint enable unresolved-type
         popup.visible = !popup.visible;
         if (popup.visible) {
             PowerCapabilities.refresh();

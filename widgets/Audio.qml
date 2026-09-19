@@ -14,11 +14,9 @@ BarButton {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            // qmllint disable unresolved-type
-            popup.anchor.updateAnchor();
-            // qmllint enable unresolved-type
             popup.visible = !popup.visible;
         } else {
+            BarPopupManager.dismiss();
             Audio.toggleMuted();
         }
     }

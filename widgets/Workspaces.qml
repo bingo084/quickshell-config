@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import qs.components
 import qs.services
 
 RowLayout {
@@ -15,7 +16,8 @@ RowLayout {
 
         Rectangle {
             id: workspace
-            required property int id
+            required property var model
+            readonly property int _id: model.id
             required property int index
             required property bool isActive
             required property string output
@@ -36,7 +38,10 @@ RowLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Niri.focusWorkspaceById(workspace.id)
+                onClicked: {
+                    BarPopupManager.dismiss();
+                    Niri.focusWorkspaceById(workspace._id);
+                }
                 onWheel: wheel => {
                     const delta = wheel.angleDelta.y;
                     if (delta === 0)

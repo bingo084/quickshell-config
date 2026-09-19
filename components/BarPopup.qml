@@ -9,6 +9,7 @@ PopupWindow {
     property real contentMargin: 8
     default property alias content: background.child
 
+    grabFocus: true
     implicitWidth: background.implicitWidth
     implicitHeight: background.implicitHeight
     color: "transparent"
@@ -28,5 +29,16 @@ PopupWindow {
         border.color: Theme.popupBorder
         border.width: 1
         margin: root.contentMargin
+    }
+
+    Connections {
+        target: root
+
+        function onVisibleChanged() {
+            if (root.visible)
+                BarPopupManager.activate(root);
+            else
+                BarPopupManager.deactivate(root);
+        }
     }
 }

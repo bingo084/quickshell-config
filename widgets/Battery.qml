@@ -54,12 +54,7 @@ BarButton {
         return "battery-level-" + level + "-symbolic";
     }
 
-    onClicked: {
-        // qmllint disable unresolved-type
-        popup.anchor.updateAnchor();
-        // qmllint enable unresolved-type
-        popup.visible = !popup.visible;
-    }
+    onClicked: popup.visible = !popup.visible;
 
     content: RowLayout {
         spacing: 4
