@@ -25,7 +25,8 @@ BarButton {
         {
             icon: "system-suspend-symbolic",
             label: "Suspend",
-            command: ["systemctl", "suspend"]
+            command: ["systemctl", "suspend"],
+            capability: "suspend"
         },
         {
             icon: "system-hibernate-symbolic",
@@ -159,7 +160,7 @@ BarButton {
                             icon: loader.modelData.icon
                             fallbackIcon: loader.modelData.fallbackIcon || ""
                             label: loader.modelData.label
-                            enabled: loader.modelData.capability !== "hibernate" || PowerCapabilities.hibernateStatus === "yes"
+                            enabled: PowerCapabilities.canExecute(loader.modelData.capability)
                             onTriggered: root.activate(loader.modelData)
                         }
                     }
