@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Pipewire
+import qs.config
 import qs.services
 
 Rectangle {
@@ -19,7 +20,7 @@ Rectangle {
         width: parent.width * (root.ready ? Math.min(root.node.audio.volume, 1) : 0)
         height: parent.height
         radius: parent.radius
-        color: root.ready && root.node.audio.muted ? "#a0a0a0" : "#007aff"
+        color: root.ready && root.node.audio.muted ? "#a0a0a0" : Theme.accent
     }
 
     MouseArea {

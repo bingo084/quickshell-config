@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import qs.components.bar
+import qs.config
 import qs.services
 
 Button {
@@ -86,11 +87,11 @@ Button {
                     implicitWidth: popup.dayCellSize
                     implicitHeight: popup.dayCellSize
                     radius: height / 2
-                    color: model.today ? "#007aff" : "transparent"
+                    color: model.today ? Theme.accent : "transparent"
                     opacity: model.month === monthGrid.month ? 1 : 0.35
                     Text {
                         anchors.centerIn: parent
-                        color: cell.model.today ? "white" : "black"
+                        color: cell.model.today ? Theme.textOnAccent : Theme.textPrimary
                         text: cell.model.day
                     }
                 }

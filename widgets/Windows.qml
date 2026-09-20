@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.components.bar
+import qs.config
 import qs.services
 
 RowLayout {
@@ -61,7 +62,7 @@ RowLayout {
                             }
                             Text {
                                 text: _format(area.model.title, area.model.appId)
-                                color: area.model.isFocused ? "#007aff" : "black"
+                                color: area.model.isFocused ? Theme.accent : Theme.textPrimary
 
                                 function _format(title: string, appId: string): string {
                                     if (appId === "google-chrome") {

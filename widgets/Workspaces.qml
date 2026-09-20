@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.components.bar
+import qs.config
 import qs.services
 
 RowLayout {
@@ -31,7 +32,7 @@ RowLayout {
             Text {
                 anchors.centerIn: parent
                 text: workspace.index
-                color: workspace.isActive ? "#007aff" : "black"
+                color: workspace.isActive ? Theme.accent : Theme.textPrimary
             }
             MouseArea {
                 id: area
