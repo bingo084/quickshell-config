@@ -4,12 +4,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
-import qs.components
+import qs.components.bar
 import qs.config
 import qs.services
 import qs.widgets.power
 
-BarButton {
+Button {
     id: root
     required property ShellScreen screen
     property var pendingAction: null
@@ -89,41 +89,7 @@ BarButton {
         Quickshell.execDetached(action.command);
     }
 
-    component MenuButton: WrapperRectangle {
-        id: button
-        required property string icon
-        property string fallbackIcon
-        readonly property string resolvedIcon: fallbackIcon !== "" && !Quickshell.hasThemeIcon(icon) ? fallbackIcon : icon
-        required property string label
-        signal triggered
-
-        implicitWidth: 90
-        implicitHeight: 30
-        radius: 6
-        color: buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : "transparent"
-        opacity: enabled ? 1 : 0.5
-
-        WrapperMouseArea {
-            id: buttonArea
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            margin: 6
-            onClicked: button.triggered()
-            RowLayout {
-                IconImage {
-                    implicitSize: 16
-                    source: Quickshell.iconPath(button.resolvedIcon, true)
-                }
-                Text {
-                    Layout.fillWidth: true
-                    color: Theme.textPrimary
-                    text: button.label
-                }
-            }
-        }
-    }
-
-    BarPopup {
+    Popup {
         id: popup
         anchorItem: root
         contentMargin: 6
@@ -156,7 +122,7 @@ BarButton {
                     }
                     Component {
                         id: actionButton
-                        MenuButton {
+                        MenuItem {
                             icon: loader.modelData.icon
                             fallbackIcon: loader.modelData.fallbackIcon || ""
                             label: loader.modelData.label

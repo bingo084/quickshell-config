@@ -2,11 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
-import qs.components
+import qs.components.bar
 import qs.services
 import qs.widgets.audio
 
-BarButton {
+Button {
     id: root
     property bool outputExpanded: false
     property bool inputExpanded: false
@@ -16,7 +16,7 @@ BarButton {
         if (mouse.button === Qt.LeftButton) {
             popup.visible = !popup.visible;
         } else {
-            BarPopupManager.dismiss();
+            PopupManager.dismiss();
             Audio.toggleMuted();
         }
     }
@@ -39,7 +39,7 @@ BarButton {
         }
     }
 
-    BarPopup {
+    Popup {
         id: popup
         anchorItem: root
 

@@ -4,8 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
-import qs.components
-import qs.config
+import qs.components.bar
 import qs.services
 
 RowLayout {
@@ -53,7 +52,7 @@ RowLayout {
                         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                         onClicked: mouse => {
                             const sameAnchor = popup.visible && popup.anchorItem === window;
-                            BarPopupManager.dismiss();
+                            PopupManager.dismiss();
                             if (mouse.button === Qt.LeftButton)
                                 Niri.focusWindow(window._id);
                             else if (mouse.button === Qt.RightButton && !sameAnchor) {
@@ -85,7 +84,7 @@ RowLayout {
             }
         }
     }
-    BarPopup {
+    Popup {
         id: popup
         anchorItem: root
         readonly property var window: anchorItem
@@ -93,7 +92,7 @@ RowLayout {
         ColumnLayout {
             spacing: 1
 
-            MenuButton {
+            MenuItem {
                 icon: "zoom-fit-best-symbolic"
                 label: "Maximize Column"
                 onTriggered: {
@@ -101,7 +100,7 @@ RowLayout {
                     Niri.maximizeColumn(popup.window._id);
                 }
             }
-            MenuButton {
+            MenuItem {
                 icon: "window-maximize-symbolic"
                 label: "Maximize Window To Edges"
                 onTriggered: {
@@ -109,7 +108,7 @@ RowLayout {
                     Niri.maximizeWindowToEdges(popup.window._id);
                 }
             }
-            MenuButton {
+            MenuItem {
                 icon: "view-fullscreen-symbolic"
                 label: "Toggle Fullscreen"
                 onTriggered: {
@@ -117,7 +116,7 @@ RowLayout {
                     Niri.toggleFullscreen(popup.window._id);
                 }
             }
-            MenuButton {
+            MenuItem {
                 icon: "window-pop-out-symbolic"
                 label: `${popup.window?.isFloating ? "Disable" : "Enable"} Floating`
                 onTriggered: {
@@ -125,43 +124,12 @@ RowLayout {
                     Niri.toggleFloating(popup.window._id);
                 }
             }
-            MenuButton {
+            MenuItem {
                 icon: "window-close-symbolic"
                 label: "Close"
                 onTriggered: {
                     popup.visible = false;
                     Niri.closeWindow(popup.window._id);
-                }
-            }
-        }
-    }
-    component MenuButton: WrapperRectangle {
-        id: button
-        required property string icon
-        required property string label
-        signal triggered
-
-        Layout.fillWidth: true
-        implicitHeight: 30
-        radius: 6
-        color: buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : "transparent"
-        opacity: enabled ? 1 : 0.5
-
-        WrapperMouseArea {
-            id: buttonArea
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            margin: 6
-            onClicked: button.triggered()
-            RowLayout {
-                IconImage {
-                    implicitSize: 16
-                    source: Quickshell.iconPath(button.icon, true)
-                }
-                Text {
-                    Layout.fillWidth: true
-                    color: Theme.textPrimary
-                    text: button.label
                 }
             }
         }

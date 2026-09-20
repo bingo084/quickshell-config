@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import qs.components
+import qs.components.bar
 import qs.services
 
 RowLayout {
@@ -39,7 +39,7 @@ RowLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    BarPopupManager.dismiss();
+                    PopupManager.dismiss();
                     Niri.focusWorkspaceById(workspace._id);
                 }
                 onWheel: wheel => {

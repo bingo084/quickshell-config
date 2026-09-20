@@ -5,10 +5,10 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
-import qs.components
+import qs.components.bar
 import qs.config
 
-BarButton {
+Button {
     id: root
     readonly property var deviceIcons: ({
             [UPowerDeviceType.Pen]: "input-tablet-symbolic",
@@ -70,7 +70,7 @@ BarButton {
         }
     }
 
-    BarPopup {
+    Popup {
         id: popup
         anchorItem: root
 

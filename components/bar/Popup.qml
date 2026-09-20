@@ -36,9 +36,9 @@ PopupWindow {
 
         function onVisibleChanged() {
             if (root.visible)
-                BarPopupManager.activate(root);
+                PopupManager.activate(root);
             else
-                BarPopupManager.deactivate(root);
+                PopupManager.deactivate(root);
         }
     }
 }

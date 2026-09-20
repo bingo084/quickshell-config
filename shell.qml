@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import qs.components
+import qs.components.bar
 import qs.widgets
 
 ShellRoot {
@@ -22,7 +22,7 @@ ShellRoot {
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                onClicked: BarPopupManager.dismiss()
+                onClicked: PopupManager.dismiss()
             }
 
             RowLayout {
