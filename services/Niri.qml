@@ -9,6 +9,9 @@ Niri {
         model: niri.windows
         sorters: [
             RoleSorter {
+                roleName: "isFloating"
+            },
+            RoleSorter {
                 roleName: "columnIndex"
             },
             RoleSorter {
