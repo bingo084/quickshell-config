@@ -27,7 +27,7 @@ RowLayout {
             Repeater {
                 model: workspace.isActive && workspace.output === root.screen.name ? Niri.sortedWindows : 0
 
-                Rectangle {
+                WrapperRectangle {
                     id: window
                     required property var model
                     readonly property int _id: model.id
@@ -41,35 +41,13 @@ RowLayout {
                     readonly property string fixedIconPath: title === "飞书" ? "/usr/share/icons/hicolor/256x256/apps/bytedance-feishu.png" : iconPath
                     readonly property color baseColor: isFocused ? "#eeeeee" : "#ffffff"
                     visible: workspace._id === window.workspaceId
-                    implicitWidth: row.implicitWidth + 10
                     implicitHeight: 30
                     radius: 4
                     color: Qt.darker(baseColor, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
 
-                    RowLayout {
-                        id: row
-                        anchors.centerIn: parent
-
-                        IconImage {
-                            implicitSize: 18
-                            source: window.fixedIconPath ? "file://" + window.fixedIconPath : ""
-                            visible: window.fixedIconPath !== ""
-                        }
-                        Text {
-                            text: _format(window.title, window.appId)
-                            color: window.isFocused ? "#007aff" : "black"
-
-                            function _format(title: string, appId: string): string {
-                                if ((appId === "google-chrome")) {
-                                    return title.replace(/ - Google Chrome$/, "");
-                                }
-                                return title;
-                            }
-                        }
-                    }
-                    MouseArea {
+                    WrapperMouseArea {
                         id: area
-                        anchors.fill: parent
+                        margin: 5
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -83,6 +61,24 @@ RowLayout {
                                 popup.visible = true;
                             } else if (mouse.button === Qt.MiddleButton)
                                 Niri.closeWindow(window._id);
+                        }
+                        RowLayout {
+                            IconImage {
+                                implicitSize: 18
+                                source: window.fixedIconPath ? "file://" + window.fixedIconPath : ""
+                                visible: window.fixedIconPath !== ""
+                            }
+                            Text {
+                                text: _format(window.title, window.appId)
+                                color: window.isFocused ? "#007aff" : "black"
+
+                                function _format(title: string, appId: string): string {
+                                    if ((appId === "google-chrome")) {
+                                        return title.replace(/ - Google Chrome$/, "");
+                                    }
+                                    return title;
+                                }
+                            }
                         }
                     }
                 }
