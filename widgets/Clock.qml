@@ -21,36 +21,70 @@ Button {
     content: Text {
         text: Qt.formatDateTime(Clock.date, `ddd MMM d  hh:mm${root.showSeconds ? ":ss" : ""}`)
     }
+
     Popup {
         id: popup
+        property date displayedDate: Clock.date
+        readonly property var locale: Qt.locale("en_GB")
+        readonly property int dayCellSize: 28
+
         anchorItem: root
+        onVisibleChanged: if (visible)
+            displayedDate = Clock.date
+
+        function shiftMonth(offset: int) {
+            displayedDate = new Date(displayedDate.getFullYear(), displayedDate.getMonth() + offset, 1);
+        }
+
         ColumnLayout {
-            Text {
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
-                text: monthGrid.title
+            RowLayout {
+                spacing: 4
+                RowLayout {
+                    spacing: 0
+                    ShiftMonthButton {
+                        offset: -1
+                    }
+                    HeaderText {
+                        text: popup.locale.toString(popup.displayedDate, "MMMM")
+                    }
+                    ShiftMonthButton {
+                        offset: 1
+                    }
+                }
+                RowLayout {
+                    spacing: 0
+                    ShiftMonthButton {
+                        offset: -12
+                    }
+                    HeaderText {
+                        text: popup.displayedDate.getFullYear()
+                    }
+                    ShiftMonthButton {
+                        offset: 12
+                    }
+                }
             }
             Controls.DayOfWeekRow {
-                locale: monthGrid.locale
+                id: weekRow
+                locale: popup.locale
                 delegate: Text {
                     required property string shortName
-                    width: 28
-                    height: 24
+                    width: popup.dayCellSize
+                    font: weekRow.font
                     text: shortName
                     horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
                 }
             }
             Controls.MonthGrid {
                 id: monthGrid
-                locale: Qt.locale("en_GB")
-                month: Clock.date.getMonth()
-                year: Clock.date.getFullYear()
+                locale: popup.locale
+                month: popup.displayedDate.getMonth()
+                year: popup.displayedDate.getFullYear()
                 delegate: Rectangle {
                     id: cell
                     required property var model
-                    implicitWidth: 28
-                    implicitHeight: 28
+                    implicitWidth: popup.dayCellSize
+                    implicitHeight: popup.dayCellSize
                     radius: height / 2
                     color: model.today ? "#007aff" : "transparent"
                     opacity: model.month === monthGrid.month ? 1 : 0.35
@@ -61,6 +95,27 @@ Button {
                     }
                 }
             }
+        }
+    }
+
+    component ShiftMonthButton: Controls.ToolButton {
+        required property int offset
+        Layout.preferredWidth: 28
+        Layout.preferredHeight: Layout.preferredWidth
+        icon {
+            name: `go-${offset < 0 ? "previous" : "next"}-symbolic`
+            width: 10
+            height: 10
+        }
+        onClicked: popup.shiftMonth(offset)
+    }
+    component HeaderText: Text {
+        Layout.fillWidth: true
+        horizontalAlignment: Text.AlignHCenter
+        font.pixelSize: 14
+        font.weight: Font.Medium
+        transform: Translate {
+            y: -1.5
         }
     }
 }
