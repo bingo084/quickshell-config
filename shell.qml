@@ -35,6 +35,7 @@ ShellRoot {
                 Power {
                     screen: bar.modelData
                 }
+                Search {}
                 Workspaces {
                     screen: bar.modelData
                 }
