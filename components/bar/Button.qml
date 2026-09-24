@@ -2,25 +2,19 @@ import QtQuick
 import Quickshell.Widgets
 import qs.config
 
-WrapperRectangle {
+WrapperMouseArea {
     id: root
-    property alias content: area.child
-    property alias acceptedButtons: area.acceptedButtons
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
+    property alias content: background.child
     property int horizontalPadding: 6
-    signal clicked(var mouse)
-    signal wheel(var wheel)
 
-    radius: Theme.barItemRadius
-    color: Qt.darker(Theme.barItemBackground, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
-
-    WrapperMouseArea {
-        id: area
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+    WrapperRectangle {
+        id: background
+        radius: Theme.barItemRadius
+        color: Qt.darker(Theme.barItemBackground, root.pressed ? 1.08 : root.containsMouse ? 1.03 : 1.0)
         margin: 6
         leftMargin: root.horizontalPadding
         rightMargin: root.horizontalPadding
-        onClicked: mouse => root.clicked(mouse)
-        onWheel: wheel => root.wheel(wheel)
     }
 }
