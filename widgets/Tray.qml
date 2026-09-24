@@ -20,12 +20,12 @@ RowLayout {
                     if (modelData.hasMenu && modelData.onlyMenu) {
                         menuAnchor.open();
                     } else {
-                        trayButton.modelData.activate();
+                        modelData.activate();
                     }
                 } else if (mouse.button === Qt.RightButton && modelData.hasMenu) {
                     menuAnchor.open();
                 } else if (mouse.button === Qt.MiddleButton) {
-                    trayButton.modelData.secondaryActivate();
+                    modelData.secondaryActivate();
                 }
             }
             content: IconImage {
