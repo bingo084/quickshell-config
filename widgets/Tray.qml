@@ -12,14 +12,20 @@ RowLayout {
         Button {
             id: trayButton
             required property var modelData
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             horizontalPadding: 3
             onClicked: mouse => {
                 PopupManager.dismiss();
                 if (mouse.button === Qt.LeftButton) {
-                    trayButton.modelData.activate();
+                    if (modelData.hasMenu && modelData.onlyMenu) {
+                        menuAnchor.open();
+                    } else {
+                        trayButton.modelData.activate();
+                    }
                 } else if (mouse.button === Qt.RightButton && modelData.hasMenu) {
                     menuAnchor.open();
+                } else if (mouse.button === Qt.MiddleButton) {
+                    trayButton.modelData.secondaryActivate();
                 }
             }
             content: IconImage {
