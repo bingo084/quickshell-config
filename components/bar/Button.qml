@@ -6,6 +6,7 @@ WrapperRectangle {
     id: root
     property alias content: area.child
     property alias acceptedButtons: area.acceptedButtons
+    property int horizontalPadding: 6
     signal clicked(var mouse)
     signal wheel(var wheel)
 
@@ -17,6 +18,8 @@ WrapperRectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         margin: 6
+        leftMargin: root.horizontalPadding
+        rightMargin: root.horizontalPadding
         onClicked: mouse => root.clicked(mouse)
         onWheel: wheel => root.wheel(wheel)
     }

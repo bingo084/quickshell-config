@@ -6,12 +6,14 @@ import Quickshell.Widgets
 import qs.components.bar
 
 RowLayout {
+    spacing: 0
     Repeater {
         model: SystemTray.items
         Button {
             id: trayButton
             required property var modelData
             acceptedButtons: Qt.LeftButton | Qt.RightButton
+            horizontalPadding: 3
             onClicked: mouse => {
                 PopupManager.dismiss();
                 if (mouse.button === Qt.LeftButton) {
