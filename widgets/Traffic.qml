@@ -12,7 +12,7 @@ RowLayout {
     visible: Traffic.valid && root.displayBps > 102400
     IconImage {
         implicitSize: 18
-        source: Quickshell.iconPath(`network-${Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"}-symbolic`)
+        source: Quickshell.iconPath(Traffic.rxBps === Traffic.txBps ? "network-transmit-receive-symbolic" : Traffic.rxBps > Traffic.txBps ? "network-receive-symbolic" : "network-transmit-symbolic")
     }
     Text {
         color: Theme.textPrimary
