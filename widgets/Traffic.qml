@@ -11,8 +11,9 @@ RowLayout {
     spacing: 4
     visible: Traffic.valid && root.displayBps > 102400
     IconImage {
+        readonly property string direction: Traffic.rxBps === Traffic.txBps ? "transmit-receive" : Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"
         implicitSize: 18
-        source: Quickshell.iconPath(Traffic.rxBps === Traffic.txBps ? "network-transmit-receive-symbolic" : Traffic.rxBps > Traffic.txBps ? "network-receive-symbolic" : "network-transmit-symbolic")
+        source: Quickshell.iconPath(`network-${direction}-symbolic`)
     }
     Text {
         color: Theme.textPrimary
