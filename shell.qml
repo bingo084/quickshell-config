@@ -52,6 +52,7 @@ ShellRoot {
                     rightMargin: 10
                 }
 
+                Traffic {}
                 Audio {}
                 Battery {}
                 Clock {}
