@@ -54,6 +54,9 @@ ShellRoot {
 
                 Traffic {}
                 Audio {}
+                Brightness {
+                    screen: bar.modelData
+                }
                 Battery {}
                 Clock {}
                 Tray {}
