@@ -12,6 +12,7 @@ Singleton {
     readonly property bool available: brightnessFile.readOk && maximumFile.readOk && Number.isFinite(root.maximum) && root.maximum > 0 && root.current >= 0 && root.current <= root.maximum
     readonly property real level: root.available ? root.current / root.maximum : 0
     readonly property real minimumLevel: root.available ? root.minimum / root.maximum : 0
+    property string output
 
     function change(step: int) {
         if (!root.available || step === 0)
@@ -42,14 +43,35 @@ Singleton {
                 console.warn("brightnessctl query failed (exit " + exitCode + "):", stderr.text.trim());
                 return;
             }
-
             const fields = stdout.text.trim().split("\n")[0].split(",");
             if (fields.length < 5 || fields[0] === "") {
                 console.warn("Unexpected brightnessctl output:", stdout.text.trim());
                 return;
             }
-
             root.device = fields[0];
+            outputQuery.running = true;
+        }
+        // qmllint enable signal-handler-parameters
+    }
+    Process {
+        id: outputQuery
+        command: ["readlink", "-f", `/sys/class/backlight/${root.device}`]
+        stdout: StdioCollector {
+            id: outputPath
+        }
+        // qmllint disable signal-handler-parameters
+        onExited: exitCode => {
+            if (exitCode !== 0) {
+                console.warn("Failed to resolve backlight path:", root.device);
+                return;
+            }
+            const path = outputPath.text.trim();
+            const match = path.match(/\/card\d+-([^/]+)\//);
+            if (!match) {
+                console.warn("Cannot identify backlight output:", path);
+                return;
+            }
+            root.output = match[1];
         }
         // qmllint enable signal-handler-parameters
     }
