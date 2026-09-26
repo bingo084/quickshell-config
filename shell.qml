@@ -53,6 +53,7 @@ ShellRoot {
                 }
 
                 Traffic {}
+                Network {}
                 Audio {}
                 Brightness {
                     screen: bar.modelData
