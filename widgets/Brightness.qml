@@ -22,8 +22,9 @@ Button {
     content: RowLayout {
         spacing: 4
         IconImage {
+            readonly property string strength: Brightness.level < 1 / 3 ? "low" : Brightness.level < 2 / 3 ? "medium" : "high"
             implicitSize: 18
-            source: Quickshell.iconPath("display-brightness-symbolic")
+            source: Quickshell.iconPath(`display-brightness-${strength}-symbolic`, "display-brightness-symbolic")
         }
         Text {
             color: Theme.textPrimary
@@ -34,6 +35,7 @@ Button {
         id: popup
         anchorItem: root
         content: Slider {
+            from: Brightness.minimumLevel
             value: Brightness.level
             onMoved: Brightness.setLevel(value)
         }

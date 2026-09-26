@@ -7,22 +7,24 @@ Singleton {
     id: root
     property string device
     readonly property real current: Number(brightnessFile.text().trim() || NaN)
+    readonly property int minimum: 2
     readonly property real maximum: Number(maximumFile.text().trim() || NaN)
     readonly property bool available: brightnessFile.readOk && maximumFile.readOk && Number.isFinite(root.maximum) && root.maximum > 0 && root.current >= 0 && root.current <= root.maximum
     readonly property real level: root.available ? root.current / root.maximum : 0
+    readonly property real minimumLevel: root.available ? root.minimum / root.maximum : 0
 
     function change(step: int) {
         if (!root.available || step === 0)
             return;
         const value = step > 0 ? `${step}%+` : `${-step}%-`;
-        Quickshell.execDetached(["brightnessctl", "-d", root.device, "set", value]);
+        Quickshell.execDetached(["brightnessctl", "-d", root.device, "-e4", `-n${root.minimum}`, "set", value]);
     }
 
     function setLevel(level: real) {
         if (!root.available || !Number.isFinite(level) || level < 0 || level > 1)
             return;
         const value = Math.round(level * root.maximum);
-        Quickshell.execDetached(["brightnessctl", "-d", root.device, "set", value]);
+        Quickshell.execDetached(["brightnessctl", "-d", root.device, `-n${root.minimum}`, "set", value]);
     }
 
     Process {
