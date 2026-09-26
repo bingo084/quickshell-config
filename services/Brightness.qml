@@ -11,6 +11,13 @@ Singleton {
     readonly property bool available: brightnessFile.readOk && maximumFile.readOk && Number.isFinite(root.maximum) && root.maximum > 0 && root.current >= 0 && root.current <= root.maximum
     readonly property real level: root.available ? root.current / root.maximum : 0
 
+    function change(step: int) {
+        if (!root.available || step === 0)
+            return;
+        const value = step > 0 ? `${step}%+` : `${-step}%-`;
+        Quickshell.execDetached(["brightnessctl", "-d", root.device, "set", value]);
+    }
+
     Process {
         running: true
         command: ["brightnessctl", "-c", "backlight", "-m"]

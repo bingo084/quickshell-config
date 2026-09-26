@@ -3,21 +3,29 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.config
+import qs.components.bar
 import qs.services
 
-RowLayout {
+Button {
     id: root
     required property ShellScreen screen
-
-    spacing: 4
     visible: root.screen.name === "eDP-1" && Brightness.available
-
-    IconImage {
-        implicitSize: 18
-        source: Quickshell.iconPath("display-brightness-symbolic")
+    onWheel: event => {
+        if (event.angleDelta.y > 0) {
+            Brightness.change(1);
+        } else if (event.angleDelta.y < 0) {
+            Brightness.change(-1);
+        }
     }
-    Text {
-        color: Theme.textPrimary
-        text: Math.round(Brightness.level * 100) + "%"
+    content: RowLayout {
+        spacing: 4
+        IconImage {
+            implicitSize: 18
+            source: Quickshell.iconPath("display-brightness-symbolic")
+        }
+        Text {
+            color: Theme.textPrimary
+            text: Math.round(Brightness.level * 100) + "%"
+        }
     }
 }
