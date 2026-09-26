@@ -18,6 +18,13 @@ Singleton {
         Quickshell.execDetached(["brightnessctl", "-d", root.device, "set", value]);
     }
 
+    function setLevel(level: real) {
+        if (!root.available || !Number.isFinite(level) || level < 0 || level > 1)
+            return;
+        const value = Math.round(level * root.maximum);
+        Quickshell.execDetached(["brightnessctl", "-d", root.device, "set", value]);
+    }
+
     Process {
         running: true
         command: ["brightnessctl", "-c", "backlight", "-m"]
