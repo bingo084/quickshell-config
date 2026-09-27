@@ -54,6 +54,7 @@ ShellRoot {
 
                 Traffic {}
                 Network {}
+                Bluetooth {}
                 Audio {}
                 Brightness {
                     screen: bar.modelData
