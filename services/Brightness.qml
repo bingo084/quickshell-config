@@ -59,10 +59,13 @@ Singleton {
         stdout: StdioCollector {
             id: outputPath
         }
+        stderr: StdioCollector {
+            id: outputStderr
+        }
         // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
-                console.warn("Failed to resolve backlight path:", root.device);
+                console.warn("backlight path query failed (exit " + exitCode + "):", outputStderr.text.trim());
                 return;
             }
             const path = outputPath.text.trim();
