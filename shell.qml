@@ -27,6 +27,7 @@ ShellRoot {
             }
 
             RowLayout {
+                spacing: 0
                 anchors {
                     verticalCenter: parent.verticalCenter
                     left: parent.left
@@ -46,6 +47,7 @@ ShellRoot {
             }
 
             RowLayout {
+                spacing: 0
                 anchors {
                     verticalCenter: parent.verticalCenter
                     right: parent.right
