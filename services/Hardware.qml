@@ -12,6 +12,8 @@ Singleton {
     property string cpuTemperaturePath
     property real cpuTemperature
     property bool cpuTemperatureValid
+    property real gpuTemperature
+    property bool gpuTemperatureValid
     property real memoryTotal
     property real memoryUsed
     property real memoryUsage
@@ -152,6 +154,47 @@ Singleton {
             root.diskAvailable = available;
         }
         // qmllint enable signal-handler-parameters
+    }
+    Process {
+        id: gpuProcess
+        running: true
+        command: ["sh", "-c", `
+            command -v nvidia-smi >/dev/null 2>&1 || exit 0
+            for device in /sys/bus/pci/devices/*; do
+                read -r vendor < "$device/vendor" || continue
+                [ "$vendor" = 0x10de ] || continue
+                read -r class < "$device/class" || continue
+                case "$class" in 0x03*) ;; *) continue ;; esac
+                read -r state < "$device/power/runtime_status" || exit 0
+                [ "$state" = active ] || exit 0
+                exec nvidia-smi -i "\${device##*/}" --query-gpu=temperature.gpu --format=csv,noheader,nounits
+            done
+        `]
+        stdout: StdioCollector {
+            id: gpuOutput
+        }
+        stderr: StdioCollector {
+            id: gpuError
+        }
+        // qmllint disable signal-handler-parameters
+        onExited: exitCode => {
+            const value = Number(gpuOutput.text.trim() || NaN);
+            root.gpuTemperatureValid = exitCode === 0 && Number.isFinite(value);
+            if (root.gpuTemperatureValid)
+                root.gpuTemperature = value;
+            if (exitCode !== 0)
+                console.warn("GPU temperature query failed (exit " + exitCode + "):", gpuError.text.trim());
+        }
+        // qmllint enable signal-handler-parameters
+    }
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!gpuProcess.running)
+                gpuProcess.running = true;
+        }
     }
     Timer {
         interval: 2000
