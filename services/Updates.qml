@@ -6,20 +6,24 @@ import Quickshell.Io
 
 Singleton {
     id: root
-    property var packages: []
+    readonly property var packages: repoQuery.packages.concat(aurQuery.packages)
     readonly property int count: packages.length
-    readonly property bool checking: query.running
-    property string error
+    readonly property bool checking: repoQuery.running || aurQuery.running
+    readonly property string error: [repoQuery.error, aurQuery.error].filter(Boolean).join("\n")
 
     function refresh() {
-        if (!query.running)
-            query.running = true;
+        if (!repoQuery.running)
+            repoQuery.running = true;
+        if (!aurQuery.running)
+            aurQuery.running = true;
     }
 
-    Process {
+    component UpdateQuery: Process {
         id: query
-        running: true
-        command: ["checkupdates", "--nocolor"]
+        required property string sourceName
+        required property int emptyExitCode
+        property var packages: []
+        property string error
         stdout: StdioCollector {
             id: stdout
         }
@@ -28,34 +32,53 @@ Singleton {
         }
         // qmllint disable signal-handler-parameters
         onExited: exitCode => {
-            if (exitCode !== 0 && exitCode !== 2) {
-                root.error = "updates query failed (exit " + exitCode + "): " + stderr.text.trim();
-                console.warn(root.error);
+            const text = stdout.text.trim();
+            const noUpdates = exitCode === query.emptyExitCode && text === "" && stderr.text.trim() === "";
+            if (exitCode !== 0 && !noUpdates) {
+                query.error = query.sourceName + " updates query failed (exit " + exitCode + "): " + stderr.text.trim();
+                console.warn(query.error);
                 return;
             }
             const packages = [];
             if (exitCode === 0) {
-                const text = stdout.text.trim();
                 const lines = text ? text.split("\n") : [];
                 for (const line of lines) {
+                    if (line.trim().endsWith(" [ignored]"))
+                        continue;
                     const fields = line.trim().split(/\s+/);
                     const [name, oldVersion, arrow, newVersion] = fields;
                     if (fields.length !== 4 || arrow !== "->") {
-                        root.error = "Unexpected update entry: " + line;
-                        console.warn(root.error);
+                        query.error = query.sourceName + " unexpected update entry: " + line;
+                        console.warn(query.error);
                         return;
                     }
                     packages.push({
                         name,
                         oldVersion,
-                        newVersion
+                        newVersion,
+                        source: query.sourceName
                     });
                 }
             }
-            root.packages = packages;
-            root.error = "";
+            query.packages = packages;
+            query.error = "";
         }
         // qmllint enable signal-handler-parameters
+    }
+
+    UpdateQuery {
+        id: repoQuery
+        sourceName: "Official"
+        emptyExitCode: 2
+        running: true
+        command: ["checkupdates", "--nocolor"]
+    }
+    UpdateQuery {
+        id: aurQuery
+        sourceName: "AUR"
+        emptyExitCode: 1
+        running: true
+        command: ["paru", "-Qua", "--color", "never"]
     }
     Timer {
         interval: 3600000

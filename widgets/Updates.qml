@@ -65,6 +65,17 @@ Button {
                 clip: true
                 spacing: 4
                 model: Updates.packages
+                section.property: "source"
+                section.criteria: ViewSection.FullString
+                section.delegate: Text {
+                    required property string section
+                    width: packageList.width
+                    height: 28
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    color: Theme.textPrimary
+                    text: section + " · " + Updates.packages.filter(pkg => pkg.source === section).length
+                }
                 delegate: RowLayout {
                     id: packageRow
                     required property var modelData
