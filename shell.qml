@@ -53,6 +53,7 @@ ShellRoot {
                 }
 
                 Traffic {}
+                Hardware {}
                 Network {}
                 Bluetooth {}
                 Audio {}
