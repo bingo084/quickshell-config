@@ -55,6 +55,7 @@ ShellRoot {
                 }
 
                 Traffic {}
+                Updates {}
                 Hardware {}
                 Network {}
                 Bluetooth {}
