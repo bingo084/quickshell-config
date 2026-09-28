@@ -9,6 +9,9 @@ Singleton {
     property real cpuUsage
     property bool cpuValid
     property var previousCpu: null
+    property string cpuTemperaturePath
+    property real cpuTemperature
+    property bool cpuTemperatureValid
     property real memoryTotal
     property real memoryUsed
     property real memoryUsage
@@ -57,6 +60,51 @@ Singleton {
         }
     }
 
+    Process {
+        running: true
+        command: ["sh", "-c", `
+            for sensor in /sys/class/hwmon/hwmon*; do
+                [ -r "$sensor/name" ] || continue
+                read -r name < "$sensor/name" || continue
+                [ "$name" = coretemp ] || continue
+                for label in "$sensor"/temp*_label; do
+                    [ -r "$label" ] || continue
+                    read -r name < "$label" || continue
+                    [ "$name" = "Package id 0" ] || continue
+                    input="\${label%_label}_input"
+                    [ -r "$input" ] || continue
+                    printf "%s\\n" "$input"
+                    exit 0
+                done
+            done
+        `]
+        stdout: StdioCollector {
+            id: temperaturePathOutput
+        }
+        stderr: StdioCollector {
+            id: temperaturePathError
+        }
+        // qmllint disable signal-handler-parameters
+        onExited: exitCode => {
+            if (exitCode !== 0) {
+                console.warn("CPU temperature discovery failed (exit " + exitCode + "):", temperaturePathError.text.trim());
+                return;
+            }
+            root.cpuTemperaturePath = temperaturePathOutput.text.trim();
+        }
+        // qmllint enable signal-handler-parameters
+    }
+    FileView {
+        id: cpuTemperatureFile
+        path: root.cpuTemperaturePath
+        onLoaded: {
+            const value = Number(cpuTemperatureFile.text().trim() || NaN);
+            root.cpuTemperatureValid = Number.isFinite(value);
+            if (root.cpuTemperatureValid)
+                root.cpuTemperature = value / 1000;
+        }
+        onLoadFailed: root.cpuTemperatureValid = false
+    }
     FileView {
         id: cpuFile
         path: "/proc/stat"
@@ -93,8 +141,7 @@ Singleton {
             const fields = diskOutput.text.trim().split("\n").slice(1).join(" ").trim().split(/\s+/);
             const values = fields.map(Number);
             const [total, used, available] = values;
-            root.diskValid = values.length === 3 && values.every(Number.isFinite)
-                && total > 0 && used >= 0 && used <= total && available <= total;
+            root.diskValid = values.length === 3 && values.every(Number.isFinite) && total > 0 && used >= 0 && used <= total && available <= total;
             if (!root.diskValid) {
                 console.warn("Unexpected disk usage output:", diskOutput.text.trim());
                 return;
@@ -113,6 +160,8 @@ Singleton {
         onTriggered: {
             cpuFile.reload();
             memoryFile.reload();
+            if (root.cpuTemperaturePath !== "")
+                cpuTemperatureFile.reload();
         }
     }
     Timer {

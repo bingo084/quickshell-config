@@ -28,6 +28,10 @@ Button {
             }
             Text {
                 color: Theme.textPrimary
+                text: Hardware.cpuTemperatureValid ? "CPU temperature: " + Math.round(Hardware.cpuTemperature) + "°C" : "CPU temperature: —"
+            }
+            Text {
+                color: Theme.textPrimary
                 text: Hardware.memoryValid ? "RAM: " + (Hardware.memoryUsed / 1024 ** 3).toFixed(1) + " / " + (Hardware.memoryTotal / 1024 ** 3).toFixed(1) + " GiB" : "RAM: —"
             }
             Text {
