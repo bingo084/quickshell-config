@@ -13,6 +13,10 @@ Singleton {
     property real memoryUsed
     property real memoryUsage
     property bool memoryValid
+    property real diskTotal
+    property real diskUsed
+    property real diskAvailable
+    property bool diskValid
 
     function sampleCpu(text: string) {
         const fields = text.split("\n", 1)[0].trim().split(/\s+/);
@@ -68,6 +72,40 @@ Singleton {
         onLoaded: root.sampleMemory(memoryFile.text())
         onLoadFailed: root.memoryValid = false
     }
+    Process {
+        id: diskProcess
+        running: true
+        command: ["df", "-B1", "--output=size,used,avail", "/"]
+        stdout: StdioCollector {
+            id: diskOutput
+        }
+        stderr: StdioCollector {
+            id: diskError
+        }
+        // qmllint disable signal-handler-parameters
+        onExited: exitCode => {
+            if (exitCode !== 0) {
+                root.diskValid = false;
+                console.warn("disk usage query failed (exit " + exitCode + "):", diskError.text.trim());
+                return;
+            }
+
+            const fields = diskOutput.text.trim().split("\n").slice(1).join(" ").trim().split(/\s+/);
+            const values = fields.map(Number);
+            const [total, used, available] = values;
+            root.diskValid = values.length === 3 && values.every(Number.isFinite)
+                && total > 0 && used >= 0 && used <= total && available <= total;
+            if (!root.diskValid) {
+                console.warn("Unexpected disk usage output:", diskOutput.text.trim());
+                return;
+            }
+
+            root.diskTotal = total;
+            root.diskUsed = used;
+            root.diskAvailable = available;
+        }
+        // qmllint enable signal-handler-parameters
+    }
     Timer {
         interval: 2000
         running: true
@@ -75,6 +113,15 @@ Singleton {
         onTriggered: {
             cpuFile.reload();
             memoryFile.reload();
+        }
+    }
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!diskProcess.running)
+                diskProcess.running = true;
         }
     }
 }

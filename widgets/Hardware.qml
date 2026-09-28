@@ -30,6 +30,17 @@ Button {
                 color: Theme.textPrimary
                 text: Hardware.memoryValid ? "RAM: " + (Hardware.memoryUsed / 1024 ** 3).toFixed(1) + " / " + (Hardware.memoryTotal / 1024 ** 3).toFixed(1) + " GiB" : "RAM: —"
             }
+            Text {
+                color: Theme.textPrimary
+                text: {
+                    if (!Hardware.diskValid)
+                        return "Disk (/): —";
+                    const used = (Hardware.diskUsed / 1024 ** 3).toFixed(1);
+                    const total = (Hardware.diskTotal / 1024 ** 3).toFixed(1);
+                    const available = (Hardware.diskAvailable / 1024 ** 3).toFixed(1);
+                    return `Disk (/): ${used} / ${total} GiB (${available} GiB available)`;
+                }
+            }
         }
     }
 }
