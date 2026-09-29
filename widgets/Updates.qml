@@ -10,13 +10,16 @@ import qs.services
 
 Button {
     id: root
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
-    visible: Updates.checking || Updates.error !== "" || Updates.count > 0
+    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+    visible: Updates.checking || Updates.updating || Updates.error !== "" || Updates.count > 0
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
             if (PopupManager.activePopup !== popup)
                 PopupManager.dismiss();
             Updates.refresh();
+        } else if (mouse.button === Qt.MiddleButton) {
+            PopupManager.dismiss();
+            Updates.install();
         } else {
             popup.visible = !popup.visible;
         }
@@ -33,7 +36,7 @@ Button {
                 to: 360
                 duration: 1300
                 loops: Animation.Infinite
-                running: Updates.checking
+                running: Updates.checking || Updates.updating
             }
         }
         Text {

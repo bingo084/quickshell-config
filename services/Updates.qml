@@ -9,6 +9,7 @@ Singleton {
     readonly property var packages: repoQuery.packages.concat(aurQuery.packages)
     readonly property int count: packages.length
     readonly property bool checking: repoQuery.running || aurQuery.running
+    property bool updating: false
     readonly property string error: [repoQuery.error, aurQuery.error].filter(Boolean).join("\n")
 
     function refresh() {
@@ -16,6 +17,35 @@ Singleton {
             repoQuery.running = true;
         if (!aurQuery.running)
             aurQuery.running = true;
+    }
+
+    function install() {
+        if (!updateTerminal.running && !root.updating)
+            updateTerminal.running = true;
+    }
+
+    IpcHandler {
+        target: "updates"
+
+        function begin(): void {
+            root.updating = true;
+        }
+
+        function end(): void {
+            root.updating = false;
+            root.refresh();
+        }
+    }
+
+    Process {
+        id: updateTerminal
+        command: ["kitty", "--title", "System update", "zsh", "-ic", "paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
+        onExited: {
+            if (root.updating) {
+                root.updating = false;
+                root.refresh();
+            }
+        }
     }
 
     component UpdateQuery: Process {
