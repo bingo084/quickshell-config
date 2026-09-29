@@ -8,20 +8,21 @@ import Quickshell.Io
 Singleton {
     id: root
     property string configPath: StandardPaths.writableLocation(StandardPaths.GenericDataLocation) + "/quickshell/weather.json"
-    property var now: null
+    property var current: null
+    property var location: null
     property bool refreshing: false
     property string error
 
     function refresh() {
-        if (root.refreshing)
+        if (refreshing)
             return;
-        root.refreshing = true;
+        refreshing = true;
         configFile.reload();
     }
 
     function fail(message: string) {
-        root.error = message;
-        root.refreshing = false;
+        error = message;
+        refreshing = false;
         console.warn(message);
     }
 
@@ -38,14 +39,14 @@ Singleton {
             requestState.request = null;
             request.onreadystatechange = null;
             if (request.status !== 200) {
-                root.fail(label + " request failed (HTTP " + request.status + ").");
+                fail(label + " request failed (HTTP " + request.status + ").");
                 return;
             }
             let response;
             try {
                 response = JSON.parse(request.responseText);
             } catch (e) {
-                root.fail(label + " returned invalid JSON.");
+                fail(label + " returned invalid JSON.");
                 return;
             }
             callback(response);
@@ -58,27 +59,27 @@ Singleton {
         const map = config.tencent_map;
         const api = "/ws/location/v1/ip?key=" + encodeURIComponent(map.key);
         const signature = Qt.md5(api + map.secret_key);
-        root.fetchJson("https://apis.map.qq.com" + api + "&sig=" + signature, "Location", response => {
+        fetchJson("https://apis.map.qq.com" + api + "&sig=" + signature, "Location", response => {
             const location = response?.result;
             const coordinates = location?.location;
             if (response?.status !== 0 || !Number.isFinite(coordinates?.lat) || !Number.isFinite(coordinates?.lng)) {
-                root.fail("Location lookup failed or returned invalid coordinates.");
+                fail("Location lookup failed or returned invalid coordinates.");
                 return;
             }
 
             const position = coordinates.lat.toFixed(2) + "/" + coordinates.lng.toFixed(2);
             const url = "https://" + config.weather_host + "/weather/v1/current/" + position + "?lang=zh";
-            root.fetchJson(url, "Weather", response => {
+            fetchJson(url, "Weather", response => {
                 if (!Number.isFinite(response?.temperature?.value)) {
-                    root.fail("Weather lookup failed or returned invalid temperature.");
+                    fail("Weather lookup failed or returned invalid temperature.");
                     return;
                 }
-                root.now = Object.assign({}, response, {
-                    location,
+                root.location = location;
+                current = Object.assign({}, response, {
                     fetchedAt: new Date()
                 });
-                root.error = "";
-                root.refreshing = false;
+                error = "";
+                refreshing = false;
             }, config.weather_key);
         }, "");
     }
