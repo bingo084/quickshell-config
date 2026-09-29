@@ -55,6 +55,7 @@ ShellRoot {
                 }
 
                 Traffic {}
+                Weather {}
                 Updates {}
                 Hardware {}
                 Network {}

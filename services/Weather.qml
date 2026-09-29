@@ -8,7 +8,9 @@ import Quickshell.Io
 Singleton {
     id: root
     property string configPath: StandardPaths.writableLocation(StandardPaths.GenericDataLocation) + "/quickshell/weather.json"
+    // QWeather current response: https://dev.qweather.com/docs/api/weather/weather-current/
     property var current: null
+    // Tencent IP lookup response: https://lbs.qq.com/service/webService/webServiceGuide/position/webServiceIp
     property var location: null
     property string weatherUrl
     property bool refreshing: false
