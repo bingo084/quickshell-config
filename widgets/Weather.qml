@@ -12,13 +12,33 @@ Button {
             popup.visible = !popup.visible;
         } else if (mouse.button === Qt.RightButton) {
             if (PopupManager.activePopup !== popup)
-                PopupManager.dismiss(popup);
+                PopupManager.dismiss();
             Weather.refresh();
         } else if (Weather.weatherUrl !== "") {
             PopupManager.dismiss();
             Qt.openUrlExternally(Weather.weatherUrl);
         }
     }
+
+    function detailsText(current): string {
+        if (current === null)
+            return "No weather data";
+        const lines = [];
+        lines.push(current.condition.text);
+        lines.push(`Temperature: ${Math.round(current.temperature.value)}${current.temperature.unit}`);
+        lines.push(`Feels like: ${Math.round(current.feelsLike.value)}${current.feelsLike.unit}`);
+        lines.push(`Humidity: ${Math.round(current.humidity * 100)}%`);
+        lines.push(`Wind: ${current.wind.direction.compass.toUpperCase()}, ${current.wind.speed.value} ${current.wind.speed.unit}`);
+        lines.push(`Wind scale: ${current.wind.scale}`);
+        lines.push(`Precipitation: ${current.precipitation.amount.value} ${current.precipitation.amount.unit}`);
+        lines.push(`Pressure: ${current.pressure.value} ${current.pressure.unit}`);
+        lines.push(`Visibility: ${current.visibility.value} ${current.visibility.unit}`);
+        lines.push(`Cloud cover: ${Math.round(current.cloudCover * 100)}%`);
+        lines.push(`Dew point: ${current.dewPoint.value}${current.dewPoint.unit}`);
+        lines.push(`Fetched: ${Qt.formatDateTime(current.fetchedAt, "MM-dd hh:mm")}`);
+        return lines.join("\n");
+    }
+
     content: Text {
         color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
         text: {
@@ -54,12 +74,7 @@ Button {
             }
             Text {
                 color: Theme.textPrimary
-                text: {
-                    const current = Weather.current;
-                    if (current === null)
-                        return "No weather data";
-                    return [current.condition.text, `Temperature: ${Math.round(current.temperature.value)}${current.temperature.unit}`, `Feels like: ${Math.round(current.feelsLike.value)}${current.feelsLike.unit}`, `Humidity: ${Math.round(current.humidity * 100)}%`, `Wind: ${current.wind.speed.value} ${current.wind.speed.unit}`, `Fetched: ${Qt.formatDateTime(current.fetchedAt, "hh:mm")}`].join("\n");
-                }
+                text: root.detailsText(Weather.current)
             }
         }
     }
