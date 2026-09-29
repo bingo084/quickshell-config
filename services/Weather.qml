@@ -10,6 +10,7 @@ Singleton {
     property string configPath: StandardPaths.writableLocation(StandardPaths.GenericDataLocation) + "/quickshell/weather.json"
     property var current: null
     property var location: null
+    property string weatherUrl
     property bool refreshing: false
     property string error
 
@@ -79,9 +80,29 @@ Singleton {
                     fetchedAt: new Date()
                 });
                 error = "";
-                refreshing = false;
+                fetchWeatherUrl(config, coordinates);
             }, config.weather_key);
         }, "");
+    }
+
+    function fetchWeatherUrl(config, coordinates) {
+        const position = coordinates.lng.toFixed(2) + "," + coordinates.lat.toFixed(2);
+        if (requestState.linkPosition === position && weatherUrl !== "") {
+            refreshing = false;
+            return;
+        }
+        weatherUrl = "";
+        const url = "https://" + config.weather_host + "/geo/v2/city/lookup?location=" + encodeURIComponent(position) + "&number=1&lang=zh";
+        fetchJson(url, "Weather page", response => {
+            const link = response?.location?.[0]?.fxLink;
+            if (response?.code !== "200" || typeof link !== "string" || !link.startsWith("https://")) {
+                fail("Weather page lookup failed or returned no link.");
+                return;
+            }
+            requestState.linkPosition = position;
+            weatherUrl = link;
+            refreshing = false;
+        }, config.weather_key);
     }
 
     FileView {
@@ -108,6 +129,7 @@ Singleton {
     QtObject {
         id: requestState
         property var request: null
+        property string linkPosition
     }
     Timer {
         id: requestTimeout
