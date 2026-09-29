@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Widgets
 import qs.components.bar
 import qs.config
 import qs.services
@@ -39,14 +40,27 @@ Button {
         return lines.join("\n");
     }
 
-    content: Text {
-        color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
-        text: {
-            const current = Weather.current;
-            if (current === null)
-                return Weather.refreshing ? "Weather…" : "Weather —";
-            const temperature = current.temperature;
-            return `${current.condition.text} ${Math.round(temperature.value)}${temperature.unit}`;
+    content: RowLayout {
+        spacing: 4
+        IconImage {
+            id: weatherIcon
+            implicitSize: 16
+            source: Qt.resolvedUrl(`../assets/qweather/${Weather.current?.condition?.code ?? "999"}.svg`)
+            IconImage {
+                anchors.fill: parent
+                visible: weatherIcon.status === Image.Error
+                source: Qt.resolvedUrl("../assets/qweather/999.svg")
+            }
+        }
+        Text {
+            color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
+            text: {
+                const current = Weather.current;
+                if (current === null)
+                    return Weather.refreshing ? "…" : "—";
+                const temperature = current.temperature;
+                return `${Math.round(temperature.value)}${temperature.unit}`;
+            }
         }
     }
     Popup {
