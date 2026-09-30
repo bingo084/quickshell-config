@@ -60,6 +60,7 @@ ShellRoot {
                 Hardware {}
                 Network {}
                 Bluetooth {}
+                Inhibit {}
                 Audio {}
                 Brightness {
                     screen: bar.modelData
