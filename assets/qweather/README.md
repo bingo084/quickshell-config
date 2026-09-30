@@ -16,3 +16,13 @@ See LICENSE for the upstream MIT license.
 
 The weather widget uses the fill variants, falling back to 999-fill.svg for
 unknown codes. Regular variants are retained for visual comparison.
+
+Offsets.js provides per-icon optical alignment for the fill variants. Offsets
+are calculated offline from alpha-weighted centers of mass at 256px, expressed
+in a 16px box and rounded to quarter pixels. The widget scales them with the
+display size. This is an approximation of perceived visual balance, not a
+change to the upstream SVG artwork.
+
+To regenerate after replacing the SVGs, run `bash scripts/qweather-icon-offsets.sh`
+from the project root and use its output for Offsets.js. The script requires
+rsvg-convert, ImageMagick and Node.js; these are not runtime dependencies.
