@@ -9,6 +9,10 @@ Singleton {
 
     function cycle() {
         const nextMode = mode === "off" ? "sleep" : mode === "sleep" ? "idle" : "off";
+        setMode(nextMode);
+    }
+
+    function setMode(nextMode: string) {
         sleepProcess.running = nextMode === "sleep";
         idleProcess.running = nextMode === "idle";
     }

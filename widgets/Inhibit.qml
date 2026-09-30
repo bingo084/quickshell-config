@@ -1,6 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls as Controls
+import QtQuick.Effects
+import QtQuick.Layouts
 import Quickshell.Widgets
 import qs.components.bar
 import qs.config
@@ -20,15 +23,34 @@ Button {
     }
     content: IconImage {
         implicitSize: 18
-        opacity: Inhibit.mode === "off" ? 0.45 : 1
         source: Qt.resolvedUrl("../assets/coffee.svg")
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            contrast: -1
+            brightness: 0.5
+            colorization: 1
+            colorizationColor: Inhibit.mode === "sleep" ? Theme.warning : Inhibit.mode === "idle" ? Theme.critical : Theme.textPrimary
+        }
     }
     Popup {
         id: popup
         anchorItem: root
-        Text {
-            color: Theme.textPrimary
-            text: "Inhibit " + Inhibit.mode
+        ColumnLayout {
+            Controls.RadioButton {
+                text: "Off"
+                checked: Inhibit.mode === "off"
+                onClicked: Inhibit.setMode("off")
+            }
+            Controls.RadioButton {
+                text: "Prevent Sleep"
+                checked: Inhibit.mode === "sleep"
+                onClicked: Inhibit.setMode("sleep")
+            }
+            Controls.RadioButton {
+                text: "Prevent Idle"
+                checked: Inhibit.mode === "idle"
+                onClicked: Inhibit.setMode("idle")
+            }
         }
     }
 }
