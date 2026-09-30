@@ -45,11 +45,11 @@ Button {
         IconImage {
             id: weatherIcon
             implicitSize: 16
-            source: Qt.resolvedUrl(`../assets/qweather/${Weather.current?.condition?.code ?? "999"}.svg`)
+            source: Qt.resolvedUrl(`../assets/qweather/${Weather.current?.condition?.code ?? "999"}-fill.svg`)
             IconImage {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
-                source: Qt.resolvedUrl("../assets/qweather/999.svg")
+                source: Qt.resolvedUrl("../assets/qweather/999-fill.svg")
             }
         }
         Text {
