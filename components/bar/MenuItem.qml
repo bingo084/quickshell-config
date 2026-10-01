@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.components
 import qs.config
 
 WrapperRectangle {
@@ -25,7 +26,7 @@ WrapperRectangle {
         margin: 6
         onClicked: root.triggered()
         RowLayout {
-            IconImage {
+            Icon {
                 implicitSize: 16
                 source: Quickshell.iconPath(root.resolvedIcon, true)
             }

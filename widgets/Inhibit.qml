@@ -2,9 +2,8 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls as Controls
-import QtQuick.Effects
 import QtQuick.Layouts
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -21,16 +20,10 @@ Button {
             Inhibit.cycle();
         }
     }
-    content: IconImage {
+    content: Icon {
         implicitSize: 18
+        color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "sleep" ? Theme.warning : Theme.critical
         source: Qt.resolvedUrl("../assets/coffee.svg")
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            contrast: -1
-            brightness: 0.5
-            colorization: 1
-            colorizationColor: Inhibit.mode === "sleep" ? Theme.warning : Inhibit.mode === "idle" ? Theme.critical : Theme.textPrimary
-        }
     }
     Popup {
         id: popup

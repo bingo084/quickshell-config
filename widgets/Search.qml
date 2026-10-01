@@ -1,5 +1,5 @@
 import Quickshell
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.services
 
@@ -8,7 +8,7 @@ Button {
         PopupManager.dismiss();
         Launcher.toggle();
     }
-    content: IconImage {
+    content: Icon {
         implicitSize: 18
         source: Quickshell.iconPath("system-search-symbolic", true)
     }
