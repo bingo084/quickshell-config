@@ -4,8 +4,8 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import Quickshell.Bluetooth
+import qs.components
 import qs.components.bar
 import qs.config
 
@@ -16,7 +16,7 @@ Button {
     readonly property bool connected: root.adapter?.devices.values.some(device => device.connected) ?? false
     visible: root.adapter !== null
     onClicked: popup.visible = !popup.visible
-    content: IconImage {
+    content: Icon {
         implicitSize: 18
         source: {
             if (!root.adapter?.enabled)

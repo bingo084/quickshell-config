@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -26,7 +26,7 @@ Button {
     }
     content: RowLayout {
         spacing: 4
-        IconImage {
+        Icon {
             id: refreshIcon
             implicitSize: 18
             source: Quickshell.iconPath("emblem-synchronizing-symbolic")

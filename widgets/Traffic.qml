@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.services
 
@@ -10,7 +10,7 @@ RowLayout {
     readonly property real displayBps: Math.max(Traffic.rxBps, Traffic.txBps)
     spacing: 4
     visible: Traffic.valid && root.displayBps > 102400
-    IconImage {
+    Icon {
         readonly property string direction: Traffic.rxBps === Traffic.txBps ? "transmit-receive" : Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"
         implicitSize: 18
         source: Quickshell.iconPath(`network-${direction}-symbolic`)

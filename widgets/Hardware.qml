@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -11,7 +11,7 @@ Button {
     onClicked: popup.visible = !popup.visible
     content: RowLayout {
         spacing: 6
-        IconImage {
+        Icon {
             implicitSize: 16
             source: Quickshell.iconPath("utilities-system-monitor-symbolic")
         }

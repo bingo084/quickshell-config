@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import Quickshell.Networking as Net
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -11,7 +11,7 @@ Button {
     id: root
     readonly property Net.WifiNetwork wifiNetwork: Network.network as Net.WifiNetwork
     onClicked: popup.visible = !popup.visible
-    content: IconImage {
+    content: Icon {
         implicitSize: 18
         source: {
             if (Network.wired)
