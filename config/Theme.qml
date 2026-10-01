@@ -2,17 +2,18 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import qs.services
 
 Singleton {
-    readonly property color barItemBackground: "#ffffff"
-    readonly property color textPrimary: "#1a1a1a"
-    readonly property color textSecondary: "#777777"
+    readonly property color barItemBackground: Colors.data.surface_container_low
+    readonly property color textPrimary: Colors.data.on_surface
+    readonly property color textSecondary: Colors.data.on_surface_variant
     readonly property color hoveredBackground: Qt.tint(popupBackground, Qt.alpha(textPrimary, 0.08))
     readonly property color pressedBackground: Qt.tint(popupBackground, Qt.alpha(textPrimary, 0.12))
-    readonly property color popupBackground: "#ffffff"
-    readonly property color popupBorder: "#dcdcdc"
-    readonly property color accent: "#007aff"
-    readonly property color textOnAccent: "#ffffff"
+    readonly property color popupBackground: Colors.data.surface_container
+    readonly property color popupBorder: Colors.data.outline_variant
+    readonly property color accent: Colors.data.primary
+    readonly property color textOnAccent: Colors.data.on_primary
     readonly property int barItemRadius: 4
     readonly property int popupRadius: 8
     readonly property color meterBackground: "#dedede"
