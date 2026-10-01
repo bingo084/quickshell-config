@@ -1,8 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.config
 
 Text {
     Layout.fillWidth: true
-    color: "#666666"
+    color: Theme.textSecondary
     font.pixelSize: 11
 }

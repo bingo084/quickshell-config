@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
+import qs.config
 import qs.services
 
 ColumnLayout {
@@ -23,7 +24,7 @@ ColumnLayout {
 
         Text {
             Layout.fillWidth: true
-            color: "#1a1a1a"
+            color: Theme.textPrimary
             elide: Text.ElideRight
             text: root.node.properties["application.name"] || root.node.name
         }

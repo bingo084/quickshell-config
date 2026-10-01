@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.components.bar
+import qs.config
 import qs.services
 import qs.widgets.audio
 
@@ -34,7 +35,7 @@ Button {
         }
 
         Text {
-            color: Audio.muted ? "#777777" : "#1a1a1a"
+            color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
             text: Audio.ready ? Audio.percent + "%" : "--%"
         }
     }
@@ -52,7 +53,7 @@ Button {
 
                 Text {
                     Layout.fillWidth: true
-                    color: "#1a1a1a"
+                    color: Theme.textPrimary
                     font.bold: true
                     text: "Audio"
                 }
