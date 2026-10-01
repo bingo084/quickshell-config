@@ -22,7 +22,7 @@ RowLayout {
             required property int index
             required property bool isActive
             required property string output
-            readonly property color baseColor: isActive ? "#eeeeee" : "#ffffff"
+            readonly property color baseColor: isActive ? Theme.selectedBackground : Theme.barItemBackground
             visible: output === root.screen.name
             implicitWidth: 32
             implicitHeight: 30
@@ -32,7 +32,7 @@ RowLayout {
             Text {
                 anchors.centerIn: parent
                 text: workspace.index
-                color: workspace.isActive ? Theme.accent : Theme.textPrimary
+                color: workspace.isActive ? Theme.textOnSelected : Theme.textPrimary
             }
             MouseArea {
                 id: area

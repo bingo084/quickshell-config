@@ -44,7 +44,7 @@ RowLayout {
                     }
 
                     WrapperRectangle {
-                        readonly property color baseColor: area.model.isFocused ? "#eeeeee" : "#ffffff"
+                        readonly property color baseColor: area.model.isFocused ? Theme.selectedBackground : Theme.barItemBackground
                         implicitHeight: 30
                         margin: 5
                         radius: 4
@@ -62,7 +62,7 @@ RowLayout {
                             }
                             Text {
                                 text: _format(area.model.title, area.model.appId)
-                                color: area.model.isFocused ? Theme.accent : Theme.textPrimary
+                                color: area.model.isFocused ? Theme.textOnSelected : Theme.textPrimary
 
                                 function _format(title: string, appId: string): string {
                                     if (appId === "google-chrome") {
