@@ -63,7 +63,7 @@ PanelWindow {
                     implicitWidth: 90
                     implicitHeight: 30
                     radius: 6
-                    color: cancelArea.containsMouse ? "#efefef" : "transparent"
+                    color: cancelArea.containsMouse ? Theme.hoveredBackground : "transparent"
 
                     Text {
                         anchors.centerIn: parent
@@ -82,7 +82,7 @@ PanelWindow {
                     implicitWidth: 90
                     implicitHeight: 30
                     radius: 6
-                    color: confirmArea.containsMouse ? "#efefef" : "transparent"
+                    color: confirmArea.containsMouse ? Theme.hoveredBackground : "transparent"
 
                     Text {
                         anchors.centerIn: parent
