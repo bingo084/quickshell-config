@@ -29,6 +29,19 @@ PopupWindow {
         border.color: Theme.popupBorder
         border.width: 1
         margin: root.contentMargin
+
+        palette {
+            window: Theme.popupBackground
+            windowText: Theme.textPrimary
+            base: Theme.controlBackground
+            text: Theme.textPrimary
+            button: Theme.controlBackground
+            buttonText: Theme.textPrimary
+            highlight: Theme.accent
+            highlightedText: Theme.textOnAccent
+            mid: Theme.popupBorder
+            dark: Theme.textSecondary
+        }
     }
 
     Connections {
