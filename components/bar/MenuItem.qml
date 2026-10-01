@@ -15,7 +15,7 @@ WrapperRectangle {
     Layout.fillWidth: true
     implicitHeight: 30
     radius: 6
-    color: buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : "transparent"
+    color: buttonArea.pressed ? Theme.pressedBackground : buttonArea.containsMouse ? Theme.hoveredBackground : "transparent"
     opacity: enabled ? 1 : 0.5
 
     WrapperMouseArea {

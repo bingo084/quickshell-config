@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
+import qs.config
 import qs.services
 
 WrapperRectangle {
@@ -13,7 +14,7 @@ WrapperRectangle {
     Layout.fillWidth: true
     implicitHeight: 28
     radius: 6
-    color: deviceArea.pressed ? "#d9d9d9" : deviceArea.containsMouse ? "#efefef" : "transparent"
+    color: deviceArea.pressed ? Theme.pressedBackground : deviceArea.containsMouse ? Theme.hoveredBackground : "transparent"
 
     WrapperMouseArea {
         id: deviceArea
@@ -32,14 +33,14 @@ WrapperRectangle {
 
             Text {
                 Layout.fillWidth: true
-                color: "#1a1a1a"
+                color: Theme.textPrimary
                 elide: Text.ElideRight
                 text: root.node?.description || root.node?.nickname || root.node?.name || "Audio"
             }
 
             Text {
                 Layout.maximumWidth: 90
-                color: "#777777"
+                color: Theme.textSecondary
                 font.pixelSize: 11
                 elide: Text.ElideRight
                 text: root.node.properties["device.profile.description"] || root.node.properties["media.class"] || ""
