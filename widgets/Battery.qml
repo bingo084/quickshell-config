@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
+import qs.components
 import qs.components.bar
 import qs.config
 
@@ -59,7 +60,7 @@ Button {
     content: RowLayout {
         spacing: 4
 
-        IconImage {
+        Icon {
             implicitSize: 18
             source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
         }
@@ -132,7 +133,7 @@ Button {
                         Layout.fillWidth: true
                         spacing: device.rowSpacing
 
-                        IconImage {
+                        Icon {
                             implicitSize: device.iconSize
                             source: Quickshell.iconPath(device.typeIcon, "battery-symbolic")
                         }
@@ -142,7 +143,7 @@ Button {
                             elide: Text.ElideRight
                             text: device.label
                         }
-                        IconImage {
+                        Icon {
                             implicitSize: device.iconSize
                             source: Quickshell.iconPath(root.iconName(device.modelData))
                         }
@@ -157,7 +158,7 @@ Button {
 
                     Text {
                         Layout.leftMargin: device.detailIndent
-                        color: "#666666"
+                        color: Theme.textSecondary
                         font.pixelSize: 11
                         text: device.statusDetail
                         wrapMode: Text.Wrap
@@ -165,7 +166,7 @@ Button {
 
                     Text {
                         Layout.leftMargin: device.detailIndent
-                        color: "#777777"
+                        color: Theme.textTertiary
                         font.pixelSize: 11
                         text: device.capacityDetail
                         visible: device.capacityDetail !== ""
