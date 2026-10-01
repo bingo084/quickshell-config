@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -43,7 +43,7 @@ Button {
 
     content: RowLayout {
         spacing: 4
-        IconImage {
+        Icon {
             id: weatherIcon
             readonly property string code: Weather.current?.condition?.code ?? "999"
             readonly property point opticalOffset: {
@@ -57,7 +57,7 @@ Button {
                 y: weatherIcon.opticalOffset.y * weatherIcon.actualSize / 16
             }
             source: Qt.resolvedUrl(`../assets/qweather/${weatherIcon.code}-fill.svg`)
-            IconImage {
+            Icon {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
                 source: Qt.resolvedUrl("../assets/qweather/999-fill.svg")
