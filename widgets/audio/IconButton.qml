@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
+import qs.components
 
 WrapperRectangle {
     id: root
@@ -24,7 +25,7 @@ WrapperRectangle {
         margin: 4
         onClicked: root.clicked()
 
-        IconImage {
+        Icon {
             implicitSize: 16
             source: Quickshell.iconPath(root.icon, root.fallbackIcon)
         }

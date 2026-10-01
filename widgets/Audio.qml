@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -29,8 +29,9 @@ Button {
     content: RowLayout {
         spacing: 4
 
-        IconImage {
+        Icon {
             implicitSize: 18
+            color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
             source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
         }
 

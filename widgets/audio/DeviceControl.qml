@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.services
 
@@ -56,7 +57,7 @@ ColumnLayout {
                         node: root.node
                     }
 
-                    IconImage {
+                    Icon {
                         implicitSize: 14
                         visible: root.expandable
                         source: Quickshell.iconPath(root.expanded ? "pan-up-symbolic" : "pan-down-symbolic")
