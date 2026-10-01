@@ -12,7 +12,7 @@ Rectangle {
     Layout.fillWidth: true
     Layout.preferredHeight: 6
     radius: height / 2
-    color: "#ededed"
+    color: Theme.meterBackground
     enabled: ready
     opacity: ready ? 1 : 0.55
 
@@ -20,7 +20,7 @@ Rectangle {
         width: parent.width * (root.ready ? Math.min(root.node.audio.volume, 1) : 0)
         height: parent.height
         radius: parent.radius
-        color: root.ready && root.node.audio.muted ? "#a0a0a0" : Theme.accent
+        color: root.ready && root.node.audio.muted ? Theme.textSecondary : Theme.accent
     }
 
     MouseArea {

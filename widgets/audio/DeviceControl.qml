@@ -31,7 +31,7 @@ ColumnLayout {
             Layout.fillWidth: true
             implicitHeight: 28
             radius: 6
-            color: root.expanded ? "#eaf3ff" : deviceArea.pressed ? "#d9d9d9" : deviceArea.containsMouse ? "#efefef" : "transparent"
+            color: root.expanded ? Theme.selectedBackground : deviceArea.pressed ? Theme.pressedBackground : deviceArea.containsMouse ? Theme.hoveredBackground : "transparent"
 
             WrapperMouseArea {
                 id: deviceArea
@@ -48,17 +48,19 @@ ColumnLayout {
 
                     Text {
                         Layout.fillWidth: true
-                        color: Theme.textPrimary
+                        color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
                         elide: Text.ElideRight
                         text: root.node?.description || root.node?.nickname || root.node?.name || "Audio"
                     }
 
                     PercentText {
                         node: root.node
+                        selected: root.expanded
                     }
 
                     Icon {
                         implicitSize: 14
+                        color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
                         visible: root.expandable
                         source: Quickshell.iconPath(root.expanded ? "pan-up-symbolic" : "pan-down-symbolic")
                     }

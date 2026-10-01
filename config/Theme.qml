@@ -14,9 +14,12 @@ Singleton {
     readonly property color popupBorder: Colors.data.outline_variant
     readonly property color accent: Colors.data.primary
     readonly property color textOnAccent: Colors.data.on_primary
+    readonly property color controlBackground: Colors.data.surface_container_high
+    readonly property color selectedBackground: Colors.data.primary_container
+    readonly property color textOnSelected: Colors.data.on_primary_container
+    readonly property color meterBackground: Colors.data.surface_container_highest
     readonly property int barItemRadius: 4
     readonly property int popupRadius: 8
-    readonly property color meterBackground: "#dedede"
     readonly property color warning: "#c77700"
     readonly property color critical: "#d93025"
 }

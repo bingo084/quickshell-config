@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Widgets
 import qs.components
+import qs.config
 
 WrapperRectangle {
     id: root
@@ -14,8 +15,8 @@ WrapperRectangle {
     implicitWidth: 26
     implicitHeight: 24
     radius: 5
-    color: checked ? "#eaf3ff" : buttonArea.pressed ? "#d9d9d9" : buttonArea.containsMouse ? "#efefef" : subtle ? "transparent" : "#f7f7f7"
-    border.color: subtle && !buttonArea.containsMouse && !checked ? "transparent" : checked ? "#b7d7ff" : "#e1e1e1"
+    color: checked ? Theme.selectedBackground : buttonArea.pressed ? Theme.pressedBackground : buttonArea.containsMouse ? Theme.hoveredBackground : subtle ? "transparent" : Theme.controlBackground
+    border.color: subtle && !buttonArea.containsMouse && !checked ? "transparent" : checked ? Theme.accent : Theme.popupBorder
     border.width: 1
 
     WrapperMouseArea {
@@ -27,6 +28,7 @@ WrapperRectangle {
 
         Icon {
             implicitSize: 16
+            color: root.checked ? Theme.textOnSelected : Theme.textPrimary
             source: Quickshell.iconPath(root.icon, root.fallbackIcon)
         }
     }
