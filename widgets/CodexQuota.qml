@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -24,6 +25,14 @@ Button {
 
     function remaining(window) {
         return window ? `${100 - window.usedPercent}%` : "--";
+    }
+
+    function meterColor(window) {
+        if (window?.usedPercent >= 90)
+            return Theme.critical;
+        if (window?.usedPercent >= 75)
+            return Theme.warning;
+        return Theme.accent;
     }
 
     function windowLabel(window) {
@@ -63,11 +72,33 @@ Button {
         onTriggered: root.now = new Date()
     }
 
-    content: Text {
-        color: CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary
-        text: {
-            const limits = CodexQuota.data?.rateLimits;
-            return `Codex ${root.remaining(limits?.primary)} / ${root.remaining(limits?.secondary)}`;
+    content: RowLayout {
+        spacing: 6
+        Icon {
+            implicitSize: 18
+            source: Qt.resolvedUrl("../assets/openai.svg")
+            color: CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary
+        }
+        ColumnLayout {
+            spacing: 4
+            Repeater {
+                model: [CodexQuota.data?.rateLimits?.primary, CodexQuota.data?.rateLimits?.secondary]
+                delegate: Rectangle {
+                    id: summary
+                    required property var modelData
+                    implicitWidth: 36
+                    implicitHeight: 3
+                    radius: height / 2
+                    color: Theme.meterBackground
+                    opacity: modelData ? 1 : 0.4
+                    Rectangle {
+                        width: summary.modelData ? parent.width * (1 - summary.modelData.usedPercent / 100) : 0
+                        height: parent.height
+                        radius: parent.radius
+                        color: root.meterColor(summary.modelData)
+                    }
+                }
+            }
         }
     }
 
@@ -118,13 +149,7 @@ Button {
                             width: parent.width * (1 - detail.modelData.usedPercent / 100)
                             height: parent.height
                             radius: parent.radius
-                            color: {
-                                if (detail.modelData.usedPercent >= 90)
-                                    return Theme.critical;
-                                if (detail.modelData.usedPercent >= 75)
-                                    return Theme.warning;
-                                return Theme.accent;
-                            }
+                            color: root.meterColor(detail.modelData)
                         }
                     }
                 }
