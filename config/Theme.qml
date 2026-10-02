@@ -5,6 +5,7 @@ import Quickshell
 import qs.services
 
 Singleton {
+    readonly property color barBackground: Colors.data.surface
     readonly property color barItemBackground: Colors.data.surface_container_low
     readonly property color textPrimary: Colors.data.on_surface
     readonly property color textSecondary: Colors.data.on_surface_variant

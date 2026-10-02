@@ -20,6 +20,7 @@ Button {
         }
     }
     content: Text {
+        color: Theme.textPrimary
         text: Qt.formatDateTime(Clock.date, `ddd MMM d  hh:mm${root.showSeconds ? ":ss" : ""}`)
     }
 
@@ -72,6 +73,7 @@ Button {
                     required property string shortName
                     width: popup.dayCellSize
                     font: weekRow.font
+                    color: Theme.textSecondary
                     text: shortName
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -105,6 +107,7 @@ Button {
         Layout.preferredHeight: Layout.preferredWidth
         icon {
             name: `go-${offset < 0 ? "previous" : "next"}-symbolic`
+            color: Theme.textSecondary
             width: 10
             height: 10
         }
@@ -112,6 +115,7 @@ Button {
     }
     component HeaderText: Text {
         Layout.fillWidth: true
+        color: Theme.textPrimary
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 14
         font.weight: Font.Medium

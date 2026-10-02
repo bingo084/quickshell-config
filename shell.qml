@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.components.bar
+import qs.config
 import qs.widgets
 
 ShellRoot {
@@ -13,6 +14,7 @@ ShellRoot {
             id: bar
             required property ShellScreen modelData
             screen: modelData
+            color: Theme.barBackground
             anchors {
                 left: true
                 top: true
