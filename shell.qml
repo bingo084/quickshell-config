@@ -4,9 +4,12 @@ import QtQuick.Layouts
 import Quickshell
 import qs.components.bar
 import qs.config
+import qs.services as Services
 import qs.widgets
 
 ShellRoot {
+    Component.onCompleted: Services.CodexQuota.refresh()
+
     Variants {
         model: Quickshell.screens
         // qmllint disable uncreatable-type
@@ -58,6 +61,7 @@ ShellRoot {
 
                 Traffic {}
                 Weather {}
+                CodexQuota {}
                 Updates {}
                 Hardware {}
                 Network {}
