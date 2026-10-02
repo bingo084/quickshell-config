@@ -22,7 +22,7 @@ RowLayout {
             spacing: 0
 
             Repeater {
-                model: workspace.model.isActive && workspace.model.output === root.screen.name ? Niri.sortedWindows : 0
+                model: workspace.model.isActive && workspace.model.output === root.screen?.name ? Niri.sortedWindows : 0
 
                 WrapperMouseArea {
                     id: area

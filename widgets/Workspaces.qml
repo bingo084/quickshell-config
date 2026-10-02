@@ -23,7 +23,7 @@ RowLayout {
             required property bool isActive
             required property string output
             readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
-            visible: output === root.screen.name
+            visible: output === root.screen?.name
             implicitWidth: 32
             implicitHeight: 30
             radius: 4
@@ -51,7 +51,7 @@ RowLayout {
                     let active = null;
                     for (let row = 0; row < workspaces.count; row++) {
                         const ws = workspaces.get(row);
-                        if (ws.output === root.screen.name && ws.isActive) {
+                        if (ws.output === root.screen?.name && ws.isActive) {
                             active = ws;
                             break;
                         }
@@ -61,7 +61,7 @@ RowLayout {
                     const targetIndex = active.index + (delta > 0 ? -1 : 1);
                     for (let row = 0; row < workspaces.count; row++) {
                         const ws = workspaces.get(row);
-                        if (ws.output === root.screen.name && ws.index === targetIndex) {
+                        if (ws.output === root.screen?.name && ws.index === targetIndex) {
                             Niri.focusWorkspaceById(ws.id);
                             break;
                         }

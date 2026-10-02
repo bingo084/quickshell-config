@@ -10,7 +10,7 @@ import qs.services
 Button {
     id: root
     required property ShellScreen screen
-    visible: Brightness.available && root.screen.name === Brightness.output
+    visible: Brightness.available && root.screen?.name === Brightness.output
     onClicked: popup.visible = !popup.visible
     onWheel: event => {
         if (event.angleDelta.y > 0) {
