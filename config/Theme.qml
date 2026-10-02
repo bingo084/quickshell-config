@@ -21,6 +21,6 @@ Singleton {
     readonly property color meterBackground: Colors.data.surface_container_highest
     readonly property int barItemRadius: 4
     readonly property int popupRadius: 8
-    readonly property color warning: Colors.data.warning_text
+    readonly property color warning: Colors.data.warning
     readonly property color critical: Colors.data.error
 }
