@@ -22,12 +22,12 @@ RowLayout {
             required property int index
             required property bool isActive
             required property string output
-            readonly property color baseColor: isActive ? Theme.selectedBackground : Theme.barItemBackground
+            readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
             visible: output === root.screen.name
             implicitWidth: 32
             implicitHeight: 30
             radius: 4
-            color: Qt.darker(baseColor, area.pressed ? 1.08 : area.containsMouse ? 1.03 : 1.0)
+            color: isActive ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
 
             Text {
                 anchors.centerIn: parent

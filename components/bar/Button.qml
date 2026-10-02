@@ -12,7 +12,7 @@ WrapperMouseArea {
     WrapperRectangle {
         id: background
         radius: Theme.barItemRadius
-        color: Qt.darker(Theme.barItemBackground, root.pressed ? 1.08 : root.containsMouse ? 1.03 : 1.0)
+        color: root.pressed ? Theme.pressedBackground : root.containsMouse ? Theme.hoveredBackground : "transparent"
         margin: 6
         leftMargin: root.horizontalPadding
         rightMargin: root.horizontalPadding
