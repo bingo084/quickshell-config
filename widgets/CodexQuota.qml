@@ -14,9 +14,12 @@ Button {
     readonly property var windows: [CodexQuota.rateLimits?.primary, CodexQuota.rateLimits?.secondary]
     readonly property bool exhausted: windows.some(window => window?.usedPercent >= 100)
     readonly property string accountType: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[CodexQuota.account?.type] ?? ""
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
-        if (mouse.button === Qt.RightButton) {
+        if (mouse.button === Qt.MiddleButton) {
+            PopupManager.dismiss();
+            Qt.openUrlExternally("https://chatgpt.com/settings/usage");
+        } else if (mouse.button === Qt.RightButton) {
             if (PopupManager.activePopup !== popup)
                 PopupManager.dismiss();
             CodexQuota.refresh(true);
