@@ -114,6 +114,7 @@ Button {
     Popup {
         id: popup
         anchorItem: root
+        contentWidth: 280
         ColumnLayout {
             spacing: 10
             ColumnLayout {
@@ -122,7 +123,6 @@ Button {
                 visible: CodexQuota.account != null || CodexQuota.provider != null
                 spacing: 4
                 RowLayout {
-                    Layout.maximumWidth: 280
                     Text {
                         id: accountHeading
                         Layout.fillWidth: true
@@ -169,7 +169,7 @@ Button {
                     }
                 }
                 Text {
-                    Layout.maximumWidth: 280
+                    Layout.fillWidth: true
                     visible: text !== ""
                     text: CodexQuota.provider?.address ?? ""
                     wrapMode: Text.WrapAnywhere
@@ -184,7 +184,7 @@ Button {
                 color: Theme.popupBorder
             }
             Text {
-                Layout.preferredWidth: 280
+                Layout.fillWidth: true
                 visible: text !== ""
                 text: CodexQuota.error
                 color: Theme.warning
@@ -217,7 +217,6 @@ Button {
                     }
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredWidth: 280
                         implicitHeight: 4
                         radius: height / 2
                         color: Theme.meterBackground

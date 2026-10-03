@@ -7,6 +7,7 @@ PopupWindow {
     id: root
     required property Item anchorItem
     property real contentMargin: 8
+    property real contentWidth: content.implicitWidth
     default property alias content: background.child
 
     grabFocus: true
@@ -24,6 +25,7 @@ PopupWindow {
 
     WrapperRectangle {
         id: background
+        implicitWidth: root.contentWidth + 2 * (root.contentMargin + border.width)
         radius: Theme.popupRadius
         color: Theme.popupBackground
         border.color: Theme.popupBorder
