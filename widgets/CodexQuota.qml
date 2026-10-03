@@ -12,8 +12,6 @@ Button {
     id: root
     property date now: new Date()
     readonly property var windows: [CodexQuota.rateLimits?.primary, CodexQuota.rateLimits?.secondary]
-    readonly property bool exhausted: windows.some(window => window?.usedPercent >= 100)
-    readonly property string accountType: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[CodexQuota.account?.type] ?? ""
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.MiddleButton) {
@@ -84,7 +82,11 @@ Button {
         Icon {
             implicitSize: 18
             source: Qt.resolvedUrl("../assets/openai.svg")
-            color: root.exhausted ? Theme.critical : CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary
+            color: {
+                if (root.windows.some(window => window?.usedPercent >= 100))
+                    return Theme.critical;
+                return CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary;
+            }
         }
         ColumnLayout {
             spacing: 4
@@ -115,14 +117,16 @@ Button {
         ColumnLayout {
             spacing: 10
             ColumnLayout {
+                id: accountInfo
+                readonly property string type: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[CodexQuota.account?.type] ?? ""
                 visible: CodexQuota.account != null || CodexQuota.provider != null
                 spacing: 4
                 RowLayout {
-                    Layout.fillWidth: true
                     Layout.maximumWidth: 280
                     Text {
+                        id: accountHeading
                         Layout.fillWidth: true
-                        text: CodexQuota.account?.email ?? CodexQuota.provider?.name ?? root.accountType
+                        text: CodexQuota.account?.email ?? CodexQuota.provider?.name ?? accountMode.text
                         elide: Text.ElideRight
                         font.pixelSize: 12
                         color: Theme.textPrimary
@@ -144,24 +148,27 @@ Button {
                     }
                 }
                 RowLayout {
-                    visible: accountMode.text !== "" || resetSummary.visible
+                    id: accountDetails
+                    readonly property bool showAccountMode: accountMode.text !== "" && accountMode.text !== accountHeading.text
+                    readonly property bool showResetCredits: CodexQuota.account?.type === "chatgpt"
+                    visible: showAccountMode || showResetCredits
                     Text {
                         id: accountMode
                         Layout.fillWidth: true
-                        text: CodexQuota.account?.email ? CodexQuota.provider?.name ?? root.accountType : CodexQuota.provider ? root.accountType : ""
+                        visible: accountDetails.showAccountMode
+                        text: CodexQuota.account?.email && CodexQuota.provider ? CodexQuota.provider.name : accountInfo.type
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
                     Text {
                         id: resetSummary
-                        visible: CodexQuota.account?.type === "chatgpt"
+                        visible: accountDetails.showResetCredits
                         text: `${CodexQuota.resetCredits?.availableCount ?? "--"} resets available`
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
                 }
                 Text {
-                    Layout.fillWidth: true
                     Layout.maximumWidth: 280
                     visible: text !== ""
                     text: CodexQuota.provider?.address ?? ""

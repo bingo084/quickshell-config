@@ -24,6 +24,10 @@ Singleton {
         query.write(JSON.stringify(message) + "\n");
     }
 
+    function request(method, params) {
+        root.send({id: method, method, params});
+    }
+
     function receive(message) {
         if (message.error) {
             root.error = message.error.message;
@@ -31,52 +35,45 @@ Singleton {
             query.running = false;
             return;
         }
-        if (message.id === 1) {
-            root.send({
-                method: "initialized"
-            });
-            root.send({
-                id: 2,
-                method: "config/read",
-                params: { includeLayers: false }
-            });
-        } else if (message.id === 2) {
+        switch (message.id) {
+        case "initialize":
+            root.send({method: "initialized"});
+            root.request("config/read", {includeLayers: false});
+            break;
+        case "config/read":
             root.readProvider(message.result.config);
-            root.send({
-                id: 3,
-                method: "account/read",
-                params: { refreshToken: false }
-            });
-        } else if (message.id === 3) {
+            root.request("account/read", {refreshToken: false});
+            break;
+        case "account/read":
             root.account = message.result.account;
             if (root.account?.type === "chatgpt") {
-                root.send({
-                    id: 4,
-                    method: "account/rateLimits/read"
-                });
+                root.request("account/rateLimits/read");
             } else {
                 root.rateLimits = null;
                 root.resetCredits = null;
                 query.running = false;
             }
-        } else if (message.id === 4) {
+            break;
+        case "account/rateLimits/read":
             root.rateLimits = message.result.rateLimits;
             root.resetCredits = message.result.rateLimitResetCredits;
             query.running = false;
+            break;
         }
     }
 
     function readProvider(config) {
         const id = config.model_provider ?? "openai";
-        const definition = config.model_providers?.[id];
-        const address = id === "openai" ? config.openai_base_url : definition?.base_url;
-        if (!address && (id === "openai" || !definition)) {
+        const definition = id === "openai"
+            ? {name: "OpenAI", base_url: config.openai_base_url}
+            : config.model_providers?.[id];
+        if (!definition || (id === "openai" && !definition.base_url)) {
             root.provider = null;
             return;
         }
         root.provider = {
-            name: definition?.name ?? (id === "openai" ? "OpenAI" : id),
-            address: (address ?? "").replace(/^(https?:\/\/)[^/]*@/i, "$1").split(/[?#]/)[0]
+            name: definition.name,
+            address: (definition.base_url ?? "").replace(/^(https?:\/\/)[^/]*@/i, "$1").split(/[?#]/)[0]
         };
     }
 
@@ -84,17 +81,13 @@ Singleton {
         id: query
         command: ["codex", "app-server", "--stdio"]
         stdinEnabled: true
-        onStarted: root.send({
-            id: 1,
-            method: "initialize",
-            params: {
+        onStarted: root.request("initialize", {
                 clientInfo: {
                     name: "quickshell",
                     title: "Quickshell",
                     version: "0.1.0"
                 },
                 capabilities: null
-            }
         })
         stdout: SplitParser {
             onRead: line => root.receive(JSON.parse(line))
