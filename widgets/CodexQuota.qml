@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Widgets
 import qs.components
 import qs.components.bar
 import qs.config
@@ -10,8 +11,9 @@ import qs.services
 Button {
     id: root
     property date now: new Date()
-    readonly property var windows: [CodexQuota.data?.rateLimits?.primary, CodexQuota.data?.rateLimits?.secondary]
+    readonly property var windows: [CodexQuota.rateLimits?.primary, CodexQuota.rateLimits?.secondary]
     readonly property bool exhausted: windows.some(window => window?.usedPercent >= 100)
+    readonly property string accountType: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[CodexQuota.account?.type] ?? ""
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
@@ -109,6 +111,56 @@ Button {
         anchorItem: root
         ColumnLayout {
             spacing: 10
+            ColumnLayout {
+                visible: CodexQuota.account != null
+                spacing: 4
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 280
+                    Text {
+                        Layout.fillWidth: true
+                        text: CodexQuota.account?.email ?? root.accountType
+                        elide: Text.ElideRight
+                        font.pixelSize: 12
+                        color: Theme.textPrimary
+                    }
+                    WrapperRectangle {
+                        visible: plan.text !== ""
+                        radius: 4
+                        color: Theme.selectedBackground
+                        margin: 2
+                        leftMargin: 6
+                        rightMargin: 6
+                        Text {
+                            id: plan
+                            text: (CodexQuota.account?.planType ?? "").replace(/_/g, " ")
+                            font.capitalization: Font.Capitalize
+                            font.pixelSize: 12
+                            color: Theme.textOnSelected
+                        }
+                    }
+                }
+                RowLayout {
+                    Text {
+                        Layout.fillWidth: true
+                        text: CodexQuota.account?.email ? root.accountType : ""
+                        font.pixelSize: 12
+                        color: Theme.textSecondary
+                    }
+                    Text {
+                        visible: CodexQuota.account?.type === "chatgpt"
+                        text: `${CodexQuota.resetCredits?.availableCount ?? "--"} resets available`
+                        font.pixelSize: 12
+                        color: Theme.textSecondary
+                    }
+                }
+            }
+            Rectangle {
+                Layout.fillWidth: true
+                visible: CodexQuota.account != null
+                implicitHeight: 1
+                color: Theme.popupBorder
+            }
             Text {
                 Layout.preferredWidth: 280
                 visible: text !== ""

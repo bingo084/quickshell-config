@@ -6,7 +6,9 @@ import Quickshell.Io
 
 Singleton {
     id: root
-    property var data
+    property var rateLimits
+    property var resetCredits
+    property var account
     property string error
 
     function refresh(force = false) {
@@ -37,7 +39,15 @@ Singleton {
                 method: "account/rateLimits/read"
             });
         } else if (message.id === 2) {
-            root.data = message.result;
+            root.rateLimits = message.result.rateLimits;
+            root.resetCredits = message.result.rateLimitResetCredits;
+            root.send({
+                id: 3,
+                method: "account/read",
+                params: { refreshToken: false }
+            });
+        } else if (message.id === 3) {
+            root.account = message.result.account;
             query.running = false;
         }
     }
