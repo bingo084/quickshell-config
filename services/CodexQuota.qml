@@ -9,6 +9,7 @@ Singleton {
     property var rateLimits
     property var resetCredits
     property var account
+    property var provider
     property string error
 
     function refresh(force = false) {
@@ -36,11 +37,11 @@ Singleton {
             });
             root.send({
                 id: 2,
-                method: "account/rateLimits/read"
+                method: "config/read",
+                params: { includeLayers: false }
             });
         } else if (message.id === 2) {
-            root.rateLimits = message.result.rateLimits;
-            root.resetCredits = message.result.rateLimitResetCredits;
+            root.readProvider(message.result.config);
             root.send({
                 id: 3,
                 method: "account/read",
@@ -48,8 +49,35 @@ Singleton {
             });
         } else if (message.id === 3) {
             root.account = message.result.account;
+            if (root.account?.type === "chatgpt") {
+                root.send({
+                    id: 4,
+                    method: "account/rateLimits/read"
+                });
+            } else {
+                root.rateLimits = null;
+                root.resetCredits = null;
+                query.running = false;
+            }
+        } else if (message.id === 4) {
+            root.rateLimits = message.result.rateLimits;
+            root.resetCredits = message.result.rateLimitResetCredits;
             query.running = false;
         }
+    }
+
+    function readProvider(config) {
+        const id = config.model_provider ?? "openai";
+        const definition = config.model_providers?.[id];
+        const address = id === "openai" ? config.openai_base_url : definition?.base_url;
+        if (!address && (id === "openai" || !definition)) {
+            root.provider = null;
+            return;
+        }
+        root.provider = {
+            name: definition?.name ?? (id === "openai" ? "OpenAI" : id),
+            address: (address ?? "").replace(/^(https?:\/\/)[^/]*@/i, "$1").split(/[?#]/)[0]
+        };
     }
 
     Process {

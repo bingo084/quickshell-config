@@ -115,14 +115,14 @@ Button {
         ColumnLayout {
             spacing: 10
             ColumnLayout {
-                visible: CodexQuota.account != null
+                visible: CodexQuota.account != null || CodexQuota.provider != null
                 spacing: 4
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.maximumWidth: 280
                     Text {
                         Layout.fillWidth: true
-                        text: CodexQuota.account?.email ?? root.accountType
+                        text: CodexQuota.account?.email ?? CodexQuota.provider?.name ?? root.accountType
                         elide: Text.ElideRight
                         font.pixelSize: 12
                         color: Theme.textPrimary
@@ -144,23 +144,35 @@ Button {
                     }
                 }
                 RowLayout {
+                    visible: accountMode.text !== "" || resetSummary.visible
                     Text {
+                        id: accountMode
                         Layout.fillWidth: true
-                        text: CodexQuota.account?.email ? root.accountType : ""
+                        text: CodexQuota.account?.email ? CodexQuota.provider?.name ?? root.accountType : CodexQuota.provider ? root.accountType : ""
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
                     Text {
+                        id: resetSummary
                         visible: CodexQuota.account?.type === "chatgpt"
                         text: `${CodexQuota.resetCredits?.availableCount ?? "--"} resets available`
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
                 }
+                Text {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 280
+                    visible: text !== ""
+                    text: CodexQuota.provider?.address ?? ""
+                    wrapMode: Text.WrapAnywhere
+                    font.pixelSize: 12
+                    color: Theme.textSecondary
+                }
             }
             Rectangle {
                 Layout.fillWidth: true
-                visible: CodexQuota.account != null
+                visible: (CodexQuota.account != null || CodexQuota.provider != null) && root.windows.some(Boolean)
                 implicitHeight: 1
                 color: Theme.popupBorder
             }
