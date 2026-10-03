@@ -37,6 +37,7 @@ Button {
                 duration: 1300
                 loops: Animation.Infinite
                 running: Updates.checking || Updates.updating
+                onStopped: refreshIcon.rotation = 0
             }
         }
         Text {
