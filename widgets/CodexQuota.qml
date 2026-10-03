@@ -10,6 +10,8 @@ import qs.services
 Button {
     id: root
     property date now: new Date()
+    readonly property var windows: [CodexQuota.data?.rateLimits?.primary, CodexQuota.data?.rateLimits?.secondary]
+    readonly property bool exhausted: windows.some(window => window?.usedPercent >= 100)
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
@@ -77,12 +79,12 @@ Button {
         Icon {
             implicitSize: 18
             source: Qt.resolvedUrl("../assets/openai.svg")
-            color: CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary
+            color: root.exhausted ? Theme.critical : CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary
         }
         ColumnLayout {
             spacing: 4
             Repeater {
-                model: [CodexQuota.data?.rateLimits?.primary, CodexQuota.data?.rateLimits?.secondary]
+                model: root.windows
                 delegate: Rectangle {
                     id: summary
                     required property var modelData
@@ -115,7 +117,7 @@ Button {
                 wrapMode: Text.Wrap
             }
             Repeater {
-                model: [CodexQuota.data?.rateLimits?.primary, CodexQuota.data?.rateLimits?.secondary].filter(Boolean)
+                model: root.windows.filter(Boolean)
                 delegate: ColumnLayout {
                     id: detail
                     required property var modelData
@@ -136,7 +138,7 @@ Button {
                         Text {
                             text: `${root.remaining(detail.modelData)} left`
                             font.pixelSize: 12
-                            color: Theme.textSecondary
+                            color: detail.modelData.usedPercent >= 100 ? Theme.critical : Theme.textSecondary
                         }
                     }
                     Rectangle {
