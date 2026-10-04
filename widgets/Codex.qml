@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.components.bar
@@ -131,7 +132,11 @@ Button {
             spacing: 10
             ColumnLayout {
                 id: accountInfo
-                readonly property string type: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[Codex.account?.type] ?? ""
+                readonly property string type: ({
+                        chatgpt: "ChatGPT",
+                        apiKey: "API key",
+                        amazonBedrock: "Amazon Bedrock"
+                    })[Codex.account?.type] ?? ""
                 visible: Codex.account != null || Codex.provider != null
                 spacing: 4
                 RowLayout {
@@ -159,26 +164,12 @@ Button {
                         }
                     }
                 }
-                RowLayout {
-                    id: accountDetails
-                    readonly property bool showAccountMode: accountMode.text !== "" && accountMode.text !== accountHeading.text
-                    readonly property bool showResetCredits: Codex.account?.type === "chatgpt"
-                    visible: showAccountMode || showResetCredits
-                    Text {
-                        id: accountMode
-                        Layout.fillWidth: true
-                        visible: accountDetails.showAccountMode
-                        text: Codex.account?.email && Codex.provider ? Codex.provider.name : accountInfo.type
-                        font.pixelSize: 12
-                        color: Theme.textSecondary
-                    }
-                    Text {
-                        id: resetSummary
-                        visible: accountDetails.showResetCredits
-                        text: `${Codex.resetCredits?.availableCount ?? "--"} resets available`
-                        font.pixelSize: 12
-                        color: Theme.textSecondary
-                    }
+                Text {
+                    id: accountMode
+                    visible: text !== "" && text !== accountHeading.text && (Codex.account?.type !== "chatgpt" || Codex.provider != null)
+                    text: Codex.account?.email && Codex.provider ? Codex.provider.name : accountInfo.type
+                    font.pixelSize: 12
+                    color: Theme.textSecondary
                 }
                 Text {
                     Layout.fillWidth: true
@@ -237,6 +228,105 @@ Button {
                             height: parent.height
                             radius: parent.radius
                             color: root.meterColor(detail.modelData)
+                        }
+                    }
+                }
+            }
+            Rectangle {
+                Layout.fillWidth: true
+                visible: resetSection.visible && root.windows.some(Boolean)
+                implicitHeight: 1
+                color: Theme.popupBorder
+            }
+            ColumnLayout {
+                id: resetSection
+                property bool expanded: false
+                readonly property var credits: (Codex.resetCredits?.credits ?? []).filter(credit => credit.status === "available")
+                readonly property var groups: {
+                    const groups = new Map();
+                    for (const credit of credits) {
+                        const title = credit.title ?? "";
+                        if (!groups.has(title))
+                            groups.set(title, []);
+                        groups.get(title).push(credit);
+                    }
+                    return Array.from(groups, ([title, credits]) => ({
+                                title,
+                                credits
+                            }));
+                }
+                Layout.fillWidth: true
+                visible: Codex.resetCredits != null
+                spacing: 6
+                WrapperMouseArea {
+                    id: resetArea
+                    Layout.fillWidth: true
+                    Layout.leftMargin: -4
+                    Layout.rightMargin: -4
+                    implicitHeight: 26
+                    enabled: resetSection.credits.length > 0
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: resetSection.expanded = !resetSection.expanded
+                    WrapperRectangle {
+                        margin: 4
+                        radius: 4
+                        color: resetArea.pressed ? Theme.pressedBackground : resetArea.containsMouse ? Theme.hoveredBackground : "transparent"
+                        RowLayout {
+                            spacing: 6
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Usage limit resets"
+                                font.pixelSize: 12
+                                color: Theme.textPrimary
+                            }
+                            Text {
+                                text: `${Codex.resetCredits?.availableCount ?? 0} available`
+                                font.pixelSize: 12
+                                color: Theme.textSecondary
+                            }
+                            Icon {
+                                implicitSize: 12
+                                visible: resetSection.credits.length > 0
+                                color: Theme.textSecondary
+                                source: Quickshell.iconPath(resetSection.expanded ? "pan-down-symbolic" : "pan-end-symbolic")
+                            }
+                        }
+                    }
+                }
+                Repeater {
+                    model: resetSection.groups
+                    delegate: ColumnLayout {
+                        id: creditGroup
+                        required property var modelData
+                        visible: resetSection.expanded
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Text {
+                            Layout.fillWidth: true
+                            visible: text !== ""
+                            text: creditGroup.modelData.title
+                            font.pixelSize: 12
+                            color: Theme.textPrimary
+                            wrapMode: Text.Wrap
+                        }
+                        Repeater {
+                            model: creditGroup.modelData.credits
+                            delegate: RowLayout {
+                                id: creditRow
+                                required property var modelData
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: creditRow.modelData.expiresAt == null ? "No expiration" : "Expires"
+                                    font.pixelSize: 12
+                                    color: Theme.textSecondary
+                                }
+                                Text {
+                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), "MMM d  hh:mm")
+                                    font.pixelSize: 12
+                                    color: Theme.textSecondary
+                                }
+                            }
                         }
                     }
                 }
