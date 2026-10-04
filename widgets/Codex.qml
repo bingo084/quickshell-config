@@ -11,7 +11,7 @@ import qs.services
 Button {
     id: root
     property date now: new Date()
-    readonly property var windows: [CodexQuota.rateLimits?.primary, CodexQuota.rateLimits?.secondary]
+    readonly property var windows: [Codex.rateLimits?.primary, Codex.rateLimits?.secondary]
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.MiddleButton) {
@@ -20,11 +20,9 @@ Button {
         } else if (mouse.button === Qt.RightButton) {
             if (PopupManager.activePopup !== popup)
                 PopupManager.dismiss();
-            CodexQuota.refresh(true);
+            Codex.refresh(true);
         } else {
             popup.visible = !popup.visible;
-            if (popup.visible)
-                CodexQuota.refresh();
         }
     }
 
@@ -85,7 +83,7 @@ Button {
             color: {
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
-                return CodexQuota.error !== "" ? Theme.warning : Theme.textPrimary;
+                return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
             }
         }
         ColumnLayout {
@@ -115,18 +113,22 @@ Button {
         id: popup
         anchorItem: root
         contentWidth: 280
+        onVisibleChanged: {
+            if (visible)
+                Codex.refresh();
+        }
         ColumnLayout {
             spacing: 10
             ColumnLayout {
                 id: accountInfo
-                readonly property string type: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[CodexQuota.account?.type] ?? ""
-                visible: CodexQuota.account != null || CodexQuota.provider != null
+                readonly property string type: ({chatgpt: "ChatGPT", apiKey: "API key", amazonBedrock: "Amazon Bedrock"})[Codex.account?.type] ?? ""
+                visible: Codex.account != null || Codex.provider != null
                 spacing: 4
                 RowLayout {
                     Text {
                         id: accountHeading
                         Layout.fillWidth: true
-                        text: CodexQuota.account?.email ?? CodexQuota.provider?.name ?? accountMode.text
+                        text: Codex.account?.email ?? Codex.provider?.name ?? accountMode.text
                         elide: Text.ElideRight
                         font.pixelSize: 12
                         color: Theme.textPrimary
@@ -140,7 +142,7 @@ Button {
                         rightMargin: 6
                         Text {
                             id: plan
-                            text: (CodexQuota.account?.planType ?? "").replace(/_/g, " ")
+                            text: (Codex.account?.planType ?? "").replace(/_/g, " ")
                             font.capitalization: Font.Capitalize
                             font.pixelSize: 12
                             color: Theme.textOnSelected
@@ -150,20 +152,20 @@ Button {
                 RowLayout {
                     id: accountDetails
                     readonly property bool showAccountMode: accountMode.text !== "" && accountMode.text !== accountHeading.text
-                    readonly property bool showResetCredits: CodexQuota.account?.type === "chatgpt"
+                    readonly property bool showResetCredits: Codex.account?.type === "chatgpt"
                     visible: showAccountMode || showResetCredits
                     Text {
                         id: accountMode
                         Layout.fillWidth: true
                         visible: accountDetails.showAccountMode
-                        text: CodexQuota.account?.email && CodexQuota.provider ? CodexQuota.provider.name : accountInfo.type
+                        text: Codex.account?.email && Codex.provider ? Codex.provider.name : accountInfo.type
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
                     Text {
                         id: resetSummary
                         visible: accountDetails.showResetCredits
-                        text: `${CodexQuota.resetCredits?.availableCount ?? "--"} resets available`
+                        text: `${Codex.resetCredits?.availableCount ?? "--"} resets available`
                         font.pixelSize: 12
                         color: Theme.textSecondary
                     }
@@ -171,7 +173,7 @@ Button {
                 Text {
                     Layout.fillWidth: true
                     visible: text !== ""
-                    text: CodexQuota.provider?.address ?? ""
+                    text: Codex.provider?.address ?? ""
                     wrapMode: Text.WrapAnywhere
                     font.pixelSize: 12
                     color: Theme.textSecondary
@@ -179,14 +181,14 @@ Button {
             }
             Rectangle {
                 Layout.fillWidth: true
-                visible: (CodexQuota.account != null || CodexQuota.provider != null) && root.windows.some(Boolean)
+                visible: (Codex.account != null || Codex.provider != null) && root.windows.some(Boolean)
                 implicitHeight: 1
                 color: Theme.popupBorder
             }
             Text {
                 Layout.fillWidth: true
                 visible: text !== ""
-                text: CodexQuota.error
+                text: Codex.error
                 color: Theme.warning
                 wrapMode: Text.Wrap
             }
