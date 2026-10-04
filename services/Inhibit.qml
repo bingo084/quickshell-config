@@ -7,19 +7,49 @@ import Quickshell.Io
 
 Singleton {
     id: root
-    readonly property string mode: sleepProcess.running ? "sleep" : idleProcess.running ? "idle" : "off"
+    readonly property string mode: awakeProcess.running ? "awake" : activeProcess.running ? "active" : "off"
+    property int duration: 0
+    property double expiresAt: 0
+    property double now: Date.now()
+    readonly property real remaining: expiresAt > 0 ? Math.max(0, (expiresAt - now) / 60000) : 0
 
-    Component.onCompleted: setMode(stateFile.text().trim() || "off")
+    Component.onCompleted: {
+        const state = JSON.parse(stateFile.text() || "{}");
+        duration = state.duration ?? 0;
+        expiresAt = state.expiresAt ?? 0;
+        setMode(expiresAt > 0 && expiresAt <= now ? "off" : state.mode ?? "off");
+    }
 
     function cycle() {
-        const nextMode = mode === "off" ? "sleep" : mode === "sleep" ? "idle" : "off";
+        const nextMode = mode === "off" ? "awake" : mode === "awake" ? "active" : "off";
         setMode(nextMode);
     }
 
     function setMode(nextMode: string) {
-        sleepProcess.running = nextMode === "sleep";
-        idleProcess.running = nextMode === "idle";
-        stateFile.setText(nextMode);
+        awakeProcess.running = nextMode === "awake";
+        activeProcess.running = nextMode === "active";
+        if (nextMode === "off") {
+            duration = 0;
+            expiresAt = 0;
+        }
+        save(nextMode);
+    }
+
+    function setDuration(minutes: int) {
+        if (mode === "off")
+            return;
+        now = Date.now();
+        duration = minutes;
+        expiresAt = minutes > 0 ? now + minutes * 60000 : 0;
+        save();
+    }
+
+    function save(nextMode = mode) {
+        stateFile.setText(JSON.stringify({
+            mode: nextMode,
+            duration,
+            expiresAt
+        }));
     }
 
     FileView {
@@ -36,7 +66,7 @@ Singleton {
     }
 
     Process {
-        id: sleepProcess
+        id: awakeProcess
         // Closing Quickshell's stdin pipe ends cat and releases the inhibitor.
         stdinEnabled: true
         command: ["systemd-inhibit", "--what=sleep", "--who=Quickshell", "--why=Manual sleep inhibit", "cat"]
@@ -44,20 +74,30 @@ Singleton {
             onStreamFinished: {
                 const message = text.trim();
                 if (message !== "")
-                    console.warn("Sleep inhibitor:", message);
+                    console.warn("Awake inhibitor:", message);
             }
         }
     }
     Process {
-        id: idleProcess
+        id: activeProcess
         stdinEnabled: true
-        command: ["systemd-inhibit", "--what=idle", "--who=Quickshell", "--why=Manual idle inhibit", "cat"]
+        command: ["systemd-inhibit", "--what=idle:sleep", "--who=Quickshell", "--why=Manual idle and sleep inhibit", "cat"]
         stderr: StdioCollector {
             onStreamFinished: {
                 const message = text.trim();
                 if (message !== "")
-                    console.warn("Idle inhibitor:", message);
+                    console.warn("Active inhibitor:", message);
             }
+        }
+    }
+    Timer {
+        interval: 1000
+        repeat: true
+        running: root.mode !== "off" && root.expiresAt > 0
+        onTriggered: {
+            root.now = Date.now();
+            if (root.expiresAt <= root.now)
+                root.setMode("off");
         }
     }
 }
