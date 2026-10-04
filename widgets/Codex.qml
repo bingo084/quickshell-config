@@ -78,12 +78,22 @@ Button {
     content: RowLayout {
         spacing: 6
         Icon {
+            id: codexIcon
             implicitSize: 18
             source: Qt.resolvedUrl("../assets/openai.svg")
             color: {
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
                 return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
+            }
+            RotationAnimator {
+                target: codexIcon
+                from: 0
+                to: 360
+                duration: 1600
+                loops: Animation.Infinite
+                running: Codex.busy
+                onStopped: codexIcon.rotation = 0
             }
         }
         ColumnLayout {
