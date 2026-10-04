@@ -99,13 +99,15 @@ Button {
                 RowLayout {
                     Text {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         text: "Duration"
-                        font.pixelSize: 12
+                        font: unlimitedButton.font
+                        verticalAlignment: Text.AlignVCenter
                         color: Theme.textSecondary
                     }
-                    Controls.Button {
-                        implicitWidth: contentItem.implicitWidth + 16
-                        implicitHeight: 24
+                    DurationButton {
+                        id: unlimitedButton
+                        implicitHeight: 28
                         text: "Unlimited"
                         highlighted: Inhibit.duration === 0
                         onClicked: {
@@ -118,11 +120,10 @@ Button {
                     spacing: 6
                     Repeater {
                         model: [30, 60, 120, 240, 480]
-                        delegate: Controls.Button {
+                        delegate: DurationButton {
                             required property int modelData
                             Layout.fillWidth: true
                             implicitWidth: 50
-                            implicitHeight: 28
                             text: root.formatDuration(modelData)
                             highlighted: Inhibit.duration === modelData
                             onClicked: {
@@ -224,6 +225,28 @@ Button {
                     }
                 }
             }
+        }
+    }
+
+    component DurationButton: Controls.Button {
+        id: control
+        implicitWidth: contentItem.implicitWidth + leftPadding + rightPadding
+        implicitHeight: 30
+        horizontalPadding: 8
+        font.pixelSize: 12
+
+        contentItem: Text {
+            text: control.text
+            font: control.font
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            color: control.highlighted ? Theme.textOnSelected : Theme.textPrimary
+        }
+        background: Rectangle {
+            radius: 4
+            border.width: control.visualFocus ? 1 : 0
+            border.color: Theme.accent
+            color: Qt.tint(control.highlighted ? Theme.selectedBackground : Theme.controlBackground, control.down ? Theme.pressedBackground : control.hovered ? Theme.hoveredBackground : "transparent")
         }
     }
 }
