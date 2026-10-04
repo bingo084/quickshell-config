@@ -11,10 +11,18 @@ Singleton {
     readonly property NetworkDevice wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? null
     readonly property NetworkDevice device: wired ?? wifi
     readonly property Network network: device?.networks.values.find(network => network.connected) ?? null
+    readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
     property var details: null
     property int detailsRevision
     readonly property bool detailsLoading: detailQuery.running
+    signal ready
 
+    onOnlineChanged: {
+        if (online)
+            refreshDelay.restart();
+        else
+            refreshDelay.stop();
+    }
     onDeviceChanged: {
         details = null;
         refreshDetails();
@@ -78,5 +86,10 @@ Singleton {
             root.details = root.parseDetails(stdout.text);
         }
         // qmllint enable signal-handler-parameters
+    }
+    Timer {
+        id: refreshDelay
+        interval: 2000
+        onTriggered: root.ready()
     }
 }

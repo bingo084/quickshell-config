@@ -31,6 +31,12 @@ Singleton {
             root.refresh();
         }
     }
+    Connections {
+        target: Network
+        function onReady() {
+            root.refresh();
+        }
+    }
     IpcHandler {
         target: "updates"
 

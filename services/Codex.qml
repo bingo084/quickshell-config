@@ -237,6 +237,12 @@ Singleton {
             root.refresh(true);
         }
     }
+    Connections {
+        target: Network
+        function onReady() {
+            root.refreshQuota();
+        }
+    }
     Process {
         id: connection
         command: {

@@ -114,6 +114,12 @@ Singleton {
             root.refresh();
         }
     }
+    Connections {
+        target: Network
+        function onReady() {
+            root.refresh();
+        }
+    }
     FileView {
         id: configFile
         path: root.configPath
