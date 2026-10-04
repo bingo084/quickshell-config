@@ -4,6 +4,7 @@ import QtQuick
 import QtCore
 import Quickshell
 import Quickshell.Io
+import qs.services
 
 Singleton {
     id: root
@@ -107,6 +108,12 @@ Singleton {
         }, config.weather_key);
     }
 
+    Connections {
+        target: Sleep
+        function onResumed() {
+            root.refresh();
+        }
+    }
     FileView {
         id: configFile
         path: root.configPath

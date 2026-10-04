@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.services
 
 Singleton {
     id: root
@@ -230,6 +231,12 @@ Singleton {
         };
     }
 
+    Connections {
+        target: Sleep
+        function onResumed() {
+            root.refresh(true);
+        }
+    }
     Process {
         id: connection
         command: {

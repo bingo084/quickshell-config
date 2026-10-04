@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.services
 
 Singleton {
     id: root
@@ -24,6 +25,12 @@ Singleton {
             updateTerminal.running = true;
     }
 
+    Connections {
+        target: Sleep
+        function onResumed() {
+            root.refresh();
+        }
+    }
     IpcHandler {
         target: "updates"
 
@@ -36,16 +43,17 @@ Singleton {
             root.refresh();
         }
     }
-
     Process {
         id: updateTerminal
         command: ["kitty", "--title", "System update", "zsh", "-ic", "paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
+        // qmllint disable signal-handler-parameters
         onExited: {
             if (root.updating) {
                 root.updating = false;
                 root.refresh();
             }
         }
+        // qmllint enable signal-handler-parameters
     }
 
     component UpdateQuery: Process {
