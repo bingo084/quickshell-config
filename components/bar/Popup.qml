@@ -14,6 +14,15 @@ PopupWindow {
     implicitWidth: background.implicitWidth
     implicitHeight: background.implicitHeight
     color: "transparent"
+
+    Behavior on implicitHeight {
+        enabled: root.visible
+        NumberAnimation {
+            duration: 1
+            easing.type: Easing.OutCubic
+        }
+    }
+
     anchor {
         item: anchorItem
         // qmllint disable missing-type
