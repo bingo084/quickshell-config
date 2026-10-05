@@ -2,50 +2,36 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
-import Quickshell.Widgets
-import qs.config
+import qs.components
 import qs.services
 
-WrapperRectangle {
+Button {
     id: root
-    required property PwNode node
-    signal clicked
-
+    required property var node
+    property var port
     Layout.fillWidth: true
-    implicitHeight: 28
-    radius: 6
-    color: deviceArea.pressed ? Theme.pressedBackground : deviceArea.containsMouse ? Theme.hoveredBackground : "transparent"
-
-    WrapperMouseArea {
-        id: deviceArea
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        margin: 6
-        onClicked: root.clicked()
-
-        RowLayout {
-            spacing: 6
-
-            IconImage {
-                implicitSize: 18
-                source: Quickshell.iconPath(Audio.nodeIconName(root.node))
-            }
-
-            Text {
-                Layout.fillWidth: true
-                color: Theme.textPrimary
-                elide: Text.ElideRight
-                text: root.node?.description || root.node?.nickname || root.node?.name || "Audio"
-            }
-
-            Text {
-                Layout.maximumWidth: 90
-                color: Theme.textSecondary
-                font.pixelSize: 11
-                elide: Text.ElideRight
-                text: root.node.properties["device.profile.description"] || root.node.properties["media.class"] || ""
-                visible: text !== ""
-            }
+    flat: true
+    checked: (node.type === PwNodeType.AudioSource ? Audio.source : Audio.sink) === node && (!port || Audio.activePort(node)?.name === port.name)
+    enabled: port?.availability !== "not available"
+    text: (port ? port.description : node.description || node.nickname || node.name) + (enabled ? "" : " · Unavailable")
+    contentItem: RowLayout {
+        spacing: 6
+        Icon {
+            implicitSize: 16
+            color: root.palette.buttonText
+            source: Quickshell.iconPath(Audio.portIconName(root.port, root.node))
+        }
+        Text {
+            Layout.fillWidth: true
+            text: root.text
+            color: root.palette.buttonText
+            elide: Text.ElideRight
+        }
+        Icon {
+            implicitSize: 16
+            color: root.palette.buttonText
+            opacity: root.checked ? 1 : 0
+            source: Quickshell.iconPath("object-select-symbolic")
         }
     }
 }

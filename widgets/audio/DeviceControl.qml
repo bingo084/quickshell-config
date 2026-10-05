@@ -50,7 +50,7 @@ ColumnLayout {
                         Layout.fillWidth: true
                         color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
                         elide: Text.ElideRight
-                        text: root.node?.description || root.node?.nickname || root.node?.name || "Audio"
+                        text: [root.node?.description || root.node?.nickname || root.node?.name || "Audio", Audio.activePort(root.node)?.description].filter(Boolean).join(" · ")
                     }
 
                     PercentText {

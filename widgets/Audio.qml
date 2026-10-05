@@ -44,6 +44,10 @@ Bar.Button {
     Bar.Popup {
         id: popup
         anchorItem: root
+        onVisibleChanged: {
+            if (visible)
+                Audio.refreshPorts();
+        }
 
         ColumnLayout {
             spacing: 8
@@ -79,10 +83,7 @@ Bar.Button {
                     root.inputExpanded = false;
                     root.outputExpanded = !root.outputExpanded;
                 }
-                onSelected: node => {
-                    Audio.setSink(node);
-                    root.outputExpanded = false;
-                }
+                onSelected: root.outputExpanded = false
             }
 
             DeviceSection {
@@ -94,10 +95,7 @@ Bar.Button {
                     root.outputExpanded = false;
                     root.inputExpanded = !root.inputExpanded;
                 }
-                onSelected: node => {
-                    Audio.setSource(node);
-                    root.inputExpanded = false;
-                }
+                onSelected: root.inputExpanded = false
             }
 
             ColumnLayout {
