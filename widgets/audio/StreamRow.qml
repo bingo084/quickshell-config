@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.services
 
@@ -33,10 +34,10 @@ ColumnLayout {
             node: root.node
         }
 
-        IconButton {
-            icon: Audio.volumeIconName(root.node)
+        Button {
+            icon.name: Audio.volumeIconName(root.node)
             checked: root.node.audio.muted
-            subtle: true
+            flat: true
             onClicked: Audio.toggleMuted(root.node)
         }
     }

@@ -2,12 +2,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.components
-import qs.components.bar
+import qs.components.bar as Bar
 import qs.config
 import qs.services
 import qs.widgets.audio
 
-Button {
+Bar.Button {
     id: root
     property bool outputExpanded: false
     property bool inputExpanded: false
@@ -17,7 +17,7 @@ Button {
         if (mouse.button === Qt.LeftButton) {
             popup.visible = !popup.visible;
         } else {
-            PopupManager.dismiss();
+            Bar.PopupManager.dismiss();
             Audio.toggleMuted();
         }
     }
@@ -41,7 +41,7 @@ Button {
         }
     }
 
-    Popup {
+    Bar.Popup {
         id: popup
         anchorItem: root
 
@@ -59,10 +59,10 @@ Button {
                     text: "Audio"
                 }
 
-                IconButton {
-                    icon: "preferences-system-symbolic"
-                    fallbackIcon: "emblem-system-symbolic"
-                    subtle: true
+                Button {
+                    icon.name: "preferences-system-symbolic"
+                    icon.source: Quickshell.iconPath("emblem-system-symbolic")
+                    flat: true
                     onClicked: {
                         popup.visible = false;
                         Quickshell.execDetached(["pavucontrol"]);
