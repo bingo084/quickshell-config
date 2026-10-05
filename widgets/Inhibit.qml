@@ -144,30 +144,42 @@ Button {
                             color: Theme.textPrimary
                         }
                         Text {
-                            readonly property double deadline: dragArea.pressed ? Inhibit.now + countdown.minutes * 60000 : Inhibit.expiresAt
+                            readonly property double deadline: countdown.pressed ? Inhibit.now + countdown.minutes * 60000 : Inhibit.expiresAt
                             text: "Until " + Qt.formatDateTime(new Date(deadline), "hh:mm")
                             font.pixelSize: 12
                             color: Theme.textSecondary
                         }
                     }
-                    Item {
+                    Slider {
                         id: countdown
+                        readonly property real minutes: pressed ? valueAt(position) : Inhibit.remaining
                         Layout.fillWidth: true
-                        implicitHeight: 24
-                        property int preview: 0
-                        readonly property real maximum: root.range
-                        readonly property real minutes: dragArea.pressed ? preview : Inhibit.remaining
-                        readonly property real position: Math.min(1, minutes / maximum)
-
-                        function previewAt(x: real) {
-                            preview = Math.max(1, Math.min(maximum, Math.round((x - track.x) / track.width * maximum)));
+                        leftPadding: minimumLabel.implicitWidth + 6
+                        rightPadding: maximumLabel.implicitWidth + 6
+                        from: 1
+                        to: root.range
+                        value: Inhibit.remaining
+                        stepSize: 1
+                        snapMode: Controls.Slider.SnapAlways
+                        live: false
+                        wheelEnabled: !pressed
+                        onPressedChanged: {
+                            if (pressed) {
+                                value = Inhibit.remaining;
+                                return;
+                            }
+                            Inhibit.setDuration(value);
+                            value = Qt.binding(() => Inhibit.remaining);
                         }
-
+                        onMoved: {
+                            if (!pressed)
+                                Inhibit.setDuration(Math.ceil(value));
+                        }
                         Text {
                             id: minimumLabel
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
-                            visible: dragArea.pressed
+                            visible: countdown.hovered || countdown.pressed
                             text: "1m"
                             font.pixelSize: 11
                             color: Theme.textSecondary
@@ -176,51 +188,10 @@ Button {
                             id: maximumLabel
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            visible: dragArea.pressed
-                            text: root.formatDuration(countdown.maximum)
+                            visible: countdown.hovered || countdown.pressed
+                            text: root.formatDuration(countdown.to)
                             font.pixelSize: 11
                             color: Theme.textSecondary
-                        }
-                        Rectangle {
-                            id: track
-                            x: minimumLabel.implicitWidth + 12
-                            width: parent.width - x - maximumLabel.implicitWidth - 12
-                            height: 6
-                            anchors.verticalCenter: parent.verticalCenter
-                            radius: height / 2
-                            color: Theme.meterBackground
-                            Rectangle {
-                                width: countdown.position * track.width
-                                height: parent.height
-                                radius: parent.radius
-                                color: Theme.accent
-                            }
-                        }
-                        Rectangle {
-                            x: track.x + countdown.position * track.width - width / 2
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 12
-                            height: 12
-                            radius: 6
-                            color: Theme.accent
-                        }
-                        MouseArea {
-                            id: dragArea
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onWheel: wheel => {
-                                const change = Math.round(wheel.angleDelta.y / 120 * 5);
-                                if (pressed || change === 0)
-                                    return;
-                                const minutes = Math.max(1, Math.min(countdown.maximum, Math.ceil(Inhibit.remaining) + change));
-                                Inhibit.setDuration(minutes);
-                            }
-                            onPressed: mouse => countdown.previewAt(mouse.x)
-                            onPositionChanged: mouse => {
-                                if (pressed)
-                                    countdown.previewAt(mouse.x);
-                            }
-                            onReleased: Inhibit.setDuration(countdown.preview)
                         }
                     }
                 }
