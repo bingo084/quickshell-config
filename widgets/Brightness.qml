@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import Quickshell
 import qs.config
@@ -34,7 +34,7 @@ Button {
     Popup {
         id: popup
         anchorItem: root
-        content: Slider {
+        content: Controls.Slider {
             from: Brightness.minimumLevel
             value: Brightness.level
             onMoved: Brightness.setLevel(value)
