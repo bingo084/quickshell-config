@@ -13,6 +13,7 @@ Button {
     id: root
     property date now: new Date()
     readonly property var windows: [Codex.rateLimits?.primary, Codex.rateLimits?.secondary]
+    readonly property bool waiting: Codex.waiting.length > 0
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
@@ -85,6 +86,8 @@ Button {
             implicitSize: 18
             source: Qt.resolvedUrl("../assets/openai.svg")
             color: {
+                if (root.waiting)
+                    return Theme.warning;
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
                 return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
@@ -95,8 +98,38 @@ Button {
                 to: 360
                 duration: 1600
                 loops: Animation.Infinite
-                running: Codex.busy
+                running: Codex.busy && !root.waiting
                 onStopped: codexIcon.rotation = 0
+            }
+
+            SequentialAnimation on opacity {
+                running: root.waiting
+                loops: Animation.Infinite
+                NumberAnimation {
+                    from: 1
+                    to: 0.45
+                    duration: 800
+                    easing.type: Easing.InOutSine
+                }
+                NumberAnimation {
+                    from: 0.45
+                    to: 1
+                    duration: 800
+                    easing.type: Easing.InOutSine
+                }
+                onStopped: codexIcon.opacity = 1
+            }
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.right: parent.right
+                width: 6
+                height: 6
+                radius: 3
+                visible: root.waiting
+                color: Theme.warning
+                border.color: Theme.barBackground
+                border.width: 1
             }
         }
 
@@ -193,8 +226,36 @@ Button {
             }
 
             Separator {
-                visible: (Codex.account != null || Codex.provider != null) && root.windows.some(Boolean)
+                visible: (Codex.account != null || Codex.provider != null) && (root.waiting || root.windows.some(Boolean))
             }
+
+            Repeater {
+                model: Codex.waiting
+
+                delegate: RowLayout {
+                    id: waitingThread
+                    required property var modelData
+
+                    spacing: 8
+                    Text {
+                        Layout.fillWidth: true
+                        text: waitingThread.modelData.name || waitingThread.modelData.preview || waitingThread.modelData.id.slice(0, 8)
+                        elide: Text.ElideRight
+                        font.pixelSize: 12
+                        color: Theme.textPrimary
+                    }
+                    Text {
+                        text: "Waiting for " + waitingThread.modelData.status.activeFlags.map(flag => flag === "waitingOnUserInput" ? "reply" : "approval").join(" & ")
+                        font.pixelSize: 12
+                        color: Theme.warning
+                    }
+                }
+            }
+
+            Separator {
+                visible: root.waiting && root.windows.some(Boolean)
+            }
+
             Text {
                 Layout.fillWidth: true
                 visible: text !== ""

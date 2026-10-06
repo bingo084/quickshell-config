@@ -14,7 +14,8 @@ Singleton {
     property string error
     property bool connected: false
     property var threads: ({})
-    readonly property bool busy: connected && Object.values(threads).some(thread => thread.status.type === "active")
+    readonly property var waiting: connected ? Object.values(threads).filter(thread => thread.status.type === "active" && thread.status.activeFlags.length > 0) : []
+    readonly property bool busy: connected && Object.values(threads).some(thread => thread.status.type === "active" && thread.status.activeFlags.length === 0)
 
     QtObject {
         id: state
