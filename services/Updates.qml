@@ -27,16 +27,20 @@ Singleton {
 
     Connections {
         target: Sleep
+
         function onResumed() {
             root.refresh();
         }
     }
+
     Connections {
         target: Network
+
         function onReady() {
             root.refresh();
         }
     }
+
     IpcHandler {
         target: "updates"
 
@@ -49,6 +53,7 @@ Singleton {
             root.refresh();
         }
     }
+
     Process {
         id: updateTerminal
         command: ["kitty", "--title", "System update", "zsh", "-ic", "paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
@@ -68,6 +73,7 @@ Singleton {
         required property int emptyExitCode
         property var packages: []
         property string error
+
         stdout: StdioCollector {
             id: stdout
         }
@@ -117,6 +123,7 @@ Singleton {
         running: true
         command: ["checkupdates", "--nocolor"]
     }
+
     UpdateQuery {
         id: aurQuery
         sourceName: "AUR"
@@ -124,6 +131,7 @@ Singleton {
         running: true
         command: ["paru", "-Qua", "--color", "never"]
     }
+
     Timer {
         interval: 3600000
         running: true

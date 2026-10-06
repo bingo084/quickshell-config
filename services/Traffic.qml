@@ -17,20 +17,16 @@ Singleton {
             const colon = line.indexOf(":");
             if (colon < 0)
                 continue;
-
             const name = line.slice(0, colon).trim();
             if (/^(?:lo$|meta$|veth|tun|tap|docker|br-)/i.test(name))
                 continue;
-
             const fields = line.slice(colon + 1).trim().split(/\s+/);
             if (fields.length < 16)
                 continue;
-
             const rx = Number(fields[0]);
             const tx = Number(fields[8]);
             if (!Number.isFinite(rx) || !Number.isFinite(tx) || rx < 0 || tx < 0)
                 continue;
-
             counters[name] = { rx, tx };
         }
         return counters;
@@ -49,7 +45,6 @@ Singleton {
             invalidate();
             return;
         }
-
         const before = previous;
         previous = current;
         const seconds = sampleTimer.restart();
@@ -57,7 +52,6 @@ Singleton {
             invalidate();
             return;
         }
-
         let rxBytes = 0;
         let txBytes = 0;
         let matched = 0;
@@ -70,7 +64,6 @@ Singleton {
             txBytes += after.tx - old.tx;
             matched++;
         }
-
         valid = matched > 0;
         rxBps = valid ? rxBytes / seconds : 0;
         txBps = valid ? txBytes / seconds : 0;
@@ -89,6 +82,7 @@ Singleton {
             root.invalidate();
         }
     }
+
     Timer {
         interval: 2000
         repeat: true

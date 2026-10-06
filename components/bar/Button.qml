@@ -4,6 +4,7 @@ import qs.config
 
 WrapperMouseArea {
     id: root
+
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     property alias content: background.child

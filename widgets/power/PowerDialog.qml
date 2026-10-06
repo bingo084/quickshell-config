@@ -8,6 +8,7 @@ import qs.config
 PanelWindow {
     id: root
     required property string actionLabel
+
     component TimeoutConfig: QtObject {
         property int seconds: 10
         property string action: "confirm"
@@ -19,7 +20,6 @@ PanelWindow {
 
     visible: false
     color: "#66000000"
-
     anchors {
         left: true
         top: true
@@ -47,7 +47,6 @@ PanelWindow {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 16
-
             Text {
                 Layout.fillWidth: true
                 color: Theme.textPrimary
@@ -55,6 +54,7 @@ PanelWindow {
                 wrapMode: Text.WordWrap
                 text: `Are you sure you want to ${root.actionLabel}?`
             }
+
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
                 spacing: 8
@@ -64,7 +64,6 @@ PanelWindow {
                     implicitHeight: 30
                     radius: 6
                     color: cancelArea.containsMouse ? Theme.hoveredBackground : "transparent"
-
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary
@@ -78,12 +77,12 @@ PanelWindow {
                         onClicked: root.canceled()
                     }
                 }
+
                 Rectangle {
                     implicitWidth: 90
                     implicitHeight: 30
                     radius: 6
                     color: confirmArea.containsMouse ? Theme.hoveredBackground : "transparent"
-
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary
@@ -100,11 +99,13 @@ PanelWindow {
             }
         }
     }
+
     Shortcut {
         sequence: "Escape"
         enabled: root.visible
         onActivated: root.canceled()
     }
+
     Timer {
         interval: 1000
         repeat: true

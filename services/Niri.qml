@@ -5,6 +5,7 @@ import QtQml
 
 Niri {
     id: niri
+
     readonly property SortFilterProxyModel sortedWindows: SortFilterProxyModel {
         model: niri.windows
         sorters: [
@@ -19,7 +20,6 @@ Niri {
             }
         ]
     }
-
     Component.onCompleted: connect()
     onConnected: console.log("Connected to niri")
     onErrorOccurred: error => console.error("Niri error:", error)
@@ -30,7 +30,6 @@ Niri {
             console.error("Failed to focus window before maximizing column:", focusResult.error);
             return;
         }
-
         const result = niri.sendRawAction({
             MaximizeColumn: {}
         });

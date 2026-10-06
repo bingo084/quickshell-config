@@ -78,6 +78,7 @@ Singleton {
             }
         }
     }
+
     Process {
         id: activeProcess
         stdinEnabled: true
@@ -90,6 +91,7 @@ Singleton {
             }
         }
     }
+
     Timer {
         interval: 1000
         repeat: true

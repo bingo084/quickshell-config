@@ -10,6 +10,7 @@ import qs.services
 
 Button {
     id: root
+
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     visible: Updates.checking || Updates.updating || Updates.error !== "" || Updates.count > 0
     onClicked: mouse => {
@@ -24,8 +25,10 @@ Button {
             popup.visible = !popup.visible;
         }
     }
+
     content: RowLayout {
         spacing: 4
+
         Icon {
             id: refreshIcon
             implicitSize: 18
@@ -40,14 +43,17 @@ Button {
                 onStopped: refreshIcon.rotation = 0
             }
         }
+
         Text {
             color: Updates.error !== "" ? Theme.warning : Theme.textPrimary
             text: Updates.count
         }
     }
+
     Popup {
         id: popup
         anchorItem: root
+
         ColumnLayout {
             Text {
                 Layout.fillWidth: true
@@ -62,6 +68,7 @@ Button {
                 text: "No updates"
                 color: Theme.textPrimary
             }
+
             ListView {
                 id: packageList
                 implicitWidth: 420
@@ -73,6 +80,7 @@ Button {
                 section.criteria: ViewSection.FullString
                 section.delegate: Text {
                     required property string section
+
                     width: packageList.width
                     height: 28
                     verticalAlignment: Text.AlignVCenter
@@ -80,9 +88,11 @@ Button {
                     color: Theme.textPrimary
                     text: section + " · " + Updates.packages.filter(pkg => pkg.source === section).length
                 }
+
                 delegate: RowLayout {
                     id: packageRow
                     required property var modelData
+
                     width: packageList.width
                     height: 24
                     spacing: 8

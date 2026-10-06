@@ -57,7 +57,6 @@ Button {
             confirm: true
         }
     ]
-
     onClicked: {
         popup.visible = !popup.visible;
         if (popup.visible) {
@@ -84,7 +83,6 @@ Button {
         const action = pendingAction;
         if (action === null)
             return;
-
         pendingAction = null;
         Quickshell.execDetached(action.command);
     }
@@ -93,7 +91,6 @@ Button {
         id: popup
         anchorItem: root
         contentMargin: 6
-
         onVisibleChanged: {
             if (!visible)
                 root.pendingAction = null;
@@ -108,11 +105,11 @@ Button {
                 Loader {
                     id: loader
                     required property var modelData
+
                     Layout.fillWidth: true
                     Layout.topMargin: modelData.separator ? 1 : 0
                     Layout.bottomMargin: modelData.separator ? 1 : 0
                     sourceComponent: modelData.separator ? separator : actionButton
-
                     Component {
                         id: separator
                         Rectangle {
@@ -134,6 +131,7 @@ Button {
             }
         }
     }
+
     PowerDialog {
         screen: root.screen
         actionLabel: root.pendingAction?.label ?? ""

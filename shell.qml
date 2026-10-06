@@ -9,10 +9,12 @@ import qs.widgets
 ShellRoot {
     Variants {
         model: Quickshell.screens
+
         // qmllint disable uncreatable-type
         PanelWindow {
             id: bar
             required property ShellScreen modelData
+
             screen: modelData
             color: Theme.barBackground
             anchors {
@@ -21,7 +23,6 @@ ShellRoot {
                 right: true
             }
             implicitHeight: 30
-
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -35,7 +36,6 @@ ShellRoot {
                     left: parent.left
                     leftMargin: 10
                 }
-
                 Power {
                     screen: bar.modelData
                 }
@@ -55,7 +55,6 @@ ShellRoot {
                     right: parent.right
                     rightMargin: 10
                 }
-
                 Traffic {}
                 Weather {}
                 Codex {}

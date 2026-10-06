@@ -9,6 +9,7 @@ import qs.services
 Button {
     id: root
     required property ShellScreen screen
+
     visible: Brightness.available && root.screen?.name === Brightness.output
     onClicked: popup.visible = !popup.visible
     onWheel: event => {
@@ -18,10 +19,12 @@ Button {
             Brightness.change(-1);
         }
     }
+
     content: RowLayout {
         spacing: 4
         Icon {
             readonly property string strength: Brightness.level < 1 / 3 ? "low" : Brightness.level < 2 / 3 ? "medium" : "high"
+
             implicitSize: 16
             source: Quickshell.iconPath(`display-brightness-${strength}-symbolic`, "display-brightness-symbolic")
         }
@@ -30,6 +33,7 @@ Button {
             text: Math.round(Brightness.level * 100) + "%"
         }
     }
+
     Popup {
         id: popup
         anchorItem: root

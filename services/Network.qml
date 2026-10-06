@@ -60,6 +60,7 @@ Singleton {
     Process {
         id: detailQuery
         property int revision
+
         // qmllint disable incompatible-type
         environment: ({
                 LC_ALL: "C"
@@ -87,6 +88,7 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Timer {
         id: refreshDelay
         interval: 2000

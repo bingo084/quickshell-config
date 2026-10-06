@@ -11,6 +11,7 @@ import qs.services
 RowLayout {
     id: root
     required property ShellScreen screen
+
     spacing: 0
 
     Repeater {
@@ -19,6 +20,7 @@ RowLayout {
         RowLayout {
             id: workspace
             required property var model
+
             spacing: 0
 
             Repeater {
@@ -27,6 +29,7 @@ RowLayout {
                 WrapperMouseArea {
                     id: area
                     required property var model
+
                     visible: workspace.model.id === model.workspaceId
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
@@ -45,6 +48,7 @@ RowLayout {
 
                     WrapperRectangle {
                         readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
+
                         implicitHeight: 30
                         margin: 5
                         radius: 4
@@ -56,6 +60,7 @@ RowLayout {
                                         "飞书": "/usr/share/icons/hicolor/256x256/apps/bytedance-feishu.png"
                                     })
                                 readonly property string fixedIconPath: iconByTitle[area.model.title] ?? area.model.iconPath
+
                                 implicitSize: 18
                                 source: fixedIconPath ? "file://" + fixedIconPath : ""
                                 visible: fixedIconPath !== ""
@@ -77,6 +82,7 @@ RowLayout {
             }
         }
     }
+
     Popup {
         id: popup
         anchorItem: root
@@ -84,7 +90,6 @@ RowLayout {
 
         ColumnLayout {
             spacing: 1
-
             MenuItem {
                 icon: "zoom-fit-best-symbolic"
                 label: "Maximize Column"

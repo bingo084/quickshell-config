@@ -8,15 +8,19 @@ import qs.services
 
 Button {
     id: root
+
     onClicked: popup.visible = !popup.visible
+
     content: RowLayout {
         spacing: 6
         Icon {
             implicitSize: 16
             source: Quickshell.iconPath("utilities-system-monitor-symbolic")
         }
+
         ColumnLayout {
             spacing: 2
+
             Repeater {
                 model: [
                     {
@@ -44,13 +48,16 @@ Button {
                         critical: 0.9
                     }
                 ]
+
                 delegate: Rectangle {
                     id: track
                     required property var modelData
+
                     implicitWidth: 60
                     implicitHeight: 3
                     radius: height / 2
                     color: Theme.meterBackground
+
                     Rectangle {
                         width: track.modelData.valid ? track.width * Math.max(0, Math.min(1, track.modelData.value)) : 0
                         height: track.height
@@ -72,6 +79,7 @@ Button {
     Popup {
         id: popup
         anchorItem: root
+
         ColumnLayout {
             Text {
                 color: Theme.textPrimary

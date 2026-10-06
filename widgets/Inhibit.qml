@@ -20,6 +20,7 @@ Button {
         const rest = total % 60;
         return hours > 0 ? `${hours}h` + (rest > 0 ? ` ${rest}m` : "") : `${rest}m`;
     }
+
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
@@ -30,32 +31,40 @@ Button {
             Inhibit.cycle();
         }
     }
+
     content: Icon {
         implicitSize: 18
         color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
         source: Qt.resolvedUrl("../assets/coffee.svg")
     }
+
     Popup {
         id: popup
         anchorItem: root
         contentWidth: 280
+
         ColumnLayout {
             spacing: 10
+
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 34
                 radius: 6
                 color: Qt.tint(Theme.meterBackground, Theme.hoveredBackground)
+
                 RowLayout {
                     anchors.fill: parent
                     anchors.margins: 3
                     spacing: 0
+
                     Repeater {
                         model: ["off", "awake", "active"]
+
                         delegate: Controls.Button {
                             id: modeButton
                             required property string modelData
                             readonly property color modeColor: modelData === "off" ? Theme.textPrimary : modelData === "awake" ? Theme.warning : Theme.critical
+
                             Layout.fillWidth: true
                             implicitWidth: 80
                             implicitHeight: 28
@@ -87,15 +96,18 @@ Button {
                     }
                 }
             }
+
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 1
                 color: Theme.popupBorder
             }
+
             ColumnLayout {
                 enabled: Inhibit.mode !== "off"
                 opacity: enabled ? 1 : 0.5
                 spacing: 8
+
                 RowLayout {
                     Text {
                         Layout.fillWidth: true
@@ -116,12 +128,15 @@ Button {
                         }
                     }
                 }
+
                 RowLayout {
                     spacing: 6
+
                     Repeater {
                         model: [30, 60, 120, 240, 480]
                         delegate: DurationButton {
                             required property int modelData
+
                             Layout.fillWidth: true
                             implicitWidth: 50
                             text: root.formatDuration(modelData)
@@ -133,9 +148,11 @@ Button {
                         }
                     }
                 }
+
                 ColumnLayout {
                     visible: Inhibit.expiresAt > 0
                     spacing: 0
+
                     RowLayout {
                         Text {
                             Layout.fillWidth: true
@@ -145,14 +162,17 @@ Button {
                         }
                         Text {
                             readonly property double deadline: countdown.pressed ? Inhibit.now + countdown.minutes * 60000 : Inhibit.expiresAt
+
                             text: "Until " + Qt.formatDateTime(new Date(deadline), "hh:mm")
                             font.pixelSize: 12
                             color: Theme.textSecondary
                         }
                     }
+
                     Slider {
                         id: countdown
                         readonly property real minutes: pressed ? valueAt(position) : Inhibit.remaining
+
                         Layout.fillWidth: true
                         leftPadding: minimumLabel.implicitWidth + 6
                         rightPadding: maximumLabel.implicitWidth + 6
@@ -205,7 +225,6 @@ Button {
         implicitHeight: 30
         horizontalPadding: 8
         font.pixelSize: 12
-
         contentItem: Text {
             text: control.text
             font: control.font

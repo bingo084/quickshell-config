@@ -8,6 +8,7 @@ import "../assets/qweather/Offsets.js" as IconOffsets
 
 Button {
     id: root
+
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
@@ -43,6 +44,7 @@ Button {
 
     content: RowLayout {
         spacing: 4
+
         Icon {
             id: weatherIcon
             readonly property string code: Weather.current?.condition?.code ?? "999"
@@ -63,6 +65,7 @@ Button {
                 source: Qt.resolvedUrl("../assets/qweather/999-fill.svg")
             }
         }
+
         Text {
             color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
             text: {
@@ -74,9 +77,11 @@ Button {
             }
         }
     }
+
     Popup {
         id: popup
         anchorItem: root
+
         ColumnLayout {
             spacing: 6
             Text {

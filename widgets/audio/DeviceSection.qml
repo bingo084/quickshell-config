@@ -41,16 +41,20 @@ ColumnLayout {
         clip: true
         visible: root.expanded && root.optionCount > 1
         Controls.ScrollBar.vertical: Controls.ScrollBar {}
+
         ColumnLayout {
             id: entries
             width: list.width
             spacing: 4
+
             Repeater {
                 model: root.devices
+
                 ColumnLayout {
                     id: group
                     required property PwNode modelData
                     readonly property var ports: Audio.ports(modelData)
+
                     Layout.fillWidth: true
                     spacing: 2
                     SectionLabel {
@@ -58,10 +62,12 @@ ColumnLayout {
                         visible: group.ports.length > 0
                         elide: Text.ElideRight
                     }
+
                     Repeater {
                         model: group.ports.length ? group.ports : [null]
                         DeviceListRow {
                             required property var modelData
+
                             node: group.modelData
                             port: modelData
                             onClicked: {

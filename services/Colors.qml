@@ -8,6 +8,7 @@ Singleton {
     id: root
     property string palettePath: Qt.resolvedUrl("../config/colors.json")
     property var data: JSON.parse(paletteFile.text())
+
     FileView {
         id: paletteFile
         path: root.palettePath

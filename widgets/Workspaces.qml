@@ -10,6 +10,7 @@ import qs.services
 RowLayout {
     id: root
     required property ShellScreen screen
+
     spacing: 0
 
     Repeater {
@@ -23,17 +24,18 @@ RowLayout {
             required property bool isActive
             required property string output
             readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
+
             visible: output === root.screen?.name
             implicitWidth: 32
             implicitHeight: 30
             radius: 4
             color: isActive ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
-
             Text {
                 anchors.centerIn: parent
                 text: workspace.index
                 color: workspace.isActive ? Theme.textOnSelected : Theme.textPrimary
             }
+
             MouseArea {
                 id: area
                 anchors.fill: parent

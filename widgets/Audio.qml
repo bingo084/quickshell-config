@@ -28,13 +28,11 @@ Bar.Button {
 
     content: RowLayout {
         spacing: 4
-
         Icon {
             implicitSize: 18
             color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
             source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
         }
-
         Text {
             color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
             text: Audio.ready ? Audio.percent + "%" : "--%"
@@ -56,14 +54,12 @@ Bar.Button {
             RowLayout {
                 Layout.bottomMargin: 4
                 spacing: 8
-
                 Text {
                     Layout.fillWidth: true
                     color: Theme.textPrimary
                     font.bold: true
                     text: "Audio"
                 }
-
                 Button {
                     icon.name: "preferences-system-symbolic"
                     icon.source: Quickshell.iconPath("emblem-system-symbolic")
@@ -120,16 +116,14 @@ Bar.Button {
                 Layout.fillWidth: true
                 spacing: 6
                 visible: Audio.streams.length > 0
-
                 SectionLabel {
                     text: "Apps"
                 }
-
                 Repeater {
                     model: Audio.streams
-
                     StreamRow {
                         required property var modelData
+
                         node: modelData
                     }
                 }

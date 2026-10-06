@@ -110,9 +110,11 @@ Singleton {
     PwObjectTracker {
         objects: root.sinks.concat(root.sources, root.streams)
     }
+
     Process {
         id: portQuery
         property bool pending: false
+
         command: ["pactl", "--format=json", "list"]
         // qmllint disable incompatible-type
         environment: ({ LC_ALL: "C" })
@@ -144,10 +146,12 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Process {
         id: portSwitch
         property var node: null
         property string port
+
         command: ["pactl", node?.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node?.name ?? "", port]
         stderr: StdioCollector { id: switchErrors }
         // qmllint disable signal-handler-parameters
@@ -161,6 +165,7 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Process {
         id: portMonitor
         command: ["pactl", "subscribe"]
@@ -186,11 +191,13 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Timer {
         id: portRefresh
         interval: 150
         onTriggered: root.refreshPorts()
     }
+
     Timer {
         id: reconnect
         interval: 3000

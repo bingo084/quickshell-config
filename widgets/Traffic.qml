@@ -8,13 +8,17 @@ import qs.services
 RowLayout {
     id: root
     readonly property real displayBps: Math.max(Traffic.rxBps, Traffic.txBps)
+
     spacing: 4
     visible: Traffic.valid && root.displayBps > 102400
+
     Icon {
         readonly property string direction: Traffic.rxBps === Traffic.txBps ? "transmit-receive" : Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"
+
         implicitSize: 18
         source: Quickshell.iconPath(`network-${direction}-symbolic`)
     }
+
     Text {
         color: Theme.textPrimary
         text: {

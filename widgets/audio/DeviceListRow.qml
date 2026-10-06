@@ -9,11 +9,13 @@ Button {
     id: root
     required property var node
     property var port
+
     Layout.fillWidth: true
     flat: true
     checked: (node.type === PwNodeType.AudioSource ? Audio.source : Audio.sink) === node && (!port || Audio.activePort(node)?.name === port.name)
     enabled: port?.availability !== "not available"
     text: (port ? port.description : node.description || node.nickname || node.name) + (enabled ? "" : " · Unavailable")
+
     contentItem: RowLayout {
         spacing: 6
         Icon {

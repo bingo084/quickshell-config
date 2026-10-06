@@ -10,7 +10,9 @@ import qs.services
 Button {
     id: root
     readonly property Net.WifiNetwork wifiNetwork: Network.network as Net.WifiNetwork
+
     onClicked: popup.visible = !popup.visible
+
     content: Icon {
         implicitSize: 18
         source: {
@@ -24,6 +26,7 @@ Button {
             return Quickshell.iconPath("network-wireless-disconnected-symbolic");
         }
     }
+
     Popup {
         id: popup
         anchorItem: root
@@ -48,6 +51,7 @@ Button {
                 visible: root.wifiNetwork !== null
                 text: "Signal: " + Math.round((root.wifiNetwork?.signalStrength ?? 0) * 100) + "%"
             }
+
             Repeater {
                 model: [
                     {
@@ -67,8 +71,10 @@ Button {
                         key: "IP6.ADDRESS"
                     }
                 ]
+
                 delegate: Text {
                     required property var modelData
+
                     color: Theme.textPrimary
                     text: {
                         let value = "—";

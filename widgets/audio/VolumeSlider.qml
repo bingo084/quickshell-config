@@ -9,6 +9,7 @@ Slider {
     id: root
     required property PwNode node
     readonly property bool ready: node?.audio != null
+
     Layout.fillWidth: true
     enabled: ready
     value: ready ? node.audio.volume : 0

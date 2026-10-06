@@ -4,6 +4,7 @@ import qs.config
 
 Controls.Slider {
     id: root
+
     implicitWidth: 200
     implicitHeight: 24
     padding: 0
@@ -11,9 +12,11 @@ Controls.Slider {
     opacity: enabled ? 1 : 0.5
     palette.highlight: Theme.accent
     palette.mid: Theme.meterBackground
+
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
     }
+
     background: Rectangle {
         x: root.leftPadding + root.handle.width / 2
         y: root.topPadding + (root.availableHeight - height) / 2
@@ -29,6 +32,7 @@ Controls.Slider {
             color: root.palette.highlight
         }
     }
+
     handle: Rectangle {
         x: root.leftPadding + root.visualPosition * (root.availableWidth - width)
         y: root.topPadding + (root.availableHeight - height) / 2

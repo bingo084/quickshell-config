@@ -53,6 +53,7 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Process {
         id: outputQuery
         command: ["readlink", "-f", `/sys/class/backlight/${root.device}`]
@@ -78,23 +79,23 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     FileView {
         id: brightnessFile
         property bool readOk
 
         path: root.device ? `/sys/class/backlight/${root.device}/brightness` : ""
         watchChanges: true
-
         onLoaded: brightnessFile.readOk = true
         onLoadFailed: brightnessFile.readOk = false
         onFileChanged: brightnessFile.reload()
     }
+
     FileView {
         id: maximumFile
         property bool readOk
 
         path: root.device ? `/sys/class/backlight/${root.device}/max_brightness` : ""
-
         onLoaded: maximumFile.readOk = true
         onLoadFailed: maximumFile.readOk = false
     }

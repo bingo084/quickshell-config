@@ -13,6 +13,7 @@ Button {
     id: root
     property date now: new Date()
     readonly property var windows: [Codex.rateLimits?.primary, Codex.rateLimits?.secondary]
+
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.MiddleButton) {
@@ -78,6 +79,7 @@ Button {
 
     content: RowLayout {
         spacing: 6
+
         Icon {
             id: codexIcon
             implicitSize: 18
@@ -97,13 +99,17 @@ Button {
                 onStopped: codexIcon.rotation = 0
             }
         }
+
         ColumnLayout {
             spacing: 4
+
             Repeater {
                 model: root.windows
+
                 delegate: Rectangle {
                     id: summary
                     required property var modelData
+
                     implicitWidth: 36
                     implicitHeight: 3
                     radius: height / 2
@@ -128,8 +134,10 @@ Button {
             if (visible)
                 Codex.refresh();
         }
+
         ColumnLayout {
             spacing: 10
+
             ColumnLayout {
                 id: accountInfo
                 readonly property string type: ({
@@ -139,6 +147,7 @@ Button {
                     })[Codex.account?.type] ?? ""
                 visible: Codex.account != null || Codex.provider != null
                 spacing: 4
+
                 RowLayout {
                     Text {
                         id: accountHeading
@@ -148,6 +157,7 @@ Button {
                         font.pixelSize: 12
                         color: Theme.textPrimary
                     }
+
                     WrapperRectangle {
                         visible: plan.text !== ""
                         radius: 4
@@ -164,6 +174,7 @@ Button {
                         }
                     }
                 }
+
                 Text {
                     id: accountMode
                     visible: text !== "" && text !== accountHeading.text && (Codex.account?.type !== "chatgpt" || Codex.provider != null)
@@ -180,6 +191,7 @@ Button {
                     color: Theme.textSecondary
                 }
             }
+
             Rectangle {
                 Layout.fillWidth: true
                 visible: (Codex.account != null || Codex.provider != null) && root.windows.some(Boolean)
@@ -193,11 +205,14 @@ Button {
                 color: Theme.warning
                 wrapMode: Text.Wrap
             }
+
             Repeater {
                 model: root.windows.filter(Boolean)
+
                 delegate: ColumnLayout {
                     id: detail
                     required property var modelData
+
                     spacing: 4
                     Text {
                         text: `${root.windowLabel(detail.modelData)} limit`
@@ -205,6 +220,7 @@ Button {
                         font.styleName: ""
                         color: Theme.textPrimary
                     }
+
                     RowLayout {
                         Text {
                             Layout.fillWidth: true
@@ -218,6 +234,7 @@ Button {
                             color: detail.modelData.usedPercent >= 100 ? Theme.critical : Theme.textSecondary
                         }
                     }
+
                     Rectangle {
                         Layout.fillWidth: true
                         implicitHeight: 4
@@ -232,12 +249,14 @@ Button {
                     }
                 }
             }
+
             Rectangle {
                 Layout.fillWidth: true
                 visible: resetSection.visible && root.windows.some(Boolean)
                 implicitHeight: 1
                 color: Theme.popupBorder
             }
+
             ColumnLayout {
                 id: resetSection
                 property bool expanded: false
@@ -258,6 +277,7 @@ Button {
                 Layout.fillWidth: true
                 visible: Codex.resetCredits != null
                 spacing: 6
+
                 WrapperMouseArea {
                     id: resetArea
                     Layout.fillWidth: true
@@ -268,10 +288,12 @@ Button {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: resetSection.expanded = !resetSection.expanded
+
                     WrapperRectangle {
                         margin: 4
                         radius: 4
                         color: resetArea.pressed ? Theme.pressedBackground : resetArea.containsMouse ? Theme.hoveredBackground : "transparent"
+
                         RowLayout {
                             spacing: 6
                             Text {
@@ -294,11 +316,14 @@ Button {
                         }
                     }
                 }
+
                 Repeater {
                     model: resetSection.groups
+
                     delegate: ColumnLayout {
                         id: creditGroup
                         required property var modelData
+
                         visible: resetSection.expanded
                         Layout.fillWidth: true
                         spacing: 6
@@ -310,11 +335,14 @@ Button {
                             color: Theme.textPrimary
                             wrapMode: Text.Wrap
                         }
+
                         Repeater {
                             model: creditGroup.modelData.credits
+
                             delegate: RowLayout {
                                 id: creditRow
                                 required property var modelData
+
                                 Text {
                                     Layout.fillWidth: true
                                     text: creditRow.modelData.expiresAt == null ? "No expiration" : "Expires"

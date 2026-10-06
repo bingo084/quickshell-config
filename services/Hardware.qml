@@ -31,19 +31,16 @@ Singleton {
             root.cpuValid = false;
             return;
         }
-
         const current = {
             total: counters.reduce((sum, value) => sum + value, 0),
             idle: counters[3] + counters[4]
         };
         const previous = root.previousCpu;
         root.previousCpu = current;
-
         if (previous === null) {
             root.cpuValid = false;
             return;
         }
-
         const totalDelta = current.total - previous.total;
         const idleDelta = current.idle - previous.idle;
         root.cpuValid = totalDelta > 0 && idleDelta >= 0 && idleDelta <= totalDelta;
@@ -96,6 +93,7 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     FileView {
         id: cpuTemperatureFile
         path: root.cpuTemperaturePath
@@ -107,6 +105,7 @@ Singleton {
         }
         onLoadFailed: root.cpuTemperatureValid = false
     }
+
     FileView {
         id: cpuFile
         path: "/proc/stat"
@@ -116,12 +115,14 @@ Singleton {
             root.cpuValid = false;
         }
     }
+
     FileView {
         id: memoryFile
         path: "/proc/meminfo"
         onLoaded: root.sampleMemory(memoryFile.text())
         onLoadFailed: root.memoryValid = false
     }
+
     Process {
         id: diskProcess
         running: true
@@ -139,7 +140,6 @@ Singleton {
                 console.warn("disk usage query failed (exit " + exitCode + "):", diskError.text.trim());
                 return;
             }
-
             const fields = diskOutput.text.trim().split("\n").slice(1).join(" ").trim().split(/\s+/);
             const values = fields.map(Number);
             const [total, used, available] = values;
@@ -148,13 +148,13 @@ Singleton {
                 console.warn("Unexpected disk usage output:", diskOutput.text.trim());
                 return;
             }
-
             root.diskTotal = total;
             root.diskUsed = used;
             root.diskAvailable = available;
         }
         // qmllint enable signal-handler-parameters
     }
+
     Process {
         id: gpuProcess
         running: true
@@ -187,6 +187,7 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Timer {
         interval: 5000
         running: true
@@ -196,6 +197,7 @@ Singleton {
                 gpuProcess.running = true;
         }
     }
+
     Timer {
         interval: 2000
         running: true
@@ -207,6 +209,7 @@ Singleton {
                 cpuTemperatureFile.reload();
         }
     }
+
     Timer {
         interval: 30000
         running: true

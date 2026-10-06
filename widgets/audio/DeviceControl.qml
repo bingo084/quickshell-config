@@ -35,14 +35,12 @@ ColumnLayout {
 
             RowLayout {
                 spacing: 6
-
                 Text {
                     Layout.fillWidth: true
                     color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
                     elide: Text.ElideRight
                     text: [root.node?.description || root.node?.nickname || root.node?.name || "Audio", Audio.activePort(root.node)?.description].filter(Boolean).join(" · ")
                 }
-
                 Icon {
                     implicitSize: 14
                     color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
@@ -56,18 +54,15 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 6
-
         Button {
             icon.name: Audio.volumeIconName(root.node)
             checked: root.node?.audio?.muted ?? false
             flat: true
             onClicked: Audio.toggleMuted(root.node)
         }
-
         VolumeSlider {
             node: root.node
         }
-
         PercentText {
             node: root.node
         }

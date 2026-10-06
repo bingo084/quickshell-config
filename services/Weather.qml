@@ -9,8 +9,10 @@ import qs.services
 Singleton {
     id: root
     property string configPath: StandardPaths.writableLocation(StandardPaths.GenericDataLocation) + "/quickshell/weather.json"
+
     // QWeather current response: https://dev.qweather.com/docs/api/weather/weather-current/
     property var current: null
+
     // Tencent IP lookup response: https://lbs.qq.com/service/webService/webServiceGuide/position/webServiceIp
     property var location: null
     property string weatherUrl
@@ -70,7 +72,6 @@ Singleton {
                 fail("Location lookup failed or returned invalid coordinates.");
                 return;
             }
-
             const position = coordinates.lat.toFixed(2) + "/" + coordinates.lng.toFixed(2);
             const url = "https://" + config.weather_host + "/weather/v1/current/" + position + "?lang=zh";
             fetchJson(url, "Weather", response => {
@@ -110,16 +111,20 @@ Singleton {
 
     Connections {
         target: Sleep
+
         function onResumed() {
             root.refresh();
         }
     }
+
     Connections {
         target: Network
+
         function onReady() {
             root.refresh();
         }
     }
+
     FileView {
         id: configFile
         path: root.configPath
@@ -141,11 +146,13 @@ Singleton {
         }
         onLoadFailed: root.fail("Could not read weather configuration.")
     }
+
     QtObject {
         id: requestState
         property var request: null
         property string linkPosition
     }
+
     Timer {
         id: requestTimeout
         interval: 20000
@@ -159,6 +166,7 @@ Singleton {
             root.fail("Weather refresh timed out.");
         }
     }
+
     Timer {
         interval: 600000
         running: true

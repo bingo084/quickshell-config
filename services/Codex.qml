@@ -233,16 +233,20 @@ Singleton {
 
     Connections {
         target: Sleep
+
         function onResumed() {
             root.refresh(true);
         }
     }
+
     Connections {
         target: Network
+
         function onReady() {
             root.refreshQuota();
         }
     }
+
     Process {
         id: connection
         command: {
@@ -279,11 +283,13 @@ Singleton {
         }
         // qmllint enable signal-handler-parameters
     }
+
     Timer {
         id: reconnect
         interval: 3000
         onTriggered: connection.running = true
     }
+
     Timer {
         id: subscriptionRetry
         interval: 1000
@@ -292,10 +298,12 @@ Singleton {
                 root.syncSubscription(id);
         }
     }
+
     Timer {
         id: cooldown
         interval: 5000
     }
+
     Timer {
         interval: 300000
         running: root.connected

@@ -48,7 +48,6 @@ Button {
             return device.iconName || "battery-missing-symbolic";
         if (device.state === UPowerDeviceState.FullyCharged)
             return "battery-level-100-charged-symbolic";
-
         const level = Math.round(device.percentage * 10) * 10;
         if (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
             return "battery-level-" + Math.min(90, level) + "-charging-symbolic";
@@ -59,12 +58,10 @@ Button {
 
     content: RowLayout {
         spacing: 4
-
         Icon {
             implicitSize: 18
             source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
         }
-
         Text {
             color: Theme.textPrimary
             text: UPower.displayDevice.ready ? Math.round(UPower.displayDevice.percentage * 100) + "%" : "--%"
@@ -87,23 +84,19 @@ Button {
                 ColumnLayout {
                     id: device
                     spacing: 2
-
                     required property UPowerDevice modelData
                     readonly property string typeIcon: modelData.isLaptopBattery ? "laptop-symbolic" : root.deviceIcons[modelData.type] || "battery-missing-symbolic"
                     readonly property int iconSize: 18
                     readonly property int rowSpacing: 6
                     readonly property int detailIndent: iconSize + rowSpacing
-
                     readonly property string label: {
                         if (modelData.isLaptopBattery)
                             return !modelData.model || modelData.model === "standard" ? "Laptop" : modelData.model;
                         return modelData.model || UPowerDeviceType.toString(modelData.type);
                     }
-
                     readonly property string statusDetail: {
                         const parts = [UPowerDeviceState.toString(modelData.state)];
                         const timeSeconds = modelData.timeToEmpty > 0 ? modelData.timeToEmpty : modelData.timeToFull;
-
                         if (modelData.type === UPowerDeviceType.Battery && !modelData.isPresent)
                             parts.push("Not present");
                         if (timeSeconds > 0) {
@@ -112,27 +105,22 @@ Button {
                             const timeLabel = modelData.timeToEmpty > 0 ? "Empty in" : "Full in";
                             parts.push(timeLabel + ": " + timeHours + "h " + timeMinutes + "m");
                         }
-
                         return parts.join(" / ");
                     }
-
                     readonly property string capacityDetail: {
                         const parts = [];
-
                         if (modelData.energyCapacity > 0)
                             parts.push("Energy: " + modelData.energy.toFixed(1) + "/" + modelData.energyCapacity.toFixed(1) + " Wh");
                         if (Math.abs(modelData.changeRate) > 0)
                             parts.push("Rate: " + (modelData.changeRate > 0 ? "+" : "") + modelData.changeRate.toFixed(1) + " W");
                         if (modelData.healthSupported)
                             parts.push("Health: " + Math.round(modelData.healthPercentage) + "%");
-
                         return parts.join(" / ");
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: device.rowSpacing
-
                         Icon {
                             implicitSize: device.iconSize
                             source: Quickshell.iconPath(device.typeIcon, "battery-symbolic")
@@ -151,7 +139,6 @@ Button {
                             Layout.preferredWidth: deviceList.percentageWidth || implicitWidth
                             color: Theme.textPrimary
                             text: Math.round(device.modelData.percentage * 100) + "%"
-
                             onImplicitWidthChanged: deviceList.percentageWidth = Math.max(deviceList.percentageWidth, implicitWidth)
                         }
                     }
@@ -163,7 +150,6 @@ Button {
                         text: device.statusDetail
                         wrapMode: Text.Wrap
                     }
-
                     Text {
                         Layout.leftMargin: device.detailIndent
                         color: Theme.textTertiary

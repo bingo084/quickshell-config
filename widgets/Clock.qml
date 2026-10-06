@@ -10,6 +10,7 @@ import qs.services
 Button {
     id: root
     property bool showSeconds: false
+
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
@@ -19,6 +20,7 @@ Button {
             PopupManager.dismiss();
         }
     }
+
     content: Text {
         color: Theme.textPrimary
         text: Qt.formatDateTime(Clock.date, `ddd MMM d  hh:mm${root.showSeconds ? ":ss" : ""}`)
@@ -41,6 +43,7 @@ Button {
         ColumnLayout {
             RowLayout {
                 spacing: 4
+
                 RowLayout {
                     spacing: 0
                     ShiftMonthButton {
@@ -53,6 +56,7 @@ Button {
                         offset: 1
                     }
                 }
+
                 RowLayout {
                     spacing: 0
                     ShiftMonthButton {
@@ -66,11 +70,13 @@ Button {
                     }
                 }
             }
+
             Controls.DayOfWeekRow {
                 id: weekRow
                 locale: popup.locale
                 delegate: Text {
                     required property string shortName
+
                     width: popup.dayCellSize
                     font: weekRow.font
                     color: Theme.textSecondary
@@ -78,14 +84,17 @@ Button {
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
+
             Controls.MonthGrid {
                 id: monthGrid
                 locale: popup.locale
                 month: popup.displayedDate.getMonth()
                 year: popup.displayedDate.getFullYear()
+
                 delegate: Rectangle {
                     id: cell
                     required property var model
+
                     implicitWidth: popup.dayCellSize
                     implicitHeight: popup.dayCellSize
                     radius: height / 2
@@ -103,6 +112,7 @@ Button {
 
     component ShiftMonthButton: Controls.ToolButton {
         required property int offset
+
         Layout.preferredWidth: 28
         Layout.preferredHeight: Layout.preferredWidth
         icon {
@@ -113,6 +123,7 @@ Button {
         }
         onClicked: popup.shiftMonth(offset)
     }
+
     component HeaderText: Text {
         Layout.fillWidth: true
         color: Theme.textPrimary

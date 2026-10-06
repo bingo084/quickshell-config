@@ -14,8 +14,10 @@ Button {
     id: root
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
     readonly property bool connected: root.adapter?.devices.values.some(device => device.connected) ?? false
+
     visible: root.adapter !== null
     onClicked: popup.visible = !popup.visible
+
     content: Icon {
         implicitSize: 18
         source: {
@@ -24,9 +26,11 @@ Button {
             return Quickshell.iconPath(root.connected ? "bluetooth-active-symbolic" : "bluetooth-symbolic");
         }
     }
+
     Popup {
         id: popup
         anchorItem: root
+
         ColumnLayout {
             spacing: 8
             Controls.Switch {
@@ -35,9 +39,11 @@ Button {
                 enabled: root.adapter !== null && (root.adapter.state === BluetoothAdapterState.Enabled || root.adapter.state === BluetoothAdapterState.Disabled)
                 onToggled: root.adapter.enabled = checked
             }
+
             Repeater {
                 id: deviceList
                 model: root.adapter?.devices.values.filter(device => device.paired || device.connected) ?? []
+
                 delegate: RowLayout {
                     id: deviceRow
                     required property BluetoothDevice modelData
@@ -69,6 +75,7 @@ Button {
                     }
                 }
             }
+
             Text {
                 color: Theme.textPrimary
                 visible: deviceList.count === 0

@@ -17,15 +17,14 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 6
-
         IconImage {
             implicitSize: 18
             source: Quickshell.iconPath(Audio.nodeIconName(root.node))
         }
-
         Text {
             readonly property string appName: root.node.properties["application.name"] || root.node.name
             readonly property string mediaName: root.node.properties["media.name"] || ""
+
             Layout.fillWidth: true
             color: Theme.textPrimary
             elide: Text.ElideRight
@@ -36,18 +35,15 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 6
-
         Button {
             icon.name: Audio.volumeIconName(root.node)
             checked: root.node.audio.muted
             flat: true
             onClicked: Audio.toggleMuted(root.node)
         }
-
         VolumeSlider {
             node: root.node
         }
-
         PercentText {
             node: root.node
         }
