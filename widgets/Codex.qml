@@ -239,13 +239,13 @@ Button {
                     spacing: 8
                     Text {
                         Layout.fillWidth: true
-                        text: waitingThread.modelData.name || waitingThread.modelData.preview || waitingThread.modelData.id.slice(0, 8)
+                        text: waitingThread.modelData.title
                         elide: Text.ElideRight
                         font.pixelSize: 12
                         color: Theme.textPrimary
                     }
                     Text {
-                        text: "Waiting for " + waitingThread.modelData.status.activeFlags.map(flag => flag === "waitingOnUserInput" ? "reply" : "approval").join(" & ")
+                        text: "Waiting for " + waitingThread.modelData.reasons.join(" & ")
                         font.pixelSize: 12
                         color: Theme.warning
                     }

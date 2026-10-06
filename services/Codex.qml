@@ -14,7 +14,7 @@ Singleton {
     property string error
     property bool connected: false
     property var threads: ({})
-    readonly property var waiting: connected ? Object.values(threads).filter(thread => thread.status.type === "active" && thread.status.activeFlags.length > 0) : []
+    readonly property var waiting: connected ? waitingThreads() : []
     readonly property bool busy: connected && Object.values(threads).some(thread => thread.status.type === "active" && thread.status.activeFlags.length === 0)
 
     QtObject {
@@ -23,6 +23,7 @@ Singleton {
         property var pending: ({})
         property var subscribed: ({})
         property var syncing: ({})
+        property var questions: ({})
     }
 
     function request(method, params = {}) {
@@ -55,10 +56,76 @@ Singleton {
             request("account/rateLimits/read");
     }
 
+    function waitingThreads() {
+        const waiting = [];
+        for (const thread of Object.values(threads)) {
+            if (thread.status.type !== "active")
+                continue;
+            const reasons = [];
+            if (thread.status.activeFlags.includes("waitingOnUserInput") || state.questions[thread.id]?.length > 0)
+                reasons.push("reply");
+            if (thread.status.activeFlags.includes("waitingOnApproval"))
+                reasons.push("approval");
+            if (reasons.length > 0)
+                waiting.push({
+                    id: thread.id,
+                    title: thread.name || thread.preview || thread.id.slice(0, 8),
+                    reasons
+                });
+        }
+        return waiting;
+    }
+
     function updateThread(thread) {
         const current = Object.assign({}, threads);
-        current[thread.id] = thread;
+        current[thread.id] = Object.assign({}, current[thread.id], thread);
+        if (current[thread.id].status.type !== "active" && state.questions[thread.id])
+            setQuestions(thread.id, []);
         threads = current;
+    }
+
+    function updateQuestions(threadId, item) {
+        const thread = threads[threadId];
+        if (thread?.status.type !== "active")
+            return;
+        const current = state.questions[threadId] ?? [];
+        if (item.type === "agentMessage" && item.questions?.length) {
+            const added = item.questions.map((question, index) => ({
+                        itemId: item.id,
+                        index
+                    }));
+            setQuestions(threadId, current.filter(question => question.itemId !== item.id).concat(added));
+        } else if (item.type === "userMessage") {
+            const answers = parseAnswers(item);
+            if (answers.length === 0)
+                return;
+            setQuestions(threadId, current.filter(question => !answers.some(answer => answer.itemId === question.itemId && answer.index === question.index)));
+        }
+    }
+
+    function parseAnswers(item) {
+        const start = "<send_user_message_question_reply>";
+        const end = "</send_user_message_question_reply>";
+        const reply = item.content.find(part => part.type === "text" && part.text.startsWith(start));
+        if (!reply)
+            return [];
+        const answers = JSON.parse(reply.text.slice(start.length, reply.text.indexOf(end)));
+        return answers.map(answer => {
+            const [, itemId, index] = JSON.parse(answer.questionItemId);
+            return {
+                itemId,
+                index
+            };
+        });
+    }
+
+    function setQuestions(threadId, questions) {
+        const current = Object.assign({}, state.questions);
+        if (questions.length > 0)
+            current[threadId] = questions;
+        else
+            delete current[threadId];
+        state.questions = current;
     }
 
     function syncSubscription(threadId) {
@@ -114,13 +181,16 @@ Singleton {
             updateThread(params.thread);
             syncSubscription(params.thread.id);
             break;
+        case "item/completed":
+            updateQuestions(params.threadId, params.item);
+            break;
         case "thread/status/changed":
             {
                 const previous = threads[params.threadId];
-                updateThread(Object.assign({}, previous, {
+                updateThread({
                     id: params.threadId,
                     status: params.status
-                }));
+                });
                 if (previous?.status.type === "active" && params.status.type !== "active")
                     refreshQuota();
                 syncSubscription(params.threadId);
@@ -131,6 +201,7 @@ Singleton {
                 const current = Object.assign({}, threads);
                 delete current[params.threadId];
                 threads = current;
+                setQuestions(params.threadId, []);
                 delete state.subscribed[params.threadId];
                 break;
             }
@@ -191,14 +262,18 @@ Singleton {
         case "thread/loaded/list":
             {
                 const current = {};
+                const questions = {};
                 for (const id of result.data) {
                     if (threads[id])
                         current[id] = threads[id];
+                    if (state.questions[id])
+                        questions[id] = state.questions[id];
                     request("thread/read", {
                         threadId: id
                     });
                 }
                 threads = current;
+                state.questions = questions;
                 break;
             }
         case "thread/read":
@@ -262,7 +337,7 @@ Singleton {
                 version: "0.1.0"
             },
             capabilities: {
-                optOutNotificationMethods: ["item/agentMessage/delta", "item/reasoning/textDelta", "item/reasoning/summaryTextDelta", "item/commandExecution/outputDelta", "item/fileChange/outputDelta", "turn/diff/updated", "turn/plan/updated", "item/started", "item/completed"]
+                optOutNotificationMethods: ["item/agentMessage/delta", "item/reasoning/textDelta", "item/reasoning/summaryTextDelta", "item/commandExecution/outputDelta", "item/fileChange/outputDelta", "turn/diff/updated", "turn/plan/updated", "item/started"]
             }
         })
         stdout: SplitParser {
@@ -278,6 +353,7 @@ Singleton {
             state.pending = {};
             state.subscribed = {};
             state.syncing = {};
+            state.questions = {};
             root.error = "Codex daemon disconnected.";
             subscriptionRetry.stop();
             reconnect.restart();
