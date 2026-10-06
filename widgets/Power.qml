@@ -105,25 +105,19 @@ Button {
                 Loader {
                     id: loader
                     required property var modelData
+                    readonly property Component separator: Components.Separator {}
+                    readonly property Component actionButton: MenuItem {
+                        icon: loader.modelData.icon
+                        fallbackIcon: loader.modelData.fallbackIcon || ""
+                        label: loader.modelData.label
+                        enabled: PowerCapabilities.canExecute(loader.modelData.capability)
+                        onTriggered: root.activate(loader.modelData)
+                    }
 
                     Layout.fillWidth: true
                     Layout.topMargin: modelData.separator ? 1 : 0
                     Layout.bottomMargin: modelData.separator ? 1 : 0
                     sourceComponent: modelData.separator ? separator : actionButton
-                    Component {
-                        id: separator
-                        Components.Separator {}
-                    }
-                    Component {
-                        id: actionButton
-                        MenuItem {
-                            icon: loader.modelData.icon
-                            fallbackIcon: loader.modelData.fallbackIcon || ""
-                            label: loader.modelData.label
-                            enabled: PowerCapabilities.canExecute(loader.modelData.capability)
-                            onTriggered: root.activate(loader.modelData)
-                        }
-                    }
                 }
             }
         }
