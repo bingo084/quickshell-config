@@ -21,7 +21,14 @@ ColumnLayout {
         Layout.fillWidth: true
         implicitHeight: 28
         radius: 6
-        color: root.expanded ? Theme.selectedBackground : deviceArea.pressed ? Theme.pressedBackground : deviceArea.containsMouse ? Theme.hoveredBackground : "transparent"
+        color: {
+            if (!root.expandable)
+                return "transparent";
+            const background = root.expanded ? Theme.selectedBackground : Theme.meterBackground;
+            const overlay = deviceArea.pressed ? Theme.pressedBackground : deviceArea.containsMouse ? Theme.hoveredBackground : "transparent";
+            return Qt.tint(background, overlay);
+        }
+        border.color: !root.expandable ? "transparent" : root.expanded ? Theme.accent : Theme.popupBorder
 
         WrapperMouseArea {
             id: deviceArea
