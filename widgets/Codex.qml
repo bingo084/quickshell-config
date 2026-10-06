@@ -192,11 +192,8 @@ Button {
                 }
             }
 
-            Rectangle {
-                Layout.fillWidth: true
+            Separator {
                 visible: (Codex.account != null || Codex.provider != null) && root.windows.some(Boolean)
-                implicitHeight: 1
-                color: Theme.popupBorder
             }
             Text {
                 Layout.fillWidth: true
@@ -250,11 +247,8 @@ Button {
                 }
             }
 
-            Rectangle {
-                Layout.fillWidth: true
+            Separator {
                 visible: resetSection.visible && root.windows.some(Boolean)
-                implicitHeight: 1
-                color: Theme.popupBorder
             }
 
             ColumnLayout {

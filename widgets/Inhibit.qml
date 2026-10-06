@@ -97,11 +97,7 @@ Button {
                 }
             }
 
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: Theme.popupBorder
-            }
+            Separator {}
 
             ColumnLayout {
                 enabled: Inhibit.mode !== "off"

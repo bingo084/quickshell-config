@@ -84,10 +84,7 @@ Bar.Button {
                 onSelected: root.outputExpanded = false
             }
 
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: Qt.alpha(Theme.popupBorder, 0.5)
+            Separator {
                 visible: outputSection.visible && inputSection.visible
             }
 
@@ -104,10 +101,7 @@ Bar.Button {
                 onSelected: root.inputExpanded = false
             }
 
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: Qt.alpha(Theme.popupBorder, 0.5)
+            Separator {
                 visible: appsSection.visible && (outputSection.visible || inputSection.visible)
             }
 

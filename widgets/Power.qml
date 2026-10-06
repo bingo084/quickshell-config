@@ -4,8 +4,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.components as Components
 import qs.components.bar
-import qs.config
 import qs.services
 import qs.widgets.power
 
@@ -112,10 +112,7 @@ Button {
                     sourceComponent: modelData.separator ? separator : actionButton
                     Component {
                         id: separator
-                        Rectangle {
-                            implicitHeight: 1
-                            color: Theme.popupBorder
-                        }
+                        Components.Separator {}
                     }
                     Component {
                         id: actionButton
