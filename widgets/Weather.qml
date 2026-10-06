@@ -4,7 +4,7 @@ import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
-import "../assets/qweather/Offsets.js" as IconOffsets
+import "../assets/qweather/Offsets.mjs" as IconOffsets
 
 Button {
     id: root
