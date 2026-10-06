@@ -24,6 +24,7 @@ Singleton {
         property var subscribed: ({})
         property var syncing: ({})
         property var questions: ({})
+        property var restoring: ({})
     }
 
     function request(method, params = {}) {
@@ -37,6 +38,7 @@ Singleton {
             method,
             params
         }) + "\n");
+        return id;
     }
 
     function refresh(force = false) {
@@ -79,8 +81,11 @@ Singleton {
     function updateThread(thread) {
         const current = Object.assign({}, threads);
         current[thread.id] = Object.assign({}, current[thread.id], thread);
-        if (current[thread.id].status.type !== "active" && state.questions[thread.id])
-            setQuestions(thread.id, []);
+        if (current[thread.id].status.type !== "active") {
+            delete state.restoring[thread.id];
+            if (state.questions[thread.id])
+                setQuestions(thread.id, []);
+        }
         threads = current;
     }
 
@@ -89,18 +94,24 @@ Singleton {
         if (thread?.status.type !== "active")
             return;
         const current = state.questions[threadId] ?? [];
+        const updated = questionsAfter(current, item);
+        if (updated !== current)
+            setQuestions(threadId, updated);
+    }
+
+    function questionsAfter(current, item) {
         if (item.type === "agentMessage" && item.questions?.length) {
             const added = item.questions.map((question, index) => ({
                         itemId: item.id,
                         index
                     }));
-            setQuestions(threadId, current.filter(question => question.itemId !== item.id).concat(added));
+            return current.filter(question => question.itemId !== item.id).concat(added);
         } else if (item.type === "userMessage") {
             const answers = parseAnswers(item);
-            if (answers.length === 0)
-                return;
-            setQuestions(threadId, current.filter(question => !answers.some(answer => answer.itemId === question.itemId && answer.index === question.index)));
+            if (answers.length > 0)
+                return current.filter(question => !answers.some(answer => answer.itemId === question.itemId && answer.index === question.index));
         }
+        return current;
     }
 
     function parseAnswers(item) {
@@ -128,6 +139,17 @@ Singleton {
         state.questions = current;
     }
 
+    function finishRestore(threadId, items) {
+        const restoring = state.restoring[threadId];
+        delete state.restoring[threadId];
+        if (threads[threadId]?.status.type !== "active")
+            return;
+        const ids = new Set(items.map(item => item.id));
+        const live = restoring.live.filter(item => !ids.has(item.id));
+        const questions = items.concat(live).reduce(questionsAfter, []);
+        setQuestions(threadId, questions);
+    }
+
     function syncSubscription(threadId) {
         if (!connected || state.syncing[threadId])
             return;
@@ -138,8 +160,12 @@ Singleton {
         const params = {
             threadId
         };
-        if (active)
+        if (active) {
             params.excludeTurns = true;
+            state.restoring[threadId] = {
+                live: []
+            };
+        }
         state.syncing[threadId] = true;
         request(active ? "thread/resume" : "thread/unsubscribe", params);
     }
@@ -182,6 +208,8 @@ Singleton {
             syncSubscription(params.thread.id);
             break;
         case "item/completed":
+            if (state.restoring[params.threadId] && (params.item.type === "userMessage" || params.item.questions?.length))
+                state.restoring[params.threadId].live.push(params.item);
             updateQuestions(params.threadId, params.item);
             break;
         case "thread/status/changed":
@@ -202,6 +230,7 @@ Singleton {
                 delete current[params.threadId];
                 threads = current;
                 setQuestions(params.threadId, []);
+                delete state.restoring[params.threadId];
                 delete state.subscribed[params.threadId];
                 break;
             }
@@ -223,7 +252,13 @@ Singleton {
         const threadId = pending.params.threadId;
         if (method === "thread/resume" || method === "thread/unsubscribe")
             delete state.syncing[threadId];
+        const restoring = state.restoring[threadId];
+        const restoringRequest = method === "thread/turns/list";
+        if (restoringRequest && restoring?.requestId !== message.id)
+            return;
         if (message.error) {
+            if (restoringRequest || method === "thread/resume")
+                delete state.restoring[threadId];
             if (method === "thread/resume" && message.error.message.includes("no rollout found")) {
                 // New threads are only persisted after their first prompt.
                 subscriptionRetry.restart();
@@ -263,17 +298,21 @@ Singleton {
             {
                 const current = {};
                 const questions = {};
+                const restoring = {};
                 for (const id of result.data) {
                     if (threads[id])
                         current[id] = threads[id];
                     if (state.questions[id])
                         questions[id] = state.questions[id];
+                    if (state.restoring[id])
+                        restoring[id] = state.restoring[id];
                     request("thread/read", {
                         threadId: id
                     });
                 }
                 threads = current;
                 state.questions = questions;
+                state.restoring = restoring;
                 break;
             }
         case "thread/read":
@@ -282,8 +321,25 @@ Singleton {
             break;
         case "thread/resume":
             state.subscribed[threadId] = true;
+            if (threads[threadId]?.status.type === "active") {
+                if (!state.restoring[threadId])
+                    state.restoring[threadId] = {
+                        live: []
+                    };
+                state.restoring[threadId].requestId = request("thread/turns/list", {
+                    threadId,
+                    limit: 1,
+                    itemsView: "full"
+                });
+            }
             syncSubscription(threadId);
             break;
+        case "thread/turns/list":
+            {
+                const turn = result.data.find(turn => turn.status === "inProgress");
+                finishRestore(threadId, turn?.items ?? []);
+                break;
+            }
         case "thread/unsubscribe":
             delete state.subscribed[threadId];
             syncSubscription(threadId);
@@ -327,7 +383,7 @@ Singleton {
         id: connection
         command: {
             const codexHome = Quickshell.env("CODEX_HOME") || Quickshell.env("HOME") + "/.codex";
-            return ["websocat", "-t", "-E", "--ws-c-uri=ws://localhost/", "-", `ws-c:unix:${codexHome}/app-server-control/app-server-control.sock`];
+            return ["websocat", "-B", "4194304", "-t", "-E", "--ws-c-uri=ws://localhost/", "-", `ws-c:unix:${codexHome}/app-server-control/app-server-control.sock`];
         }
         stdinEnabled: true
         running: true
@@ -354,6 +410,7 @@ Singleton {
             state.subscribed = {};
             state.syncing = {};
             state.questions = {};
+            state.restoring = {};
             root.error = "Codex daemon disconnected.";
             subscriptionRetry.stop();
             reconnect.restart();
