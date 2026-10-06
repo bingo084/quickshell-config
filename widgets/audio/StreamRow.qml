@@ -24,15 +24,18 @@ ColumnLayout {
         }
 
         Text {
+            readonly property string appName: root.node.properties["application.name"] || root.node.name
+            readonly property string mediaName: root.node.properties["media.name"] || ""
             Layout.fillWidth: true
             color: Theme.textPrimary
             elide: Text.ElideRight
-            text: root.node.properties["application.name"] || root.node.name
+            text: mediaName && mediaName !== appName ? appName + " · " + mediaName : appName
         }
+    }
 
-        PercentText {
-            node: root.node
-        }
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: 6
 
         Button {
             icon.name: Audio.volumeIconName(root.node)
@@ -40,9 +43,13 @@ ColumnLayout {
             flat: true
             onClicked: Audio.toggleMuted(root.node)
         }
-    }
 
-    VolumeSlider {
-        node: root.node
+        VolumeSlider {
+            node: root.node
+        }
+
+        PercentText {
+            node: root.node
+        }
     }
 }

@@ -44,16 +44,17 @@ Bar.Button {
     Bar.Popup {
         id: popup
         anchorItem: root
+        contentWidth: 300
         onVisibleChanged: {
             if (visible)
                 Audio.refreshPorts();
         }
 
         ColumnLayout {
-            spacing: 8
+            spacing: 4
 
             RowLayout {
-                Layout.preferredWidth: 300
+                Layout.bottomMargin: 4
                 spacing: 8
 
                 Text {
@@ -75,6 +76,7 @@ Bar.Button {
             }
 
             DeviceSection {
+                id: outputSection
                 node: Audio.sink
                 devices: Audio.sinks
                 title: "Output"
@@ -86,7 +88,15 @@ Bar.Button {
                 onSelected: root.outputExpanded = false
             }
 
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 1
+                color: Qt.alpha(Theme.popupBorder, 0.5)
+                visible: outputSection.visible && inputSection.visible
+            }
+
             DeviceSection {
+                id: inputSection
                 node: Audio.source
                 devices: Audio.sources
                 title: "Input"
@@ -98,9 +108,17 @@ Bar.Button {
                 onSelected: root.inputExpanded = false
             }
 
-            ColumnLayout {
+            Rectangle {
                 Layout.fillWidth: true
-                spacing: 4
+                implicitHeight: 1
+                color: Qt.alpha(Theme.popupBorder, 0.5)
+                visible: appsSection.visible && (outputSection.visible || inputSection.visible)
+            }
+
+            ColumnLayout {
+                id: appsSection
+                Layout.fillWidth: true
+                spacing: 6
                 visible: Audio.streams.length > 0
 
                 SectionLabel {
