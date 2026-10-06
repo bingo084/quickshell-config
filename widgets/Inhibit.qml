@@ -47,17 +47,59 @@ Button {
             spacing: 10
 
             Rectangle {
+                id: modeSelector
+                readonly property Item selectedButton: modeButtons.count > 0 ? modeButtons.itemAt(Inhibit.mode === "off" ? 0 : Inhibit.mode === "awake" ? 1 : 2) : null
+
                 Layout.fillWidth: true
                 implicitHeight: 34
                 radius: 6
                 color: Qt.tint(Theme.meterBackground, Theme.hoveredBackground)
 
+                Rectangle {
+                    readonly property color modeColor: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
+
+                    x: modeRow.x + (modeSelector.selectedButton?.x ?? 0)
+                    y: modeRow.y
+                    width: modeSelector.selectedButton?.width ?? 0
+                    height: modeRow.height
+                    radius: 4
+                    border.width: 1
+                    border.color: Inhibit.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
+                    color: Inhibit.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
+
+                    Behavior on x {
+                        enabled: popup.visible
+                        NumberAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+
+                    Behavior on color {
+                        enabled: popup.visible
+                        ColorAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+
+                    Behavior on border.color {
+                        enabled: popup.visible
+                        ColorAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
+
                 RowLayout {
+                    id: modeRow
                     anchors.fill: parent
                     anchors.margins: 3
                     spacing: 0
 
                     Repeater {
+                        id: modeButtons
                         model: ["off", "awake", "active"]
 
                         delegate: Controls.Button {
@@ -81,17 +123,16 @@ Button {
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 color: modeButton.checked ? modeButton.modeColor : modeButton.hovered || modeButton.down ? Theme.textPrimary : Theme.textSecondary
-                            }
-                            background: Rectangle {
-                                radius: 4
-                                border.width: modeButton.checked ? 1 : 0
-                                border.color: modeButton.modelData === "off" ? Theme.popupBorder : Qt.alpha(modeButton.modeColor, 0.4)
-                                color: {
-                                    if (!modeButton.checked)
-                                        return "transparent";
-                                    return modeButton.modelData === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeButton.modeColor, 0.4));
+
+                                Behavior on color {
+                                    enabled: popup.visible
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.OutCubic
+                                    }
                                 }
                             }
+                            background: null
                         }
                     }
                 }
