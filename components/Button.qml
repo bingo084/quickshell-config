@@ -10,6 +10,13 @@ Controls.Button {
     palette.buttonText: checked ? Theme.textOnSelected : Theme.textPrimary
     icon.color: palette.buttonText
 
+    Behavior on palette.buttonText {
+        ColorAnimation {
+            duration: 120
+            easing.type: Easing.OutCubic
+        }
+    }
+
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
     }
@@ -29,6 +36,20 @@ Controls.Button {
             if (root.flat && !root.hovered)
                 return "transparent";
             return Theme.popupBorder;
+        }
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Behavior on border.color {
+            ColorAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
         }
     }
 }

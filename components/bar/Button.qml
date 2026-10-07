@@ -17,5 +17,12 @@ WrapperMouseArea {
         margin: 6
         leftMargin: root.horizontalPadding
         rightMargin: root.horizontalPadding
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 }
