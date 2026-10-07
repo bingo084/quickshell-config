@@ -24,10 +24,9 @@ Button {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            popup.visible = !popup.visible;
+            popup.toggle();
         } else {
-            if (PopupManager.activePopup !== popup)
-                PopupManager.dismiss();
+            popup.closeOthers();
             Inhibit.cycle();
         }
     }

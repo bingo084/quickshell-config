@@ -16,7 +16,7 @@ Button {
     readonly property bool connected: root.adapter?.devices.values.some(device => device.connected) ?? false
 
     visible: root.adapter !== null
-    onClicked: popup.visible = !popup.visible
+    onClicked: popup.toggle()
 
     content: Icon {
         implicitSize: 18

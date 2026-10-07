@@ -5,7 +5,7 @@ import qs.services
 
 Button {
     onClicked: {
-        PopupManager.dismiss();
+        PopupHost.close();
         Launcher.toggle();
     }
 

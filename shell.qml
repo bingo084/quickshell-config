@@ -26,7 +26,7 @@ ShellRoot {
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                onClicked: PopupManager.dismiss()
+                onClicked: PopupHost.close()
             }
 
             RowLayout {

@@ -12,13 +12,12 @@ Button {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            popup.visible = !popup.visible;
+            popup.toggle();
         } else if (mouse.button === Qt.RightButton) {
-            if (PopupManager.activePopup !== popup)
-                PopupManager.dismiss();
+            popup.closeOthers();
             Weather.refresh();
         } else if (Weather.weatherUrl !== "") {
-            PopupManager.dismiss();
+            popup.closeAll();
             Qt.openUrlExternally(Weather.weatherUrl);
         }
     }

@@ -36,12 +36,12 @@ RowLayout {
                     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                     onClicked: mouse => {
                         const sameAnchor = popup.visible && popup.anchorItem === area;
-                        PopupManager.dismiss();
+                        popup.closeAll();
                         if (mouse.button === Qt.LeftButton)
                             Niri.focusWindow(model.id);
                         else if (mouse.button === Qt.RightButton && !sameAnchor) {
                             popup.anchorItem = area;
-                            popup.visible = true;
+                            popup.open();
                         } else if (mouse.button === Qt.MiddleButton)
                             Niri.closeWindow(model.id);
                     }
@@ -86,6 +86,7 @@ RowLayout {
     Popup {
         id: popup
         anchorItem: root
+        contentMargin: 6
         readonly property var targetItem: anchorItem
 
         ColumnLayout {
@@ -94,7 +95,7 @@ RowLayout {
                 icon: "zoom-fit-best-symbolic"
                 label: "Maximize Column"
                 onTriggered: {
-                    popup.visible = false;
+                    popup.close();
                     Niri.maximizeColumn(popup.targetItem.model.id);
                 }
             }
@@ -102,7 +103,7 @@ RowLayout {
                 icon: "window-maximize-symbolic"
                 label: "Maximize Window To Edges"
                 onTriggered: {
-                    popup.visible = false;
+                    popup.close();
                     Niri.maximizeWindowToEdges(popup.targetItem.model.id);
                 }
             }
@@ -110,7 +111,7 @@ RowLayout {
                 icon: "view-fullscreen-symbolic"
                 label: "Toggle Fullscreen"
                 onTriggered: {
-                    popup.visible = false;
+                    popup.close();
                     Niri.toggleFullscreen(popup.targetItem.model.id);
                 }
             }
@@ -118,7 +119,7 @@ RowLayout {
                 icon: "window-pop-out-symbolic"
                 label: `${popup.targetItem?.model?.isFloating ? "Disable" : "Enable"} Floating`
                 onTriggered: {
-                    popup.visible = false;
+                    popup.close();
                     Niri.toggleFloating(popup.targetItem.model.id);
                 }
             }
@@ -126,7 +127,7 @@ RowLayout {
                 icon: "window-close-symbolic"
                 label: "Close"
                 onTriggered: {
-                    popup.visible = false;
+                    popup.close();
                     Niri.closeWindow(popup.targetItem.model.id);
                 }
             }

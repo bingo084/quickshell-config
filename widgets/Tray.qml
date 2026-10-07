@@ -18,7 +18,7 @@ RowLayout {
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             horizontalPadding: 3
             onClicked: mouse => {
-                PopupManager.dismiss();
+                PopupHost.close();
                 if (mouse.button === Qt.LeftButton) {
                     if (modelData.hasMenu && modelData.onlyMenu) {
                         menuAnchor.open();

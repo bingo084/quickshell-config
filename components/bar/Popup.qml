@@ -1,68 +1,42 @@
 import QtQuick
 import Quickshell
-import Quickshell.Widgets
-import qs.config
+import qs.components.bar
 
-PopupWindow {
+Scope {
     id: root
     required property Item anchorItem
-    property real contentMargin: 8
+    default property Item content
+    property real contentMargin: 12
     property real contentWidth: content.implicitWidth
-    default property alias content: background.child
+    readonly property bool visible: PopupHost.activePopup === root && PopupHost.opened
 
-    grabFocus: true
-    implicitWidth: background.implicitWidth
-    implicitHeight: background.implicitHeight
-    color: "transparent"
-
-    Behavior on implicitHeight {
-        enabled: root.visible
-        NumberAnimation {
-            duration: 1
-            easing.type: Easing.OutCubic
-        }
+    function open() {
+        PopupHost.open(root);
     }
 
-    anchor {
-        item: anchorItem
-        // qmllint disable missing-type
-        edges: Edges.Bottom
-        gravity: Edges.Bottom
-        // qmllint enable missing-type
-        margins.bottom: -4
+    function close() {
+        if (PopupHost.activePopup === root)
+            closeAll();
     }
 
-    WrapperRectangle {
-        id: background
-        implicitWidth: root.contentWidth + 2 * (root.contentMargin + border.width)
-        radius: Theme.popupRadius
-        color: Theme.popupBackground
-        border.color: Theme.popupBorder
-        border.width: 1
-        margin: root.contentMargin
-
-        palette {
-            window: Theme.popupBackground
-            windowText: Theme.textPrimary
-            base: Theme.controlBackground
-            text: Theme.textPrimary
-            button: Theme.controlBackground
-            buttonText: Theme.textPrimary
-            highlight: Theme.accent
-            highlightedText: Theme.textOnAccent
-            mid: Theme.popupBorder
-            dark: Theme.textSecondary
-        }
+    function closeOthers() {
+        if (!visible)
+            closeAll();
     }
 
-    Connections {
-        target: root
+    function closeAll() {
+        PopupHost.close();
+    }
 
-        function onVisibleChanged() {
-            if (root.visible)
-                PopupManager.activate(root);
-            else
-                PopupManager.deactivate(root);
-        }
+    function toggle() {
+        if (visible)
+            close();
+        else
+            open();
+    }
+
+    Component.onDestruction: {
+        if (PopupHost.activePopup === root)
+            PopupHost.release();
     }
 }

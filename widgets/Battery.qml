@@ -54,7 +54,7 @@ Button {
         return "battery-level-" + level + "-symbolic";
     }
 
-    onClicked: popup.visible = !popup.visible;
+    onClicked: popup.toggle()
 
     content: RowLayout {
         spacing: 4

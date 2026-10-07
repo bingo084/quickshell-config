@@ -18,14 +18,13 @@ Button {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
         if (mouse.button === Qt.MiddleButton) {
-            PopupManager.dismiss();
+            popup.closeAll();
             Qt.openUrlExternally("https://chatgpt.com/settings/usage");
         } else if (mouse.button === Qt.RightButton) {
-            if (PopupManager.activePopup !== popup)
-                PopupManager.dismiss();
+            popup.closeOthers();
             Codex.refresh(true);
         } else {
-            popup.visible = !popup.visible;
+            popup.toggle();
         }
     }
 

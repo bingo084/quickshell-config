@@ -58,7 +58,7 @@ Button {
         }
     ]
     onClicked: {
-        popup.visible = !popup.visible;
+        popup.toggle();
         if (popup.visible) {
             PowerCapabilities.refresh();
         }
@@ -71,10 +71,10 @@ Button {
 
     function activate(action) {
         if (action.confirm) {
-            popup.visible = false;
+            popup.close();
             pendingAction = action;
         } else {
-            popup.visible = false;
+            popup.close();
             Quickshell.execDetached(action.command);
         }
     }

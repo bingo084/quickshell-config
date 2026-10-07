@@ -14,10 +14,10 @@ Button {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            popup.visible = !popup.visible;
+            popup.toggle();
         } else if (mouse.button === Qt.RightButton) {
             showSeconds = !showSeconds;
-            PopupManager.dismiss();
+            popup.closeAll();
         }
     }
 

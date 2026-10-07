@@ -42,7 +42,7 @@ RowLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    PopupManager.dismiss();
+                    PopupHost.close();
                     Niri.focusWorkspaceById(workspace._id);
                 }
                 onWheel: wheel => {

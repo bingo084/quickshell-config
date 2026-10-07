@@ -11,7 +11,7 @@ Button {
     required property ShellScreen screen
 
     visible: Brightness.available && root.screen?.name === Brightness.output
-    onClicked: popup.visible = !popup.visible
+    onClicked: popup.toggle()
     onWheel: event => {
         if (event.angleDelta.y > 0) {
             Brightness.change(1);

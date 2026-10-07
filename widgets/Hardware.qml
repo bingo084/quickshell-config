@@ -9,7 +9,7 @@ import qs.services
 Button {
     id: root
 
-    onClicked: popup.visible = !popup.visible
+    onClicked: popup.toggle()
 
     content: RowLayout {
         spacing: 6

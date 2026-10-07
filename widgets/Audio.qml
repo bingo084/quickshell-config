@@ -15,9 +15,9 @@ Bar.Button {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            popup.visible = !popup.visible;
+            popup.toggle();
         } else {
-            Bar.PopupManager.dismiss();
+            popup.closeAll();
             Audio.toggleMuted();
         }
     }
@@ -65,7 +65,7 @@ Bar.Button {
                     icon.source: Quickshell.iconPath("emblem-system-symbolic")
                     flat: true
                     onClicked: {
-                        popup.visible = false;
+                        popup.close();
                         Quickshell.execDetached(["pavucontrol"]);
                     }
                 }

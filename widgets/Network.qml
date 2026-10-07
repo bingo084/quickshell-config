@@ -11,7 +11,7 @@ Button {
     id: root
     readonly property Net.WifiNetwork wifiNetwork: Network.network as Net.WifiNetwork
 
-    onClicked: popup.visible = !popup.visible
+    onClicked: popup.toggle()
 
     content: Icon {
         implicitSize: 18
