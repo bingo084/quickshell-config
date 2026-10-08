@@ -14,7 +14,7 @@ Button {
     content: RowLayout {
         spacing: 6
         Icon {
-            name: "utilities-system-monitor-symbolic"
+            name: "computer-chip-symbolic"
         }
 
         ColumnLayout {
@@ -53,7 +53,7 @@ Button {
                     required property var modelData
 
                     implicitWidth: 60
-                    implicitHeight: 3
+                    implicitHeight: 2
                     radius: height / 2
                     color: Theme.meterBackground
 

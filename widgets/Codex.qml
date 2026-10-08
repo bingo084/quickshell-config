@@ -142,7 +142,7 @@ Button {
                     required property var modelData
 
                     implicitWidth: 36
-                    implicitHeight: 3
+                    implicitHeight: 2
                     radius: height / 2
                     color: Theme.meterBackground
                     opacity: modelData ? 1 : 0.4

@@ -33,7 +33,7 @@ Button {
 
     content: Icon {
         color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
-        name: "coffee"
+        name: Inhibit.mode === "off" ? "inhibit-symbolic" : "inhibit-active-symbolic"
     }
 
     Popup {
