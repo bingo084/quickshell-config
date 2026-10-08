@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Bluetooth
 import qs.components
 import qs.components.bar
