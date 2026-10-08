@@ -14,7 +14,6 @@ Button {
     content: RowLayout {
         spacing: 6
         Icon {
-            implicitSize: 16
             source: Quickshell.iconPath("utilities-system-monitor-symbolic")
         }
 

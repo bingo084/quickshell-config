@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
-import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 
 RowLayout {
@@ -31,8 +31,8 @@ RowLayout {
                     modelData.secondaryActivate();
                 }
             }
-            content: IconImage {
-                implicitSize: 18
+            content: Icon {
+                colorize: false
                 source: trayButton.modelData.icon
             }
             QsMenuAnchor {

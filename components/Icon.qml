@@ -8,8 +8,10 @@ import qs.config
 IconImage {
     id: root
     property color color: Theme.textPrimary
+    property bool colorize: true
 
-    backer.layer.enabled: true
+    implicitSize: 18
+    backer.layer.enabled: root.colorize
 
     backer.layer.effect: MultiEffect {
         contrast: -1

@@ -19,7 +19,6 @@ Button {
     onClicked: popup.toggle()
 
     content: Icon {
-        implicitSize: 18
         source: {
             if (!root.adapter?.enabled)
                 return Quickshell.iconPath("bluetooth-disabled-symbolic");

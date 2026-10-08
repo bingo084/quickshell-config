@@ -25,7 +25,6 @@ Button {
         Icon {
             readonly property string strength: Brightness.level < 1 / 3 ? "low" : Brightness.level < 2 / 3 ? "medium" : "high"
 
-            implicitSize: 16
             source: Quickshell.iconPath(`display-brightness-${strength}-symbolic`, "display-brightness-symbolic")
         }
         Text {

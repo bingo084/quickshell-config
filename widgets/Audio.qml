@@ -29,7 +29,6 @@ Bar.Button {
     content: RowLayout {
         spacing: 4
         Icon {
-            implicitSize: 18
             color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
             source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
         }

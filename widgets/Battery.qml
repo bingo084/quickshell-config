@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import Quickshell.Services.UPower
 import qs.components
 import qs.components.bar
@@ -59,7 +58,6 @@ Button {
     content: RowLayout {
         spacing: 4
         Icon {
-            implicitSize: 18
             source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
         }
         Text {

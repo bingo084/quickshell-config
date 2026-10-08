@@ -14,7 +14,6 @@ Button {
     onClicked: popup.toggle()
 
     content: Icon {
-        implicitSize: 18
         source: {
             if (Network.wired)
                 return Quickshell.iconPath("network-wired-symbolic");

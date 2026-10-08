@@ -82,7 +82,6 @@ Button {
 
         Icon {
             id: codexIcon
-            implicitSize: 18
             source: Qt.resolvedUrl("../assets/openai.svg")
             color: {
                 if (root.waiting)

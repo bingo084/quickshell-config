@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
-import Quickshell.Widgets
 import qs.components
 import qs.config
 import qs.services
@@ -17,8 +16,8 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 6
-        IconImage {
-            implicitSize: 18
+        Icon {
+            colorize: false
             source: Quickshell.iconPath(Audio.nodeIconName(root.node))
         }
         Text {

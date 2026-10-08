@@ -52,7 +52,6 @@ Button {
                 const offset = IconOffsets.offsets[code] ?? [0, 0];
                 return Qt.point(offset[0], offset[1]);
             }
-            implicitSize: 16
             transform: Translate {
                 x: weatherIcon.opticalOffset.x * weatherIcon.actualSize / 16
                 y: weatherIcon.opticalOffset.y * weatherIcon.actualSize / 16

@@ -32,7 +32,6 @@ Button {
     }
 
     content: Icon {
-        implicitSize: 18
         color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
         source: Qt.resolvedUrl("../assets/coffee.svg")
     }

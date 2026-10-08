@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
@@ -55,13 +56,13 @@ RowLayout {
                         color: area.model.isFocused ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
 
                         RowLayout {
-                            IconImage {
+                            Icon {
                                 readonly property var iconByTitle: ({
                                         "飞书": "/usr/share/icons/hicolor/256x256/apps/bytedance-feishu.png"
                                     })
                                 readonly property string fixedIconPath: iconByTitle[area.model.title] ?? area.model.iconPath
 
-                                implicitSize: 18
+                                colorize: false
                                 source: fixedIconPath ? "file://" + fixedIconPath : ""
                                 visible: fixedIconPath !== ""
                             }

@@ -30,7 +30,6 @@ Button {
 
         Icon {
             id: refreshIcon
-            implicitSize: 18
             source: Quickshell.iconPath("emblem-synchronizing-symbolic")
             RotationAnimator {
                 target: refreshIcon

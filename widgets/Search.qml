@@ -10,7 +10,6 @@ Button {
     }
 
     content: Icon {
-        implicitSize: 18
         source: Quickshell.iconPath("system-search-symbolic", true)
     }
 }

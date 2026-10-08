@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import qs.components as Components
 import qs.components.bar
 import qs.services
@@ -64,8 +63,8 @@ Button {
         }
     }
 
-    content: IconImage {
-        implicitSize: 18
+    content: Components.Icon {
+        colorize: false
         source: OsInfo.logo()
     }
 
