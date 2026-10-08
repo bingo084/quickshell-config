@@ -12,7 +12,7 @@ printf '%s\n' \
     '// This is a conservative optical-alignment heuristic, not a perceptual model.' \
     'export const offsets = {'
 
-for icon in "$project_dir"/assets/qweather/*-fill.svg; do
+for icon in "$project_dir"/assets/qweather/[0-9][0-9][0-9].svg; do
     rsvg-convert --width 256 --height 256 "$icon" |
         magick png:- -depth 8 rgba:- |
         node -e '
@@ -45,7 +45,7 @@ for icon in "$project_dir"/assets/qweather/*-fill.svg; do
                 const center = boundsCenter + (alphaCenter - boundsCenter) * 0.25;
                 return Math.round((8 - center * 16 / resolution) * 4) / 4;
             };
-            const code = process.argv[1].replace("-fill.svg", "");
+            const code = process.argv[1].replace(".svg", "");
             console.log("    " + JSON.stringify(code) + ": [" + offset(x, left, right) + ", " + offset(y, top, bottom) + "],");
         ' "${icon##*/}"
 done

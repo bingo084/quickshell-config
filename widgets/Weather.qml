@@ -56,11 +56,11 @@ Button {
                 x: weatherIcon.opticalOffset.x * weatherIcon.actualSize / 16
                 y: weatherIcon.opticalOffset.y * weatherIcon.actualSize / 16
             }
-            source: Qt.resolvedUrl(`../assets/qweather/${weatherIcon.code}-fill.svg`)
+            source: Qt.resolvedUrl(`../assets/qweather/${weatherIcon.code}.svg`)
             Icon {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
-                source: Qt.resolvedUrl("../assets/qweather/999-fill.svg")
+                source: Qt.resolvedUrl("../assets/qweather/999.svg")
             }
         }
 
