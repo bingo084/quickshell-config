@@ -30,7 +30,7 @@ Bar.Button {
         spacing: 4
         Icon {
             color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
-            source: Quickshell.iconPath(Audio.volumeIconName(Audio.sink))
+            name: Audio.volumeIconName(Audio.sink)
         }
         Text {
             color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
@@ -60,8 +60,7 @@ Bar.Button {
                     text: "Audio"
                 }
                 Button {
-                    icon.name: "preferences-system-symbolic"
-                    icon.source: Quickshell.iconPath("emblem-system-symbolic")
+                    iconName: "preferences-system-symbolic"
                     flat: true
                     onClicked: {
                         popup.close();

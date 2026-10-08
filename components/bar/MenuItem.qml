@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.config
@@ -8,8 +7,6 @@ import qs.config
 WrapperRectangle {
     id: root
     required property string icon
-    property string fallbackIcon
-    readonly property string resolvedIcon: fallbackIcon !== "" && !Quickshell.hasThemeIcon(icon) ? fallbackIcon : icon
     required property string label
     signal triggered
 
@@ -28,7 +25,7 @@ WrapperRectangle {
         RowLayout {
             Icon {
                 implicitSize: 16
-                source: Quickshell.iconPath(root.resolvedIcon, true)
+                name: root.icon
             }
             Text {
                 Layout.fillWidth: true

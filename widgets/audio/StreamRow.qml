@@ -35,7 +35,7 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: 6
         Button {
-            icon.name: Audio.volumeIconName(root.node)
+            iconName: Audio.volumeIconName(root.node)
             checked: root.node.audio.muted
             flat: true
             onClicked: Audio.toggleMuted(root.node)

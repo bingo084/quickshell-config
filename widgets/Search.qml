@@ -10,6 +10,6 @@ Button {
     }
 
     content: Icon {
-        source: Quickshell.iconPath("system-search-symbolic", true)
+        name: "system-search-symbolic"
     }
 }

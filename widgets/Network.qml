@@ -14,15 +14,15 @@ Button {
     onClicked: popup.toggle()
 
     content: Icon {
-        source: {
+        name: {
             if (Network.wired)
-                return Quickshell.iconPath("network-wired-symbolic");
+                return "network-wired-symbolic";
             if (root.wifiNetwork) {
                 const strength = root.wifiNetwork.signalStrength;
                 const level = strength < 0.25 ? "weak" : strength < 0.5 ? "ok" : strength < 0.75 ? "good" : "excellent";
-                return Quickshell.iconPath(`network-wireless-signal-${level}-symbolic`);
+                return `network-wireless-signal-${level}-symbolic`;
             }
-            return Quickshell.iconPath("network-wireless-disconnected-symbolic");
+            return "network-wireless-disconnected-symbolic";
         }
     }
 

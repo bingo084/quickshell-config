@@ -29,7 +29,6 @@ Button {
         },
         {
             icon: "system-hibernate-symbolic",
-            fallbackIcon: "drive-harddisk-system-symbolic",
             label: "Hibernate",
             command: ["systemctl", "hibernate"],
             capability: "hibernate"
@@ -107,7 +106,6 @@ Button {
                     readonly property Component separator: Components.Separator {}
                     readonly property Component actionButton: MenuItem {
                         icon: loader.modelData.icon
-                        fallbackIcon: loader.modelData.fallbackIcon || ""
                         label: loader.modelData.label
                         enabled: PowerCapabilities.canExecute(loader.modelData.capability)
                         onTriggered: root.activate(loader.modelData)

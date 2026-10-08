@@ -52,7 +52,7 @@ ColumnLayout {
                     implicitSize: 14
                     color: root.expanded ? Theme.textOnSelected : Theme.textPrimary
                     visible: root.expandable
-                    source: Quickshell.iconPath(root.expanded ? "pan-up-symbolic" : "pan-down-symbolic")
+                    name: root.expanded ? "pan-up-symbolic" : "pan-down-symbolic"
                 }
             }
         }
@@ -62,7 +62,7 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: 6
         Button {
-            icon.name: Audio.volumeIconName(root.node)
+            iconName: Audio.volumeIconName(root.node)
             checked: root.node?.audio?.muted ?? false
             flat: true
             onClicked: Audio.toggleMuted(root.node)

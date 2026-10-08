@@ -1,14 +1,17 @@
 import QtQuick
 import QtQuick.Controls as Controls
 import qs.config
+import qs.services
 
 Controls.Button {
     id: root
+    property string iconName
 
     padding: 6
     opacity: enabled ? 1 : 0.5
     palette.buttonText: checked ? Theme.textOnSelected : Theme.textPrimary
     icon.color: palette.buttonText
+    icon.source: Icons.source(root.iconName)
 
     Behavior on palette.buttonText {
         ColorAnimation {

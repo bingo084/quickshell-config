@@ -19,10 +19,10 @@ Button {
     onClicked: popup.toggle()
 
     content: Icon {
-        source: {
+        name: {
             if (!root.adapter?.enabled)
-                return Quickshell.iconPath("bluetooth-disabled-symbolic");
-            return Quickshell.iconPath(root.connected ? "bluetooth-active-symbolic" : "bluetooth-symbolic");
+                return "bluetooth-disabled-symbolic";
+            return root.connected ? "bluetooth-active-symbolic" : "bluetooth-symbolic";
         }
     }
 

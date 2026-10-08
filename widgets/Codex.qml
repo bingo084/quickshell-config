@@ -82,7 +82,7 @@ Button {
 
         Icon {
             id: codexIcon
-            source: Qt.resolvedUrl("../assets/openai.svg")
+            name: "openai"
             color: {
                 if (root.waiting)
                     return Theme.warning;
@@ -364,7 +364,7 @@ Button {
                                 implicitSize: 12
                                 visible: resetSection.credits.length > 0
                                 color: Theme.textSecondary
-                                source: Quickshell.iconPath(resetSection.expanded ? "pan-down-symbolic" : "pan-end-symbolic")
+                                name: resetSection.expanded ? "pan-down-symbolic" : "pan-end-symbolic"
                             }
                         }
                     }

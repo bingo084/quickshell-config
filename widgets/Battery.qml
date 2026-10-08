@@ -58,7 +58,7 @@ Button {
     content: RowLayout {
         spacing: 4
         Icon {
-            source: Quickshell.iconPath(root.iconName(UPower.displayDevice))
+            name: root.iconName(UPower.displayDevice)
         }
         Text {
             color: Theme.textPrimary
@@ -121,7 +121,7 @@ Button {
                         spacing: device.rowSpacing
                         Icon {
                             implicitSize: device.iconSize
-                            source: Quickshell.iconPath(device.typeIcon, "battery-symbolic")
+                            name: device.typeIcon
                         }
                         Text {
                             Layout.fillWidth: true
@@ -131,7 +131,7 @@ Button {
                         }
                         Icon {
                             implicitSize: device.iconSize
-                            source: Quickshell.iconPath(root.iconName(device.modelData))
+                            name: root.iconName(device.modelData)
                         }
                         Text {
                             Layout.preferredWidth: deviceList.percentageWidth || implicitWidth

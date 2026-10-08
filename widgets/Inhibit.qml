@@ -33,7 +33,7 @@ Button {
 
     content: Icon {
         color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
-        source: Qt.resolvedUrl("../assets/coffee.svg")
+        name: "coffee"
     }
 
     Popup {

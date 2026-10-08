@@ -21,7 +21,7 @@ Button {
         Icon {
             implicitSize: 16
             color: root.palette.buttonText
-            source: Quickshell.iconPath(Audio.portIconName(root.port, root.node))
+            name: Audio.portIconName(root.port, root.node)
         }
         Text {
             Layout.fillWidth: true
@@ -33,7 +33,7 @@ Button {
             implicitSize: 16
             color: root.palette.buttonText
             opacity: root.checked ? 1 : 0
-            source: Quickshell.iconPath("object-select-symbolic")
+            name: "object-select-symbolic"
         }
     }
 }

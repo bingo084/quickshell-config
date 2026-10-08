@@ -15,7 +15,7 @@ RowLayout {
     Icon {
         readonly property string direction: Traffic.rxBps === Traffic.txBps ? "transmit-receive" : Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"
 
-        source: Quickshell.iconPath(`network-${direction}-symbolic`)
+        name: `network-${direction}-symbolic`
     }
 
     Text {
