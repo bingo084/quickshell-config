@@ -4,7 +4,6 @@ import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
-import "../assets/qweather/Offsets.mjs" as IconOffsets
 
 Button {
     id: root
@@ -55,15 +54,6 @@ Button {
         Icon {
             id: weatherIcon
             readonly property string code: Weather.current?.condition?.code ?? "999"
-            readonly property point opticalOffset: {
-                const code = weatherIcon.status === Image.Error ? "999" : weatherIcon.code;
-                const offset = IconOffsets.offsets[code] ?? [0, 0];
-                return Qt.point(offset[0], offset[1]);
-            }
-            transform: Translate {
-                x: weatherIcon.opticalOffset.x * weatherIcon.actualSize / 16
-                y: weatherIcon.opticalOffset.y * weatherIcon.actualSize / 16
-            }
             source: Qt.resolvedUrl(`../assets/qweather/${weatherIcon.code}.svg`)
             Icon {
                 anchors.fill: parent
@@ -128,13 +118,8 @@ Button {
                     Layout.alignment: Qt.AlignHCenter
                     spacing: 10
                     Icon {
-                        id: popupIcon
                         implicitSize: 36
                         source: weatherIcon.status === Image.Error ? Qt.resolvedUrl("../assets/qweather/999.svg") : weatherIcon.source
-                        transform: Translate {
-                            x: weatherIcon.opticalOffset.x * popupIcon.actualSize / 16
-                            y: weatherIcon.opticalOffset.y * popupIcon.actualSize / 16
-                        }
                     }
                     Text {
                         color: Theme.textPrimary
