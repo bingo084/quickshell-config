@@ -54,11 +54,11 @@ Button {
         Icon {
             id: weatherIcon
             readonly property string code: Weather.current?.condition?.code ?? "999"
-            source: Qt.resolvedUrl(`../assets/qweather/${weatherIcon.code}.svg`)
+            name: `qweather/${weatherIcon.code}`
             Icon {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
-                source: Qt.resolvedUrl("../assets/qweather/999.svg")
+                name: "qweather/999"
             }
         }
 
@@ -119,7 +119,7 @@ Button {
                     spacing: 10
                     Icon {
                         implicitSize: 36
-                        source: weatherIcon.status === Image.Error ? Qt.resolvedUrl("../assets/qweather/999.svg") : weatherIcon.source
+                        name: weatherIcon.status === Image.Error ? "qweather/999" : weatherIcon.name
                     }
                     Text {
                         color: Theme.textPrimary

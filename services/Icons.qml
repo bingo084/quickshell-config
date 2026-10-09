@@ -16,14 +16,16 @@ Singleton {
 
     Process {
         running: true
-        command: ["sh", "-c", "for icon in /usr/share/icons/MacTahoe/*/symbolic/*.svg \"$1\"/*.svg; do [ -f \"$icon\" ] && printf '%s\\n' \"$icon\"; done", "sh", Quickshell.shellPath("assets")]
+        command: ["sh", "-c", "for icon in /usr/share/icons/MacTahoe/*/symbolic/*.svg; do [ -f \"$icon\" ] && printf '%s\\n' \"$icon\"; done; find \"$1\" -type f -name '*.svg'", "sh", Quickshell.shellPath("assets")]
         stdout: StdioCollector {
             onStreamFinished: {
                 const files = {};
+                const assetsPath = Quickshell.shellPath("assets") + "/";
                 for (const path of text.trim().split("\n")) {
                     if (!path || path.includes("@2x/"))
                         continue;
-                    const name = path.substring(path.lastIndexOf("/") + 1).replace(/\.svg$/, "");
+                    const relativePath = path.startsWith(assetsPath) ? path.substring(assetsPath.length) : path.substring(path.lastIndexOf("/") + 1);
+                    const name = relativePath.replace(/\.svg$/, "");
                     files[name] = "file://" + path;
                 }
                 root.files = files;
