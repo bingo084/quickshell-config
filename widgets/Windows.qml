@@ -23,9 +23,10 @@ RowLayout {
             required property var model
 
             spacing: 0
+            visible: workspace.model.isActive && workspace.model.output === root.screen?.name
 
             Repeater {
-                model: workspace.model.isActive && workspace.model.output === root.screen?.name ? Niri.sortedWindows : 0
+                model: workspace.visible ? Niri.sortedWindows : 0
 
                 WrapperMouseArea {
                     id: area
