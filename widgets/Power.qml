@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import qs.components as Components
+import qs.components
 import qs.components.bar
 import qs.services
 import qs.widgets.power
@@ -62,7 +62,7 @@ Button {
         }
     }
 
-    content: Components.Icon {
+    content: Icon {
         colorize: false
         source: OsInfo.logo()
     }
@@ -103,10 +103,10 @@ Button {
                 Loader {
                     id: loader
                     required property var modelData
-                    readonly property Component separator: Components.Separator {}
+                    readonly property Component separator: Separator {}
                     readonly property Component actionButton: MenuItem {
-                        icon: loader.modelData.icon
-                        label: loader.modelData.label
+                        iconName: loader.modelData.icon
+                        text: loader.modelData.label
                         enabled: PowerCapabilities.canExecute(loader.modelData.capability)
                         onTriggered: root.activate(loader.modelData)
                     }
