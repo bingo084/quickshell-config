@@ -31,6 +31,8 @@ RowLayout {
                     id: area
                     required property var model
 
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 200
                     visible: workspace.model.id === model.workspaceId
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
@@ -45,6 +47,12 @@ RowLayout {
                             popup.open();
                         } else if (mouse.button === Qt.MiddleButton)
                             Niri.closeWindow(model.id);
+                    }
+
+                    Tooltip {
+                        anchorItem: area
+                        active: area.containsMouse && title.truncated && !area.pressed && !popup.visible
+                        text: title.text
                     }
 
                     WrapperRectangle {
@@ -67,6 +75,9 @@ RowLayout {
                                 visible: fixedIconPath !== ""
                             }
                             Text {
+                                id: title
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
                                 text: _format(area.model.title, area.model.appId)
                                 color: area.model.isFocused ? Theme.textOnSelected : Theme.textPrimary
 

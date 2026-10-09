@@ -31,6 +31,7 @@ ShellRoot {
 
             RowLayout {
                 spacing: 0
+                width: Math.max(0, Math.min(implicitWidth, rightItems.x - x - 8))
                 anchors {
                     verticalCenter: parent.verticalCenter
                     left: parent.left
@@ -49,6 +50,7 @@ ShellRoot {
             }
 
             RowLayout {
+                id: rightItems
                 spacing: 0
                 anchors {
                     verticalCenter: parent.verticalCenter
