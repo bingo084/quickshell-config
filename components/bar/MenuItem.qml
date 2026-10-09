@@ -8,6 +8,7 @@ WrapperRectangle {
     id: root
     required property string icon
     required property string label
+    property bool checked
     signal triggered
 
     Layout.fillWidth: true
@@ -31,6 +32,11 @@ WrapperRectangle {
                 Layout.fillWidth: true
                 color: Theme.textPrimary
                 text: root.label
+            }
+            Icon {
+                implicitSize: 16
+                name: "object-select-symbolic"
+                visible: root.checked
             }
         }
     }

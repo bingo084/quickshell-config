@@ -93,16 +93,16 @@ RowLayout {
         ColumnLayout {
             spacing: 1
             MenuItem {
-                icon: "zoom-fit-best-symbolic"
-                label: "Maximize Column"
+                icon: "xapp-view-fit-width-symbolic"
+                label: "Full Width"
                 onTriggered: {
                     popup.close();
                     Niri.maximizeColumn(popup.targetItem.model.id);
                 }
             }
             MenuItem {
-                icon: "window-maximize-symbolic"
-                label: "Maximize Window To Edges"
+                icon: "screenshot-window-symbolic"
+                label: "Maximize"
                 onTriggered: {
                     popup.close();
                     Niri.maximizeWindowToEdges(popup.targetItem.model.id);
@@ -110,7 +110,7 @@ RowLayout {
             }
             MenuItem {
                 icon: "view-fullscreen-symbolic"
-                label: "Toggle Fullscreen"
+                label: "Fullscreen"
                 onTriggered: {
                     popup.close();
                     Niri.toggleFullscreen(popup.targetItem.model.id);
@@ -118,11 +118,16 @@ RowLayout {
             }
             MenuItem {
                 icon: "window-pop-out-symbolic"
-                label: `${popup.targetItem?.model?.isFloating ? "Disable" : "Enable"} Floating`
+                label: "Floating"
+                checked: popup.targetItem?.model?.isFloating ?? false
                 onTriggered: {
                     popup.close();
                     Niri.toggleFloating(popup.targetItem.model.id);
                 }
+            }
+            Separator {
+                Layout.topMargin: 4
+                Layout.bottomMargin: 4
             }
             MenuItem {
                 icon: "window-close-symbolic"
