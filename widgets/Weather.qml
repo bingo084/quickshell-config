@@ -84,16 +84,29 @@ Button {
             readonly property var current: Weather.current
 
             spacing: 12
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-                color: Theme.textPrimary
-                font.pixelSize: 13
-                font.bold: true
-                visible: text !== ""
-                text: {
-                    const area = Weather.location?.ad_info;
-                    const city = area?.city || area?.province || area?.nation;
-                    return [city, area?.district].filter(Boolean).join(" · ");
+            RowLayout {
+                visible: location.text !== "" || details.current !== null
+                Text {
+                    id: location
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 10
+                    color: Theme.textPrimary
+                    font.pixelSize: 14
+                    font.bold: true
+                    elide: Text.ElideRight
+                    visible: text !== ""
+                    text: {
+                        const area = Weather.location?.ad_info;
+                        const city = area?.city || area?.province || area?.nation;
+                        return [city, area?.district].filter(Boolean).join(" · ");
+                    }
+                }
+                Text {
+                    Layout.rightMargin: 10
+                    visible: details.current !== null
+                    color: Theme.textTertiary
+                    font.pixelSize: 11
+                    text: details.current ? `更新于 ${Qt.formatDateTime(details.current.fetchedAt, "hh:mm")}` : ""
                 }
             }
             Text {
@@ -199,12 +212,6 @@ Button {
                             }
                         }
                     }
-                }
-
-                Text {
-                    color: Theme.textTertiary
-                    font.pixelSize: 11
-                    text: details.current ? `更新于 ${Qt.formatDateTime(details.current.fetchedAt, "hh:mm")}` : ""
                 }
             }
         }
