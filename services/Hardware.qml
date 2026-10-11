@@ -83,7 +83,6 @@ Singleton {
         stderr: StdioCollector {
             id: temperaturePathError
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
                 console.warn("CPU temperature discovery failed (exit " + exitCode + "):", temperaturePathError.text.trim());
@@ -91,7 +90,6 @@ Singleton {
             }
             root.cpuTemperaturePath = temperaturePathOutput.text.trim();
         }
-        // qmllint enable signal-handler-parameters
     }
 
     FileView {
@@ -133,7 +131,6 @@ Singleton {
         stderr: StdioCollector {
             id: diskError
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
                 root.diskValid = false;
@@ -152,7 +149,6 @@ Singleton {
             root.diskUsed = used;
             root.diskAvailable = available;
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Process {
@@ -176,7 +172,6 @@ Singleton {
         stderr: StdioCollector {
             id: gpuError
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             const value = Number(gpuOutput.text.trim() || NaN);
             root.gpuTemperatureValid = exitCode === 0 && Number.isFinite(value);
@@ -185,7 +180,6 @@ Singleton {
             if (exitCode !== 0)
                 console.warn("GPU temperature query failed (exit " + exitCode + "):", gpuError.text.trim());
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Timer {

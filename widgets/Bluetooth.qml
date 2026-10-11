@@ -12,7 +12,7 @@ import qs.config
 Button {
     id: root
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
-    readonly property bool connected: root.adapter?.devices.values.some(device => device.connected) ?? false
+    readonly property bool connected: root.adapter?.devices.values.some(device => device.connected) ?? false // qmllint disable missing-property
 
     visible: root.adapter !== null
     onClicked: popup.toggle()
@@ -40,7 +40,7 @@ Button {
 
             Repeater {
                 id: deviceList
-                model: root.adapter?.devices.values.filter(device => device.paired || device.connected) ?? []
+                model: root.adapter?.devices.values.filter(device => device.paired || device.connected) ?? [] // qmllint disable missing-property
 
                 delegate: RowLayout {
                     id: deviceRow

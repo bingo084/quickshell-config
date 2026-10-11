@@ -9,9 +9,11 @@ Singleton {
     id: root
     readonly property PwNode sink: Pipewire.defaultAudioSink
     readonly property PwNode source: Pipewire.defaultAudioSource
+    // qmllint disable missing-property
     readonly property list<PwNode> sinks: Pipewire.nodes.values.filter(node => node.type === PwNodeType.AudioSink)
     readonly property list<PwNode> sources: Pipewire.nodes.values.filter(node => node.type === PwNodeType.AudioSource)
     readonly property list<PwNode> streams: Pipewire.nodes.values.filter(node => node.type === PwNodeType.AudioOutStream)
+    // qmllint enable missing-property
     readonly property bool ready: Pipewire.ready && sink?.audio != null
     readonly property real volume: ready ? sink.audio.volume : 0
     readonly property bool muted: ready && sink.audio.muted
@@ -49,11 +51,16 @@ Singleton {
 
     function portIconName(port: var, node: PwNode): string {
         switch (port?.type) {
-        case "Speaker": return "audio-speakers-symbolic";
-        case "Headphones": return "audio-headphones-symbolic";
-        case "Mic": return "audio-input-microphone-symbolic";
-        case "HDMI": return "video-display-symbolic";
-        default: return nodeIconName(node);
+        case "Speaker":
+            return "audio-speakers-symbolic";
+        case "Headphones":
+            return "audio-headphones-symbolic";
+        case "Mic":
+            return "audio-input-microphone-symbolic";
+        case "HDMI":
+            return "video-display-symbolic";
+        default:
+            return nodeIconName(node);
         }
     }
 
@@ -117,11 +124,16 @@ Singleton {
 
         command: ["pactl", "--format=json", "list"]
         // qmllint disable incompatible-type
-        environment: ({ LC_ALL: "C" })
+        environment: ({
+                LC_ALL: "C"
+            })
         // qmllint enable incompatible-type
-        stdout: StdioCollector { id: portOutput }
-        stderr: StdioCollector { id: portErrors }
-        // qmllint disable signal-handler-parameters
+        stdout: StdioCollector {
+            id: portOutput
+        }
+        stderr: StdioCollector {
+            id: portErrors
+        }
         onExited: exitCode => {
             if (pending) {
                 pending = false;
@@ -144,7 +156,6 @@ Singleton {
                 return;
             root.portData = result;
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Process {
@@ -153,8 +164,9 @@ Singleton {
         property string port
 
         command: ["pactl", node?.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node?.name ?? "", port]
-        stderr: StdioCollector { id: switchErrors }
-        // qmllint disable signal-handler-parameters
+        stderr: StdioCollector {
+            id: switchErrors
+        }
         onExited: exitCode => {
             if (exitCode !== 0) {
                 console.warn("Audio port switch failed:", switchErrors.text.trim());
@@ -163,14 +175,15 @@ Singleton {
             root.setDevice(node);
             root.refreshPorts();
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Process {
         id: portMonitor
         command: ["pactl", "subscribe"]
         // qmllint disable incompatible-type
-        environment: ({ LC_ALL: "C" })
+        environment: ({
+                LC_ALL: "C"
+            })
         // qmllint enable incompatible-type
         running: true
         onStarted: root.refreshPorts()
@@ -183,13 +196,11 @@ Singleton {
         stderr: SplitParser {
             onRead: line => console.warn("Audio port monitor:", line)
         }
-        // qmllint disable signal-handler-parameters
         onExited: {
             root.portData = {};
             portRefresh.stop();
             reconnect.restart();
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Timer {

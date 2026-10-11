@@ -23,9 +23,7 @@ Singleton {
         stderr: SplitParser {
             onRead: line => console.warn("Sleep monitor:", line)
         }
-        // qmllint disable signal-handler-parameters
         onExited: reconnect.restart()
-        // qmllint enable signal-handler-parameters
     }
 
     Timer {

@@ -32,26 +32,24 @@ Singleton {
         running: true
         command: ["brightnessctl", "-c", "backlight", "-m"]
         stdout: StdioCollector {
-            id: stdout
+            id: queryOutput
         }
         stderr: StdioCollector {
-            id: stderr
+            id: queryErrors
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
-                console.warn("brightnessctl query failed (exit " + exitCode + "):", stderr.text.trim());
+                console.warn("brightnessctl query failed (exit " + exitCode + "):", queryErrors.text.trim());
                 return;
             }
-            const fields = stdout.text.trim().split("\n")[0].split(",");
+            const fields = queryOutput.text.trim().split("\n")[0].split(",");
             if (fields.length < 5 || fields[0] === "") {
-                console.warn("Unexpected brightnessctl output:", stdout.text.trim());
+                console.warn("Unexpected brightnessctl output:", queryOutput.text.trim());
                 return;
             }
             root.device = fields[0];
             outputQuery.running = true;
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Process {
@@ -63,7 +61,6 @@ Singleton {
         stderr: StdioCollector {
             id: outputStderr
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
                 console.warn("backlight path query failed (exit " + exitCode + "):", outputStderr.text.trim());
@@ -77,7 +74,6 @@ Singleton {
             }
             root.output = match[1];
         }
-        // qmllint enable signal-handler-parameters
     }
 
     FileView {

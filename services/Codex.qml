@@ -402,7 +402,6 @@ Singleton {
         stderr: SplitParser {
             onRead: line => console.warn(line)
         }
-        // qmllint disable signal-handler-parameters
         onExited: {
             root.connected = false;
             root.threads = {};
@@ -415,7 +414,6 @@ Singleton {
             subscriptionRetry.stop();
             reconnect.restart();
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Timer {

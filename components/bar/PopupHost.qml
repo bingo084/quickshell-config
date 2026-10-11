@@ -14,16 +14,16 @@ PopupWindow {
 
     grabFocus: true
     implicitWidth: root.bar?.width ?? 0
-    implicitHeight: Math.max(0, (root.screen?.height ?? 0) - (root.bar?.height ?? 0) - 4)
+    implicitHeight: Math.max(0, (root.screen?.height ?? 0) - (root.bar?.height ?? 0) - 4) // qmllint disable missing-property redundant-optional-chaining
     color: "transparent"
+    // qmllint disable missing-property unresolved-type unqualified
     anchor {
         item: root.bar
-        // qmllint disable missing-type
         edges: Edges.Bottom
         gravity: Edges.Bottom
-        // qmllint enable missing-type
         margins.bottom: -4
     }
+    // qmllint enable missing-property unresolved-type unqualified
     mask: Region {
         item: background
     }

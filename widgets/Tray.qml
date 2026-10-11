@@ -40,7 +40,7 @@ RowLayout {
                 menu: trayButton.modelData.menu
                 anchor {
                     item: trayButton
-                    edges: Edges.Bottom // qmllint disable missing-type
+                    edges: Edges.Bottom // qmllint disable incompatible-type
                 }
             }
         }

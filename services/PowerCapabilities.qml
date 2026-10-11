@@ -32,32 +32,30 @@ Singleton {
 
         command: ["busctl", "--json=short", "call", "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", methodName]
         stdout: StdioCollector {
-            id: stdout
+            id: queryOutput
         }
         stderr: StdioCollector {
-            id: stderr
+            id: queryErrors
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (exitCode !== 0) {
-                console.warn(methodName + " query failed (exit " + exitCode + "):", stderr.text.trim());
+                console.warn(methodName + " query failed (exit " + exitCode + "):", queryErrors.text.trim());
                 status = "error";
                 return;
             }
             try {
-                const result = JSON.parse(stdout.text);
+                const result = JSON.parse(queryOutput.text);
                 if (result.type !== "s" || !Array.isArray(result.data) || typeof result.data[0] !== "string") {
-                    console.warn("Invalid " + methodName + " response:", stdout.text.trim());
+                    console.warn("Invalid " + methodName + " response:", queryOutput.text.trim());
                     status = "error";
                     return;
                 }
                 status = result.data[0];
             } catch (e) {
-                console.warn("Invalid " + methodName + " response:", e.message, stdout.text.trim());
+                console.warn("Invalid " + methodName + " response:", e.message, queryOutput.text.trim());
                 status = "error";
             }
         }
-        // qmllint enable signal-handler-parameters
     }
 
     CapabilityQuery {

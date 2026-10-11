@@ -7,10 +7,10 @@ import Quickshell.Networking
 
 Singleton {
     id: root
-    readonly property NetworkDevice wired: Networking.devices.values.find(device => device.type === DeviceType.Wired && device.connected) ?? null
-    readonly property NetworkDevice wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? null
+    readonly property NetworkDevice wired: Networking.devices.values.find(device => device.type === DeviceType.Wired && device.connected) ?? null // qmllint disable missing-property
+    readonly property NetworkDevice wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? null // qmllint disable missing-property
     readonly property NetworkDevice device: wired ?? wifi
-    readonly property Network network: device?.networks.values.find(network => network.connected) ?? null
+    readonly property Network network: device?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
     property var details: null
     property int detailsRevision
@@ -68,12 +68,11 @@ Singleton {
         // qmllint enable incompatible-type
         command: ["nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device?.name ?? ""]
         stdout: StdioCollector {
-            id: stdout
+            id: queryOutput
         }
         stderr: StdioCollector {
-            id: stderr
+            id: queryErrors
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
             if (detailQuery.revision !== root.detailsRevision) {
                 Qt.callLater(root.refreshDetails);
@@ -81,12 +80,11 @@ Singleton {
             }
             if (exitCode !== 0) {
                 root.details = null;
-                console.warn("network details query failed (exit " + exitCode + "):", stderr.text.trim());
+                console.warn("network details query failed (exit " + exitCode + "):", queryErrors.text.trim());
                 return;
             }
-            root.details = root.parseDetails(stdout.text);
+            root.details = root.parseDetails(queryOutput.text);
         }
-        // qmllint enable signal-handler-parameters
     }
 
     Timer {

@@ -57,14 +57,12 @@ Singleton {
     Process {
         id: updateTerminal
         command: ["kitty", "--title", "System update", "zsh", "-ic", "paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
-        // qmllint disable signal-handler-parameters
         onExited: {
             if (root.updating) {
                 root.updating = false;
                 root.refresh();
             }
         }
-        // qmllint enable signal-handler-parameters
     }
 
     component UpdateQuery: Process {
@@ -75,17 +73,16 @@ Singleton {
         property string error
 
         stdout: StdioCollector {
-            id: stdout
+            id: queryOutput
         }
         stderr: StdioCollector {
-            id: stderr
+            id: queryErrors
         }
-        // qmllint disable signal-handler-parameters
         onExited: exitCode => {
-            const text = stdout.text.trim();
-            const noUpdates = exitCode === query.emptyExitCode && text === "" && stderr.text.trim() === "";
+            const text = queryOutput.text.trim();
+            const noUpdates = exitCode === query.emptyExitCode && text === "" && queryErrors.text.trim() === "";
             if (exitCode !== 0 && !noUpdates) {
-                query.error = query.sourceName + " updates query failed (exit " + exitCode + "): " + stderr.text.trim();
+                query.error = query.sourceName + " updates query failed (exit " + exitCode + "): " + queryErrors.text.trim();
                 console.warn(query.error);
                 return;
             }
@@ -113,7 +110,6 @@ Singleton {
             query.packages = packages;
             query.error = "";
         }
-        // qmllint enable signal-handler-parameters
     }
 
     UpdateQuery {

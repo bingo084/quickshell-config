@@ -76,7 +76,7 @@ Button {
             spacing: 6
 
             Repeater {
-                model: UPower.devices.values.filter(device => device.ready && device.type !== UPowerDeviceType.LinePower)
+                model: UPower.devices.values.filter(device => device.ready && device.type !== UPowerDeviceType.LinePower) // qmllint disable missing-property
 
                 ColumnLayout {
                     id: device
