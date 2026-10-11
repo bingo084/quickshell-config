@@ -14,7 +14,7 @@ PopupWindow {
 
     grabFocus: true
     implicitWidth: root.bar?.width ?? 0
-    implicitHeight: background.implicitHeight
+    implicitHeight: Math.max(0, (root.screen?.height ?? 0) - (root.bar?.height ?? 0) - 4)
     color: "transparent"
     anchor {
         item: root.bar
@@ -69,42 +69,52 @@ PopupWindow {
         return Math.max(0, Math.min(root.width - background.width, center - background.width / 2));
     }
 
-    Behavior on implicitHeight {
-        enabled: root.opened
-        NumberAnimation {
-            duration: 120
-            easing.type: Easing.OutCubic
-        }
-    }
-
     TransformWatcher {
         id: anchorTransform
         a: root.bar
         b: root.activePopup?.anchorItem ?? null
     }
 
-    WrapperRectangle {
+    Rectangle {
         id: background
+        readonly property real margin: root.activePopup?.contentMargin ?? 12
+
         x: root.position()
-        child: root.activePopup?.content ?? null
         implicitWidth: (root.activePopup?.contentWidth ?? 0) + 2 * (margin + border.width)
+        implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
         radius: Theme.popupRadius
         color: Theme.popupBackground
         border.color: Theme.popupBorder
         border.width: 1
-        margin: root.activePopup?.contentMargin ?? 12
+        clip: true
         opacity: 0
         enabled: root.opened
 
-        onChildChanged: {
-            contentFade.stop();
-            contentFade.target = child;
-            if (child === null)
-                return;
-            if (root.opened || root.visible)
-                contentFade.restart();
-            else
-                child.opacity = 1;
+        Behavior on implicitHeight {
+            enabled: root.opened
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        WrapperItem {
+            id: contentWrapper
+            x: background.margin + background.border.width
+            y: x
+            width: background.width - 2 * x
+            child: root.activePopup?.content ?? null
+
+            onChildChanged: {
+                contentFade.stop();
+                contentFade.target = child;
+                if (child === null)
+                    return;
+                if (root.opened || root.visible)
+                    contentFade.restart();
+                else
+                    child.opacity = 1;
+            }
         }
     }
 
