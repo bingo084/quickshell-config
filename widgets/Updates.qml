@@ -52,6 +52,21 @@ Button {
         anchorItem: root
 
         ColumnLayout {
+            RowLayout {
+                Text {
+                    Layout.fillWidth: true
+                    text: "Updates"
+                    font.bold: true
+                    color: Theme.textPrimary
+                }
+                RefreshControl {
+                    updatedAt: Updates.updatedAt
+                    refreshing: Updates.checking
+                    enabled: !Updates.updating
+                    onRefreshRequested: Updates.refresh()
+                }
+            }
+
             Text {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1

@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -11,13 +12,14 @@ Singleton {
     readonly property int count: packages.length
     readonly property bool checking: repoQuery.running || aurQuery.running
     property bool updating: false
+    property var updatedAt
     readonly property string error: [repoQuery.error, aurQuery.error].filter(Boolean).join("\n")
 
     function refresh() {
-        if (!repoQuery.running)
-            repoQuery.running = true;
-        if (!aurQuery.running)
-            aurQuery.running = true;
+        if (repoQuery.running || aurQuery.running || updating)
+            return;
+        repoQuery.running = true;
+        aurQuery.running = true;
     }
 
     function install() {
@@ -72,6 +74,8 @@ Singleton {
         property var packages: []
         property string error
 
+        running: true
+
         stdout: StdioCollector {
             id: queryOutput
         }
@@ -109,6 +113,8 @@ Singleton {
             }
             query.packages = packages;
             query.error = "";
+            if (!repoQuery.running && !aurQuery.running && root.error === "")
+                root.updatedAt = new Date();
         }
     }
 
@@ -116,7 +122,6 @@ Singleton {
         id: repoQuery
         sourceName: "Official"
         emptyExitCode: 2
-        running: true
         command: ["checkupdates", "--nocolor"]
     }
 
@@ -124,7 +129,6 @@ Singleton {
         id: aurQuery
         sourceName: "AUR"
         emptyExitCode: 1
-        running: true
         command: ["paru", "-Qua", "--color", "never"]
     }
 

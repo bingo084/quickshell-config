@@ -85,11 +85,9 @@ Button {
 
             spacing: 12
             RowLayout {
-                visible: location.text !== "" || details.current !== null
                 Text {
                     id: location
                     Layout.fillWidth: true
-                    Layout.leftMargin: 10
                     color: Theme.textPrimary
                     font.pixelSize: 14
                     font.bold: true
@@ -101,12 +99,11 @@ Button {
                         return [city, area?.district].filter(Boolean).join(" · ");
                     }
                 }
-                Text {
-                    Layout.rightMargin: 10
-                    visible: details.current !== null
-                    color: Theme.textTertiary
-                    font.pixelSize: 11
-                    text: details.current ? `更新于 ${Qt.formatDateTime(details.current.fetchedAt, "hh:mm")}` : ""
+                RefreshControl {
+                    chinese: true
+                    updatedAt: details.current?.fetchedAt
+                    refreshing: Weather.refreshing
+                    onRefreshRequested: Weather.refresh()
                 }
             }
             Text {

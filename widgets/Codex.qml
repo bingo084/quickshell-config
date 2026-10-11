@@ -411,6 +411,14 @@ Button {
                     }
                 }
             }
+
+            RefreshControl {
+                Layout.alignment: Qt.AlignRight
+                updatedAt: Codex.updatedAt
+                refreshing: Codex.refreshing
+                enabled: Codex.connected
+                onRefreshRequested: Codex.refresh(true)
+            }
         }
     }
 }

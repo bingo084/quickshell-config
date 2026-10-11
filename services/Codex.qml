@@ -11,6 +11,8 @@ Singleton {
     property var resetCredits
     property var account
     property var provider
+    property var updatedAt
+    readonly property bool refreshing: Object.values(state.pending).some(request => ["config/read", "account/read", "account/rateLimits/read", "thread/loaded/list"].includes(request.method))
     property string error
     property bool connected: false
     property var threads: ({})
@@ -29,10 +31,12 @@ Singleton {
 
     function request(method, params = {}) {
         const id = ++state.nextId;
-        state.pending[id] = {
+        const pending = Object.assign({}, state.pending);
+        pending[id] = {
             method,
             params
         };
+        state.pending = pending;
         connection.write(JSON.stringify({
             id,
             method,
@@ -42,8 +46,7 @@ Singleton {
     }
 
     function refresh(force = false) {
-        const pending = Object.values(state.pending).some(request => ["config/read", "account/read", "account/rateLimits/read", "thread/loaded/list"].includes(request.method));
-        if (!connected || pending || (!force && cooldown.running))
+        if (!connected || refreshing || (!force && cooldown.running))
             return;
         cooldown.restart();
         error = "";
@@ -201,6 +204,7 @@ Singleton {
                     }
                 }
                 rateLimits = merged;
+                updatedAt = new Date();
                 break;
             }
         case "thread/started":
@@ -247,7 +251,9 @@ Singleton {
         const pending = state.pending[message.id];
         if (!pending)
             return;
-        delete state.pending[message.id];
+        const remaining = Object.assign({}, state.pending);
+        delete remaining[message.id];
+        state.pending = remaining;
         const method = pending.method;
         const threadId = pending.params.threadId;
         if (method === "thread/resume" || method === "thread/unsubscribe")
@@ -287,11 +293,13 @@ Singleton {
             } else {
                 rateLimits = null;
                 resetCredits = null;
+                updatedAt = account != null ? new Date() : null;
             }
             break;
         case "account/rateLimits/read":
             rateLimits = result.rateLimits;
             resetCredits = result.rateLimitResetCredits;
+            updatedAt = new Date();
             error = "";
             break;
         case "thread/loaded/list":
