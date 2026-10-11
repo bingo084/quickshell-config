@@ -42,6 +42,8 @@ PopupWindow {
         if (previous !== null && previous !== popup)
             previous.content.parent = null;
         activePopup = popup;
+        const center = popup.anchorItem.mapToItem(root.bar, popup.anchorItem.width / 2, 0).x;
+        background.x = Math.max(0, Math.min(root.bar.width - background.width, center - background.width / 2));
         opened = true;
         root.visible = true;
     }
@@ -59,27 +61,10 @@ PopupWindow {
         activePopup = null;
     }
 
-    function position(): real {
-        // Coordinate mapping must update when the button or its parents move.
-        anchorTransform.transform;
-        if (activePopup === null)
-            return 0;
-        const item = activePopup.anchorItem;
-        const center = item.mapToItem(root.bar, item.width / 2, 0).x;
-        return Math.max(0, Math.min(root.width - background.width, center - background.width / 2));
-    }
-
-    TransformWatcher {
-        id: anchorTransform
-        a: root.bar
-        b: root.activePopup?.anchorItem ?? null
-    }
-
     Rectangle {
         id: background
         readonly property real margin: root.activePopup?.contentMargin ?? 12
 
-        x: root.position()
         implicitWidth: (root.activePopup?.contentWidth ?? 0) + 2 * (margin + border.width)
         implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
         radius: Theme.popupRadius
