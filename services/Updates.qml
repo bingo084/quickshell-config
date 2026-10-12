@@ -27,6 +27,18 @@ Singleton {
             updateTerminal.running = true;
     }
 
+    function updateLevel(oldVersion: string, newVersion: string): string {
+        const versions = [oldVersion, newVersion].map(version => version.match(/^(?:\d+:)?v?(\d{1,4})(?:[._](\d+))?(?=$|[._+~-]|alpha|beta|rc)/i));
+        if (versions.some(version => version === null))
+            return "normal";
+        const [previous, next] = versions.map(version => [Number(version[1]), Number(version[2] || 0)]);
+        if (next[0] > previous[0])
+            return "major";
+        if (next[0] === previous[0] && next[1] > previous[1])
+            return "minor";
+        return "normal";
+    }
+
     Connections {
         target: Sleep
 
