@@ -179,6 +179,7 @@ Bar.Button {
                     id: packageRow
                     required property var modelData
                     readonly property string updateLevel: Updates.updateLevel(modelData.oldVersion, modelData.newVersion)
+                    readonly property string url: Updates.link(modelData.name)
 
                     width: packageList.width
                     height: 24
@@ -186,35 +187,60 @@ Bar.Button {
                     Text {
                         id: packageName
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
                         font.bold: packageRow.updateLevel !== "normal"
+                        font.underline: packageTooltip.hovered && packageRow.url !== ""
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
                         textFormat: Text.StyledText
                         text: packageRow.modelData.name + (Updates.importantPackages.includes(packageRow.modelData.name) ? ' <font color="' + Theme.textSecondary + '">★</font>' : "")
-                    }
-                    Text {
-                        id: oldVersion
-                        Layout.preferredWidth: packageList.oldVersionWidth
-                        horizontalAlignment: Text.AlignRight
-                        elide: Text.ElideRight
-                        textFormat: Text.StyledText
-                        color: Theme.textTertiary
-                        text: root.versionDiff(packageRow.modelData.oldVersion, packageRow.modelData.newVersion)
-                    }
-                    Text {
-                        id: newVersion
-                        Layout.preferredWidth: packageList.newVersionWidth
-                        horizontalAlignment: Text.AlignRight
-                        elide: Text.ElideRight
-                        textFormat: Text.StyledText
-                        color: Theme.textSecondary
-                        text: root.versionDiff(packageRow.modelData.newVersion, packageRow.modelData.oldVersion, true)
-                    }
 
-                    Tooltip {
-                        anchorItem: packageRow
-                        enabled: packageName.truncated || oldVersion.truncated || newVersion.truncated
-                        text: packageRow.modelData.name + "\n" + packageRow.modelData.oldVersion + " → " + packageRow.modelData.newVersion
+                        TapHandler {
+                            enabled: packageRow.url !== ""
+                            onTapped: {
+                                popup.closeAll();
+                                Updates.openDetails(packageRow.modelData.name);
+                            }
+                        }
+
+                        Tooltip {
+                            id: packageTooltip
+                            anchorItem: packageName
+                            atCursor: true
+                            enabled: packageRow.url !== "" || packageName.truncated
+                            cursorShape: packageRow.url ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            text: (packageName.truncated ? packageRow.modelData.name + "\n" : "") + packageRow.url
+                        }
+                    }
+                    RowLayout {
+                        id: versions
+                        spacing: packageRow.spacing
+
+                        Text {
+                            id: oldVersion
+                            Layout.preferredWidth: packageList.oldVersionWidth
+                            horizontalAlignment: Text.AlignRight
+                            elide: Text.ElideRight
+                            textFormat: Text.StyledText
+                            color: Theme.textTertiary
+                            text: root.versionDiff(packageRow.modelData.oldVersion, packageRow.modelData.newVersion)
+                        }
+                        Text {
+                            id: newVersion
+                            Layout.preferredWidth: packageList.newVersionWidth
+                            horizontalAlignment: Text.AlignRight
+                            elide: Text.ElideRight
+                            textFormat: Text.StyledText
+                            color: Theme.textSecondary
+                            text: root.versionDiff(packageRow.modelData.newVersion, packageRow.modelData.oldVersion, true)
+                        }
+
+                        Tooltip {
+                            anchorItem: versions
+                            enabled: oldVersion.truncated || newVersion.truncated
+                            text: packageRow.modelData.oldVersion + " → " + packageRow.modelData.newVersion
+                        }
                     }
                 }
             }
