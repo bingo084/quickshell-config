@@ -22,10 +22,6 @@ RowLayout {
             const today = root.updatedAt.toDateString() === Clock.date.toDateString();
             return (root.chinese ? "刷新于 " : "Refreshed ") + Qt.formatDateTime(root.updatedAt, today ? "hh:mm" : "MMM d  hh:mm");
         }
-
-        HoverHandler {
-            id: hover
-        }
     }
 
     Button {
@@ -53,14 +49,12 @@ RowLayout {
 
         Tooltip {
             anchorItem: refreshButton
-            active: refreshButton.hovered
             text: refreshButton.text
         }
     }
 
     Tooltip {
         anchorItem: updatedLabel
-        active: hover.hovered
         text: root.updatedAt == null ? "" : (root.chinese ? "上次刷新：" : "Last refreshed: ") + Qt.formatDateTime(root.updatedAt, "yyyy-MM-dd hh:mm:ss")
     }
 }

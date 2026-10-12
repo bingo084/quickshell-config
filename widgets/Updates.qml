@@ -121,7 +121,6 @@ Bar.Button {
 
                     Tooltip {
                         anchorItem: updateButton
-                        active: updateButton.hovered
                         text: updateButton.text
                     }
                 }
@@ -212,13 +211,9 @@ Bar.Button {
                         text: root.versionDiff(packageRow.modelData.newVersion, packageRow.modelData.oldVersion, true)
                     }
 
-                    HoverHandler {
-                        id: packageHover
-                    }
-
                     Tooltip {
                         anchorItem: packageRow
-                        active: packageHover.hovered && (packageName.truncated || oldVersion.truncated || newVersion.truncated)
+                        enabled: packageName.truncated || oldVersion.truncated || newVersion.truncated
                         text: packageRow.modelData.name + "\n" + packageRow.modelData.oldVersion + " → " + packageRow.modelData.newVersion
                     }
                 }

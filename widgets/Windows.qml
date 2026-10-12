@@ -52,7 +52,7 @@ RowLayout {
 
                     Tooltip {
                         anchorItem: area
-                        active: area.containsMouse && title.truncated && !area.pressed && !popup.visible
+                        enabled: title.truncated && !area.pressed && !popup.visible
                         text: title.text
                     }
 

@@ -7,7 +7,11 @@ PopupWindow {
     id: root
     property Item anchorItem
     property alias text: label.text
-    property bool active
+    property alias cursorShape: hover.cursorShape
+    property bool enabled: true
+    property bool atCursor
+    readonly property bool hovered: hover.hovered
+    readonly property bool active: enabled && hovered
     property int delay: 500
 
     implicitWidth: Math.min(Math.ceil(background.implicitWidth), 400)
@@ -18,7 +22,7 @@ PopupWindow {
         item: root.anchorItem
         edges: Edges.Bottom
         gravity: Edges.Bottom
-        margins.bottom: -4
+        margins.bottom: root.atCursor ? -16 : -4
     }
     // qmllint enable missing-property unresolved-type unqualified
     mask: Region {}
@@ -28,10 +32,21 @@ PopupWindow {
             visible = false;
     }
 
+    HoverHandler {
+        id: hover
+        parent: root.anchorItem
+        enabled: root.anchorItem?.enabled ?? false
+    }
+
     Timer {
         interval: root.delay
         running: root.active
-        onTriggered: root.visible = true
+        onTriggered: {
+            // qmllint disable missing-property
+            root.anchor.rect = root.atCursor ? Qt.rect(hover.point.position.x, hover.point.position.y, 1, 1) : Qt.rect(0, 0, root.anchorItem.width, root.anchorItem.height);
+            // qmllint enable missing-property
+            root.visible = true;
+        }
     }
 
     WrapperRectangle {
