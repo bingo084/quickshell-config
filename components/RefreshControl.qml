@@ -20,7 +20,7 @@ RowLayout {
             if (root.updatedAt == null)
                 return "";
             const today = root.updatedAt.toDateString() === Clock.date.toDateString();
-            return (root.chinese ? "刷新于 " : "Refreshed ") + Qt.formatDateTime(root.updatedAt, today ? "hh:mm" : "MMM d  hh:mm");
+            return (root.chinese ? "刷新于  " : "Refreshed  ") + Qt.formatDateTime(root.updatedAt, today ? "hh:mm" : "MMM d  hh:mm");
         }
     }
 
