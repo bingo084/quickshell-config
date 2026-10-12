@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import qs.components
 import qs.components.bar
@@ -127,6 +128,7 @@ Button {
                 model: Updates.packages
                 section.property: "source"
                 section.criteria: ViewSection.FullString
+                ScrollBar.vertical: ScrollBar {}
 
                 FontMetrics {
                     id: versionMetrics
@@ -143,7 +145,7 @@ Button {
                     width: packageList.width
                     height: 28
                     verticalAlignment: Text.AlignVCenter
-                    font.pixelSize: 11
+                    font.pixelSize: 13
                     font.bold: true
                     color: Theme.textSecondary
                     text: section + " · " + Updates.packages.filter(pkg => pkg.source === section).length
@@ -163,7 +165,8 @@ Button {
                         elide: Text.ElideRight
                         font.bold: packageRow.updateLevel !== "normal"
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
-                        text: packageRow.modelData.name
+                        textFormat: Text.StyledText
+                        text: packageRow.modelData.name + (Updates.importantPackages.includes(packageRow.modelData.name) ? ' <font color="' + Theme.textSecondary + '">★</font>' : "")
                     }
                     Text {
                         id: oldVersion

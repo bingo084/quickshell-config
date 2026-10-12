@@ -8,7 +8,8 @@ import qs.services
 
 Singleton {
     id: root
-    readonly property var packages: repoQuery.packages.concat(aurQuery.packages)
+    readonly property var importantPackages: ["linux", "nvidia-open-dkms", "mesa", "niri", "quickshell"]
+    readonly property var packages: sortedPackages(repoQuery.packages).concat(sortedPackages(aurQuery.packages))
     readonly property int count: packages.length
     readonly property bool checking: repoQuery.running || aurQuery.running
     property bool updating: false
@@ -25,6 +26,14 @@ Singleton {
     function install() {
         if (!updateTerminal.running && !root.updating)
             updateTerminal.running = true;
+    }
+
+    function sortedPackages(packages: var): var {
+        const priority = name => {
+            const index = root.importantPackages.indexOf(name);
+            return index === -1 ? root.importantPackages.length : index;
+        };
+        return packages.slice().sort((a, b) => priority(a.name) - priority(b.name) || a.name.localeCompare(b.name));
     }
 
     function updateLevel(oldVersion: string, newVersion: string): string {
