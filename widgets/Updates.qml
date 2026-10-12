@@ -4,11 +4,11 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar
+import qs.components.bar as Bar
 import qs.config
 import qs.services
 
-Button {
+Bar.Button {
     id: root
 
     function versionDiff(version: string, otherVersion: string, bold = false): string {
@@ -81,12 +81,14 @@ Button {
         }
     }
 
-    Popup {
+    Bar.Popup {
         id: popup
         anchorItem: root
 
         ColumnLayout {
             RowLayout {
+                spacing: 0
+
                 Text {
                     Layout.fillWidth: true
                     text: "Updates"
@@ -99,6 +101,29 @@ Button {
                     refreshing: Updates.checking
                     enabled: !Updates.updating
                     onRefreshRequested: Updates.refresh()
+                }
+                Button {
+                    id: updateButton
+                    visible: Updates.count > 0
+                    flat: true
+                    text: Updates.updating ? "Installing updates…" : "Install updates"
+                    enabled: !Updates.checking && !Updates.updating
+                    onClicked: {
+                        popup.closeAll();
+                        Updates.install();
+                    }
+
+                    iconName: "system-software-install-symbolic"
+                    icon.width: 14
+                    icon.height: 14
+                    icon.color: Theme.textSecondary
+                    display: AbstractButton.IconOnly
+
+                    Tooltip {
+                        anchorItem: updateButton
+                        active: updateButton.hovered
+                        text: updateButton.text
+                    }
                 }
             }
 

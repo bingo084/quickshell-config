@@ -9,7 +9,7 @@ RowLayout {
     property bool refreshing
     property bool chinese
     signal refreshRequested
-    spacing: 2
+    spacing: 4
 
     Text {
         id: updatedLabel
@@ -20,7 +20,7 @@ RowLayout {
             if (root.updatedAt == null)
                 return "";
             const today = root.updatedAt.toDateString() === Clock.date.toDateString();
-            return (root.chinese ? "更新于 " : "Updated ") + Qt.formatDateTime(root.updatedAt, today ? "hh:mm" : "MMM d  hh:mm");
+            return (root.chinese ? "刷新于 " : "Refreshed ") + Qt.formatDateTime(root.updatedAt, today ? "hh:mm" : "MMM d  hh:mm");
         }
 
         HoverHandler {
@@ -29,7 +29,9 @@ RowLayout {
     }
 
     Button {
+        id: refreshButton
         flat: true
+        text: root.chinese ? "刷新" : "Refresh"
         enabled: !root.refreshing
         onClicked: root.refreshRequested()
 
@@ -48,11 +50,17 @@ RowLayout {
                 onStopped: refreshIcon.rotation = 0
             }
         }
+
+        Tooltip {
+            anchorItem: refreshButton
+            active: refreshButton.hovered
+            text: refreshButton.text
+        }
     }
 
     Tooltip {
         anchorItem: updatedLabel
         active: hover.hovered
-        text: root.updatedAt == null ? "" : (root.chinese ? "上次更新：" : "Last updated: ") + Qt.formatDateTime(root.updatedAt, "yyyy-MM-dd hh:mm:ss")
+        text: root.updatedAt == null ? "" : (root.chinese ? "上次刷新：" : "Last refreshed: ") + Qt.formatDateTime(root.updatedAt, "yyyy-MM-dd hh:mm:ss")
     }
 }
