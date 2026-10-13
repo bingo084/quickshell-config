@@ -30,76 +30,157 @@ Singleton {
             "zsh": "https://github.com/zsh-users/zsh/blob/master/NEWS"
         })
     property var websites: ({})
-    readonly property var packages: sortedPackages(repoQuery.packages).concat(sortedPackages(aurQuery.packages))
+    readonly property var packages: sortedPackages(state.official.packages).concat(sortedPackages(state.aur.packages))
     property var news: []
     readonly property int count: packages.length
-    readonly property bool packagesChecking: repoQuery.running || aurQuery.running
-    readonly property bool checking: packagesChecking || buildQuery.running || newsFeed.status === XmlListModel.Loading
-    readonly property bool busy: checking || websiteQuery.running
+    property bool checking
     readonly property bool installerOpen: installer.running
     property bool pending
     property var updatedAt
-    readonly property string error: [repoQuery.error, aurQuery.error, buildQuery.error, newsFeed.error].filter(Boolean).join("\n")
+    readonly property string error: [state.official.error, state.aur.error, state.newsError].filter(Boolean).join("\n")
 
-    Component.onCompleted: refreshNews()
-
-    onPackagesCheckingChanged: {
-        if (!packagesChecking)
-            refreshLinks();
+    QtObject {
+        id: state
+        property var official: ({
+                packages: [],
+                error: ""
+            })
+        property var aur: ({
+                packages: [],
+                error: ""
+            })
+        property string newsError
     }
 
-    onBusyChanged: {
-        if (!busy && pending && !refreshDelay.running)
-            refreshDelay.start();
-    }
+    Component.onCompleted: refresh()
 
     function refresh() {
-        if (busy)
+        if (checking)
             return;
+        checking = true;
         pending = false;
         refreshDelay.stop();
-        refreshNews();
-        repoQuery.running = true;
-        aurQuery.running = true;
+        const packages = refreshPackages();
+        const news = refreshNews();
+        return waitAll([packages, news]).catch(error => {
+            console.warn("Updates refresh failed:", error.message);
+        }).then(() => {
+            root.checking = false;
+            if (root.pending && !refreshDelay.running)
+                refreshDelay.start();
+        });
+    }
+
+    function refreshPackages() {
+        const official = refreshSource("Official", ["checkupdates", "--nocolor"], 2);
+        const aur = refreshSource("AUR", ["paru", "-Qua", "--color", "never"], 1);
+        return Promise.all([official, aur]).then(success => {
+            if (success.every(Boolean))
+                root.updatedAt = new Date();
+            return refreshLinks();
+        });
+    }
+
+    function refreshSource(source: string, command: list<string>, emptyExitCode: int): var {
+        const key = source.toLowerCase();
+        return Command.run(command).then(result => {
+            const text = result.stdout.trim();
+            const stderr = result.stderr.trim();
+            const noUpdates = result.exitCode === emptyExitCode && text === "" && stderr === "";
+            if (result.exitCode !== 0 && !noUpdates)
+                throw new Error(source + " updates query failed (exit " + result.exitCode + "): " + stderr);
+            state[key] = {
+                packages: parsePackages(text, source),
+                error: ""
+            };
+            return true;
+        }).catch(error => {
+            state[key] = {
+                packages: state[key].packages,
+                error: error.message
+            };
+            console.warn(error.message);
+            return false;
+        });
+    }
+
+    function parsePackages(text: string, source: string): var {
+        const packages = [];
+        for (const line of text ? text.split("\n") : []) {
+            if (line.trim().endsWith(" [ignored]"))
+                continue;
+            const fields = line.trim().split(/\s+/);
+            const [name, oldVersion, arrow, newVersion] = fields;
+            if (fields.length !== 4 || arrow !== "->")
+                throw new Error(source + " unexpected update entry: " + line);
+            packages.push({
+                name,
+                oldVersion,
+                newVersion,
+                source
+            });
+        }
+        return packages;
+    }
+
+    function refreshLinks() {
+        const names = root.packages.map(pkg => pkg.name).filter(name => !root.links[name]);
+        if (names.length === 0) {
+            root.websites = {};
+            return Promise.resolve();
+        }
+        return Command.run(["env", "LC_ALL=C", "pacman", "-Qi"].concat(names)).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("Package URL query failed: " + result.stderr.trim());
+            const websites = {};
+            for (const record of result.stdout.split(/\n\s*\n/)) {
+                const name = record.match(/^Name\s*:\s*(\S+)/m)?.[1];
+                const url = record.match(/^URL\s*:\s*(\S+)/m)?.[1];
+                if (name && url && url !== "None")
+                    websites[name] = url;
+            }
+            root.websites = websites;
+        }).catch(error => console.warn(error.message));
     }
 
     function refreshNews() {
-        buildQuery.run();
-        if (newsFeed.source.toString() === "")
-            newsFeed.source = "https://archlinux.org/feeds/news/";
-        else
-            newsFeed.reload();
+        const buildDate = readBuildDate();
+        const feed = newsFeed.read();
+        return waitAll([buildDate, feed]).then(([latestBuild, items]) => {
+            root.news = items.filter(item => item.date.getTime() >= latestBuild);
+            state.newsError = "";
+        }).catch(error => {
+            state.newsError = error.message;
+            console.warn(error.message);
+        });
     }
 
-    function updateNews() {
-        if (buildQuery.running || newsFeed.status !== XmlListModel.Ready || buildQuery.latestBuild < 0 || buildQuery.error !== "" || newsFeed.error !== "")
-            return;
-        const news = [];
-        for (let i = 0; i < newsItems.items.count; i++) {
-            const item = newsItems.items.get(i).model;
-            const date = new Date(item.date);
-            if (date.getTime() >= buildQuery.latestBuild)
-                news.push({
-                    title: item.title,
-                    url: item.url,
-                    date
-                });
-        }
-        root.news = news;
+    function readBuildDate() {
+        return Command.run(["sh", "-c", "awk '/^%BUILDDATE%$/ { getline; if ($0 > latest) latest = $0 } END { printf \"%.0f\\n\", latest }' /var/lib/pacman/local/*/desc"]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("Arch news package query failed: " + result.stderr.trim());
+            return Number(result.stdout.trim()) * 1000;
+        });
+    }
+
+    // Wait for every task before propagating a failure, so refreshes cannot overlap.
+    function waitAll(promises): var {
+        const tasks = promises.map(promise => promise.then(value => ({
+                        value
+                    }), error => ({
+                        error
+                    })));
+        return Promise.all(tasks).then(results => {
+            const failure = results.find(result => result.error);
+            if (failure)
+                throw failure.error;
+            return results.map(result => result.value);
+        });
     }
 
     function install() {
         if (!installerOpen)
             installer.running = true;
-    }
-
-    function refreshLinks() {
-        websiteQuery.packageNames = root.packages.map(pkg => pkg.name).filter(name => !root.links[name]);
-        if (websiteQuery.packageNames.length === 0) {
-            root.websites = {};
-            return;
-        }
-        websiteQuery.running = true;
     }
 
     function link(name: string): string {
@@ -163,33 +244,9 @@ Singleton {
         command: ["kitty", "--title", "System update", "zsh", "-ic", "command paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
     }
 
-    Process {
-        id: buildQuery
-        property double latestBuild: -1
-        property string error
-        // Paru 2.1.0 uses the latest build date across all installed packages.
-        command: ["sh", "-c", "awk '/^%BUILDDATE%$/ { getline; if ($0 > latest) latest = $0 } END { printf \"%.0f\\n\", latest }' /var/lib/pacman/local/*/desc"]
-        stdout: StdioCollector {
-            id: buildOutput
-        }
-        stderr: StdioCollector {
-            id: buildErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                error = "Arch news package query failed: " + buildErrors.text.trim();
-                console.warn(error);
-                return;
-            }
-            latestBuild = Number(buildOutput.text.trim()) * 1000;
-            error = "";
-            root.updateNews();
-        }
-    }
-
     XmlListModel {
         id: newsFeed
-        property string error
+        property var completion: null
         query: "/rss/channel/item"
         XmlListModelRole {
             name: "title"
@@ -204,23 +261,51 @@ Singleton {
             elementName: "pubDate"
         }
 
-        onStatusChanged: {
-            if (status === XmlListModel.Loading) {
-                error = "";
-                newsTimeout.restart();
-                return;
-            }
+        function read() {
+            return new Promise((resolve, reject) => {
+                completion = {
+                    resolve,
+                    reject
+                };
+                if (source.toString() === "")
+                    source = "https://archlinux.org/feeds/news/";
+                else
+                    reload();
+            });
+        }
+
+        function finish(items, error = null) {
+            const callbacks = completion;
+            completion = null;
             newsTimeout.stop();
-            if (status === XmlListModel.Error) {
-                error = "Arch news query failed: " + errorString();
-                console.warn(error);
+            if (error)
+                callbacks.reject(error);
+            else
+                callbacks.resolve(items);
+        }
+
+        onStatusChanged: {
+            if (!completion)
+                return;
+            if (status === XmlListModel.Loading) {
+                newsTimeout.restart();
+            } else if (status === XmlListModel.Error) {
+                finish(null, new Error("Arch news query failed: " + errorString()));
             } else if (status === XmlListModel.Ready) {
                 if (count === 0) {
-                    error = "Arch news feed is empty or invalid.";
-                    console.warn(error);
-                } else {
-                    root.updateNews();
+                    finish(null, new Error("Arch news feed is empty or invalid."));
+                    return;
                 }
+                const items = [];
+                for (let i = 0; i < newsItems.items.count; i++) {
+                    const item = newsItems.items.get(i).model;
+                    items.push({
+                        title: item.title,
+                        url: item.url,
+                        date: new Date(item.date)
+                    });
+                }
+                finish(items);
             }
         }
     }
@@ -234,9 +319,8 @@ Singleton {
         id: newsTimeout
         interval: 15000
         onTriggered: {
+            newsFeed.finish(null, new Error("Arch news request timed out."));
             newsFeed.source = "";
-            newsFeed.error = "Arch news request timed out.";
-            console.warn(newsFeed.error);
         }
     }
 
@@ -261,98 +345,6 @@ Singleton {
         id: refreshDelay
         interval: 1000
         onTriggered: root.refresh()
-    }
-
-    Process {
-        id: websiteQuery
-        property var packageNames: []
-        command: ["env", "LC_ALL=C", "pacman", "-Qi"].concat(packageNames)
-
-        stdout: StdioCollector {
-            id: websiteOutput
-        }
-        stderr: StdioCollector {
-            id: websiteErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("Package URL query failed:", websiteErrors.text.trim());
-                return;
-            }
-            const websites = {};
-            for (const record of websiteOutput.text.split(/\n\s*\n/)) {
-                const name = record.match(/^Name\s*:\s*(\S+)/m)?.[1];
-                const url = record.match(/^URL\s*:\s*(\S+)/m)?.[1];
-                if (name && url && url !== "None")
-                    websites[name] = url;
-            }
-            root.websites = websites;
-        }
-    }
-
-    component UpdateQuery: Process {
-        id: query
-        required property string sourceName
-        required property int emptyExitCode
-        property var packages: []
-        property string error
-
-        running: true
-
-        stdout: StdioCollector {
-            id: queryOutput
-        }
-        stderr: StdioCollector {
-            id: queryErrors
-        }
-        onExited: exitCode => {
-            const text = queryOutput.text.trim();
-            const noUpdates = exitCode === query.emptyExitCode && text === "" && queryErrors.text.trim() === "";
-            if (exitCode !== 0 && !noUpdates) {
-                query.error = query.sourceName + " updates query failed (exit " + exitCode + "): " + queryErrors.text.trim();
-                console.warn(query.error);
-                return;
-            }
-            const packages = [];
-            if (exitCode === 0) {
-                const lines = text ? text.split("\n") : [];
-                for (const line of lines) {
-                    if (line.trim().endsWith(" [ignored]"))
-                        continue;
-                    const fields = line.trim().split(/\s+/);
-                    const [name, oldVersion, arrow, newVersion] = fields;
-                    if (fields.length !== 4 || arrow !== "->") {
-                        query.error = query.sourceName + " unexpected update entry: " + line;
-                        console.warn(query.error);
-                        return;
-                    }
-                    packages.push({
-                        name,
-                        oldVersion,
-                        newVersion,
-                        source: query.sourceName
-                    });
-                }
-            }
-            query.packages = packages;
-            query.error = "";
-            if (!root.packagesChecking && repoQuery.error === "" && aurQuery.error === "")
-                root.updatedAt = new Date();
-        }
-    }
-
-    UpdateQuery {
-        id: repoQuery
-        sourceName: "Official"
-        emptyExitCode: 2
-        command: ["checkupdates", "--nocolor"]
-    }
-
-    UpdateQuery {
-        id: aurQuery
-        sourceName: "AUR"
-        emptyExitCode: 1
-        command: ["paru", "-Qua", "--color", "never"]
     }
 
     Timer {
