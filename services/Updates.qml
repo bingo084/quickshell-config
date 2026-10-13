@@ -1,6 +1,8 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 
+import QtQml.Models
+import QtQml.XmlListModel
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -29,16 +31,20 @@ Singleton {
         })
     property var websites: ({})
     readonly property var packages: sortedPackages(repoQuery.packages).concat(sortedPackages(aurQuery.packages))
+    property var news: []
     readonly property int count: packages.length
-    readonly property bool checking: repoQuery.running || aurQuery.running
+    readonly property bool packagesChecking: repoQuery.running || aurQuery.running
+    readonly property bool checking: packagesChecking || buildQuery.running || newsFeed.status === XmlListModel.Loading
     readonly property bool busy: checking || websiteQuery.running
     readonly property bool installerOpen: installer.running
     property bool pending
     property var updatedAt
-    readonly property string error: [repoQuery.error, aurQuery.error].filter(Boolean).join("\n")
+    readonly property string error: [repoQuery.error, aurQuery.error, buildQuery.error, newsFeed.error].filter(Boolean).join("\n")
 
-    onCheckingChanged: {
-        if (!checking)
+    Component.onCompleted: refreshNews()
+
+    onPackagesCheckingChanged: {
+        if (!packagesChecking)
             refreshLinks();
     }
 
@@ -52,8 +58,34 @@ Singleton {
             return;
         pending = false;
         refreshDelay.stop();
+        refreshNews();
         repoQuery.running = true;
         aurQuery.running = true;
+    }
+
+    function refreshNews() {
+        buildQuery.run();
+        if (newsFeed.source.toString() === "")
+            newsFeed.source = "https://archlinux.org/feeds/news/";
+        else
+            newsFeed.reload();
+    }
+
+    function updateNews() {
+        if (buildQuery.running || newsFeed.status !== XmlListModel.Ready || buildQuery.latestBuild < 0 || buildQuery.error !== "" || newsFeed.error !== "")
+            return;
+        const news = [];
+        for (let i = 0; i < newsItems.items.count; i++) {
+            const item = newsItems.items.get(i).model;
+            const date = new Date(item.date);
+            if (date.getTime() >= buildQuery.latestBuild)
+                news.push({
+                    title: item.title,
+                    url: item.url,
+                    date
+                });
+        }
+        root.news = news;
     }
 
     function install() {
@@ -129,6 +161,83 @@ Singleton {
     Process {
         id: installer
         command: ["kitty", "--title", "System update", "zsh", "-ic", "command paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
+    }
+
+    Process {
+        id: buildQuery
+        property double latestBuild: -1
+        property string error
+        // Paru 2.1.0 uses the latest build date across all installed packages.
+        command: ["sh", "-c", "awk '/^%BUILDDATE%$/ { getline; if ($0 > latest) latest = $0 } END { printf \"%.0f\\n\", latest }' /var/lib/pacman/local/*/desc"]
+        stdout: StdioCollector {
+            id: buildOutput
+        }
+        stderr: StdioCollector {
+            id: buildErrors
+        }
+        onExited: exitCode => {
+            if (exitCode !== 0) {
+                error = "Arch news package query failed: " + buildErrors.text.trim();
+                console.warn(error);
+                return;
+            }
+            latestBuild = Number(buildOutput.text.trim()) * 1000;
+            error = "";
+            root.updateNews();
+        }
+    }
+
+    XmlListModel {
+        id: newsFeed
+        property string error
+        query: "/rss/channel/item"
+        XmlListModelRole {
+            name: "title"
+            elementName: "title"
+        }
+        XmlListModelRole {
+            name: "url"
+            elementName: "link"
+        }
+        XmlListModelRole {
+            name: "date"
+            elementName: "pubDate"
+        }
+
+        onStatusChanged: {
+            if (status === XmlListModel.Loading) {
+                error = "";
+                newsTimeout.restart();
+                return;
+            }
+            newsTimeout.stop();
+            if (status === XmlListModel.Error) {
+                error = "Arch news query failed: " + errorString();
+                console.warn(error);
+            } else if (status === XmlListModel.Ready) {
+                if (count === 0) {
+                    error = "Arch news feed is empty or invalid.";
+                    console.warn(error);
+                } else {
+                    root.updateNews();
+                }
+            }
+        }
+    }
+
+    DelegateModel {
+        id: newsItems
+        model: newsFeed
+    }
+
+    Timer {
+        id: newsTimeout
+        interval: 15000
+        onTriggered: {
+            newsFeed.source = "";
+            newsFeed.error = "Arch news request timed out.";
+            console.warn(newsFeed.error);
+        }
     }
 
     Process {
@@ -227,7 +336,7 @@ Singleton {
             }
             query.packages = packages;
             query.error = "";
-            if (!repoQuery.running && !aurQuery.running && root.error === "")
+            if (!root.packagesChecking && repoQuery.error === "" && aurQuery.error === "")
                 root.updatedAt = new Date();
         }
     }

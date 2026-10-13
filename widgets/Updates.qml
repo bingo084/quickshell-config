@@ -45,7 +45,7 @@ Bar.Button {
     }
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-    visible: Updates.checking || Updates.installerOpen || Updates.error !== "" || Updates.count > 0
+    visible: Updates.news.length > 0 || Updates.checking || Updates.installerOpen || Updates.error !== "" || Updates.count > 0
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
             popup.closeOthers();
@@ -64,14 +64,25 @@ Bar.Button {
         Icon {
             id: refreshIcon
             name: "emblem-synchronizing-symbolic"
-            RotationAnimator {
-                target: refreshIcon
+            NumberAnimation on backer.rotation {
                 from: 0
                 to: 360
                 duration: 1300
                 loops: Animation.Infinite
                 running: Updates.checking
-                onStopped: refreshIcon.rotation = 0
+                onStopped: refreshIcon.backer.rotation = 0
+            }
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.right: parent.right
+                width: 6
+                height: 6
+                radius: 3
+                visible: Updates.news.length > 0
+                color: Theme.warning
+                border.color: Theme.barBackground
+                border.width: 1
             }
         }
 
@@ -122,6 +133,64 @@ Bar.Button {
                         anchorItem: updateButton
                         text: updateButton.text
                     }
+                }
+            }
+
+            ColumnLayout {
+                visible: Updates.news.length > 0
+                spacing: 8
+
+                Text {
+                    text: "Arch news"
+                    font.pixelSize: 13
+                    font.bold: true
+                    color: Theme.textSecondary
+                }
+                Repeater {
+                    model: Updates.news
+                    delegate: RowLayout {
+                        id: article
+                        required property var modelData
+                        spacing: 8
+
+                        Text {
+                            id: headline
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            text: article.modelData.title
+                            textFormat: Text.PlainText
+                            wrapMode: Text.Wrap
+                            color: Theme.textPrimary
+                            font.underline: newsTooltip.hovered
+                            TapHandler {
+                                onTapped: {
+                                    popup.closeAll();
+                                    Qt.openUrlExternally(article.modelData.url);
+                                }
+                            }
+                            Tooltip {
+                                id: newsTooltip
+                                anchorItem: headline
+                                cursorShape: Qt.PointingHandCursor
+                                text: article.modelData.url
+                            }
+                        }
+                        Text {
+                            id: newsDate
+                            Layout.alignment: Qt.AlignTop
+                            text: Qt.formatDateTime(article.modelData.date, "MMM d")
+                            font.pixelSize: 11
+                            color: Theme.textTertiary
+
+                            Tooltip {
+                                anchorItem: newsDate
+                                text: Qt.formatDateTime(article.modelData.date, "yyyy-MM-dd hh:mm:ss")
+                            }
+                        }
+                    }
+                }
+                Separator {
+                    visible: Updates.count > 0
                 }
             }
 
