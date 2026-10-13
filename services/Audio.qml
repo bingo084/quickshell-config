@@ -1,9 +1,9 @@
 pragma Singleton
 
-import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import qs.components
 
 Singleton {
     id: root
@@ -107,11 +107,7 @@ Singleton {
     }
 
     function refreshPorts() {
-        if (portQuery.running) {
-            portQuery.pending = true;
-            return;
-        }
-        portQuery.running = true;
+        portQuery.run(0);
     }
 
     PwObjectTracker {
@@ -120,7 +116,7 @@ Singleton {
 
     Process {
         id: portQuery
-        property bool pending: false
+        delay: 150
 
         command: ["pactl", "--format=json", "list"]
         // qmllint disable incompatible-type
@@ -135,10 +131,6 @@ Singleton {
             id: portErrors
         }
         onExited: exitCode => {
-            if (pending) {
-                pending = false;
-                Qt.callLater(root.refreshPorts);
-            }
             if (exitCode !== 0) {
                 root.portData = {};
                 console.warn("Audio ports query failed:", portErrors.text.trim());
@@ -178,7 +170,7 @@ Singleton {
     }
 
     Process {
-        id: portMonitor
+        autoRestart: true
         command: ["pactl", "subscribe"]
         // qmllint disable incompatible-type
         environment: ({
@@ -190,7 +182,7 @@ Singleton {
         stdout: SplitParser {
             onRead: line => {
                 if (/ on (sink|source|card|server) #/.test(line))
-                    portRefresh.restart();
+                    portQuery.run();
             }
         }
         stderr: SplitParser {
@@ -198,20 +190,7 @@ Singleton {
         }
         onExited: {
             root.portData = {};
-            portRefresh.stop();
-            reconnect.restart();
+            portQuery.cancelDelay();
         }
-    }
-
-    Timer {
-        id: portRefresh
-        interval: 150
-        onTriggered: root.refreshPorts()
-    }
-
-    Timer {
-        id: reconnect
-        interval: 3000
-        onTriggered: portMonitor.running = true
     }
 }

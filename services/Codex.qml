@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.services
+import qs.components
 
 Singleton {
     id: root
@@ -389,6 +390,7 @@ Singleton {
 
     Process {
         id: connection
+        autoRestart: true
         command: {
             const codexHome = Quickshell.env("CODEX_HOME") || Quickshell.env("HOME") + "/.codex";
             return ["websocat", "-B", "4194304", "-t", "-E", "--ws-c-uri=ws://localhost/", "-", `ws-c:unix:${codexHome}/app-server-control/app-server-control.sock`];
@@ -420,14 +422,7 @@ Singleton {
             state.restoring = {};
             root.error = "Codex daemon disconnected.";
             subscriptionRetry.stop();
-            reconnect.restart();
         }
-    }
-
-    Timer {
-        id: reconnect
-        interval: 3000
-        onTriggered: connection.running = true
     }
 
     Timer {

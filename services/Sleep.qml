@@ -1,15 +1,15 @@
 pragma Singleton
 
-import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 
 Singleton {
     id: root
     signal resumed
 
     Process {
-        id: monitor
+        autoRestart: true
         // Line-buffer stdout so infrequent wake signals are delivered promptly.
         command: ["stdbuf", "-oL", "gdbus", "monitor", "--system", "--dest", "org.freedesktop.login1", "--object-path", "/org/freedesktop/login1"]
         running: true
@@ -23,12 +23,5 @@ Singleton {
         stderr: SplitParser {
             onRead: line => console.warn("Sleep monitor:", line)
         }
-        onExited: reconnect.restart()
-    }
-
-    Timer {
-        id: reconnect
-        interval: 3000
-        onTriggered: monitor.running = true
     }
 }

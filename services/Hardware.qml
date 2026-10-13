@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 
 Singleton {
     id: root
@@ -123,6 +124,7 @@ Singleton {
 
     Process {
         id: diskProcess
+        skipIfRunning: true
         running: true
         command: ["df", "-B1", "--output=size,used,avail", "/"]
         stdout: StdioCollector {
@@ -153,6 +155,7 @@ Singleton {
 
     Process {
         id: gpuProcess
+        skipIfRunning: true
         running: true
         command: ["sh", "-c", `
             command -v nvidia-smi >/dev/null 2>&1 || exit 0
@@ -186,10 +189,7 @@ Singleton {
         interval: 5000
         running: true
         repeat: true
-        onTriggered: {
-            if (!gpuProcess.running)
-                gpuProcess.running = true;
-        }
+        onTriggered: gpuProcess.run()
     }
 
     Timer {
@@ -208,9 +208,6 @@ Singleton {
         interval: 30000
         running: true
         repeat: true
-        onTriggered: {
-            if (!diskProcess.running)
-                diskProcess.running = true;
-        }
+        onTriggered: diskProcess.run()
     }
 }

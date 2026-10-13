@@ -5,6 +5,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.services
+import qs.components
 
 Singleton {
     id: root
@@ -132,7 +133,7 @@ Singleton {
     }
 
     Process {
-        id: monitor
+        autoRestart: true
         command: ["tail", "-n", "0", "-F", "/var/log/pacman.log"]
         running: true
         stdout: SplitParser {
@@ -146,19 +147,12 @@ Singleton {
         stderr: SplitParser {
             onRead: line => console.warn("Package monitor:", line)
         }
-        onExited: reconnect.restart()
     }
 
     Timer {
         id: refreshDelay
         interval: 1000
         onTriggered: root.refresh()
-    }
-
-    Timer {
-        id: reconnect
-        interval: 3000
-        onTriggered: monitor.running = true
     }
 
     Process {
