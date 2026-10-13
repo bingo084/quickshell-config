@@ -1,5 +1,6 @@
 pragma Singleton
 
+import QtQml
 import Quickshell
 import Quickshell.Io
 
@@ -14,6 +15,27 @@ Singleton {
     readonly property real minimumLevel: root.available ? root.minimum / root.maximum : 0
     property string output
 
+    Component.onCompleted: {
+        Command.run(["brightnessctl", "-c", "backlight", "-m"]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("brightnessctl query failed (exit " + result.exitCode + "): " + result.stderr.trim());
+            const text = result.stdout.trim();
+            const fields = text.split("\n")[0].split(",");
+            if (fields.length < 5 || fields[0] === "")
+                throw new Error("Unexpected brightnessctl output: " + text);
+            root.device = fields[0];
+            return Command.run(["readlink", "-f", `/sys/class/backlight/${root.device}`]);
+        }).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("backlight path query failed (exit " + result.exitCode + "): " + result.stderr.trim());
+            const path = result.stdout.trim();
+            const match = path.match(/\/card\d+-([^/]+)\//);
+            if (!match)
+                throw new Error("Cannot identify backlight output: " + path);
+            root.output = match[1];
+        }).catch(error => console.warn(error.message));
+    }
+
     function change(step: int) {
         if (!root.available || step === 0)
             return;
@@ -26,54 +48,6 @@ Singleton {
             return;
         const value = Math.round(level * root.maximum);
         Quickshell.execDetached(["brightnessctl", "-d", root.device, `-n${root.minimum}`, "set", value]);
-    }
-
-    Process {
-        running: true
-        command: ["brightnessctl", "-c", "backlight", "-m"]
-        stdout: StdioCollector {
-            id: queryOutput
-        }
-        stderr: StdioCollector {
-            id: queryErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("brightnessctl query failed (exit " + exitCode + "):", queryErrors.text.trim());
-                return;
-            }
-            const fields = queryOutput.text.trim().split("\n")[0].split(",");
-            if (fields.length < 5 || fields[0] === "") {
-                console.warn("Unexpected brightnessctl output:", queryOutput.text.trim());
-                return;
-            }
-            root.device = fields[0];
-            outputQuery.running = true;
-        }
-    }
-
-    Process {
-        id: outputQuery
-        command: ["readlink", "-f", `/sys/class/backlight/${root.device}`]
-        stdout: StdioCollector {
-            id: outputPath
-        }
-        stderr: StdioCollector {
-            id: outputStderr
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("backlight path query failed (exit " + exitCode + "):", outputStderr.text.trim());
-                return;
-            }
-            const path = outputPath.text.trim();
-            const match = path.match(/\/card\d+-([^/]+)\//);
-            if (!match) {
-                console.warn("Cannot identify backlight output:", path);
-                return;
-            }
-            root.output = match[1];
-        }
     }
 
     FileView {
