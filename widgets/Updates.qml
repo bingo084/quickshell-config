@@ -241,19 +241,30 @@ Bar.Button {
                     height: 24
                     spacing: 8
                     Link {
+                        id: packageName
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        rightPadding: marker.visible ? marker.width + packageRow.spacing : 0
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
                         font.bold: packageRow.updateLevel !== "normal"
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
-                        text: packageRow.modelData.name + (Updates.importantPackages.includes(packageRow.modelData.name) ? ' <font color="' + Theme.textSecondary + '">★</font>' : "")
+                        text: packageRow.modelData.name
                         url: Updates.link(packageRow.modelData.name)
                         tooltip.atCursor: true
-                        tooltip.text: (truncated ? packageRow.modelData.name + "\n" : "") + url
                         onClicked: {
                             popup.closeAll();
                             Updates.openDetails(packageRow.modelData.name);
+                        }
+
+                        Text {
+                            id: marker
+                            x: Math.min(Math.ceil(packageName.contentWidth) + packageRow.spacing, packageName.width - width)
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Math.ceil(implicitWidth)
+                            visible: Updates.importantPackages.includes(packageRow.modelData.name)
+                            text: "★"
+                            color: Theme.textSecondary
                         }
                     }
                     RowLayout {
