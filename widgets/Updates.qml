@@ -153,26 +153,15 @@ Bar.Button {
                         required property var modelData
                         spacing: 8
 
-                        Text {
-                            id: headline
+                        Link {
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
                             text: article.modelData.title
-                            textFormat: Text.PlainText
+                            url: article.modelData.url
                             wrapMode: Text.Wrap
-                            color: Theme.textPrimary
-                            font.underline: newsTooltip.hovered
-                            TapHandler {
-                                onTapped: {
-                                    popup.closeAll();
-                                    Qt.openUrlExternally(article.modelData.url);
-                                }
-                            }
-                            Tooltip {
-                                id: newsTooltip
-                                anchorItem: headline
-                                cursorShape: Qt.PointingHandCursor
-                                text: article.modelData.url
+                            onClicked: {
+                                popup.closeAll();
+                                Qt.openUrlExternally(url);
                             }
                         }
                         Text {
@@ -247,38 +236,24 @@ Bar.Button {
                     id: packageRow
                     required property var modelData
                     readonly property string updateLevel: Updates.updateLevel(modelData.oldVersion, modelData.newVersion)
-                    readonly property string url: Updates.link(modelData.name)
 
                     width: packageList.width
                     height: 24
                     spacing: 8
-                    Text {
-                        id: packageName
+                    Link {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
                         font.bold: packageRow.updateLevel !== "normal"
-                        font.underline: packageTooltip.hovered && packageRow.url !== ""
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
-                        textFormat: Text.StyledText
                         text: packageRow.modelData.name + (Updates.importantPackages.includes(packageRow.modelData.name) ? ' <font color="' + Theme.textSecondary + '">★</font>' : "")
-
-                        TapHandler {
-                            enabled: packageRow.url !== ""
-                            onTapped: {
-                                popup.closeAll();
-                                Updates.openDetails(packageRow.modelData.name);
-                            }
-                        }
-
-                        Tooltip {
-                            id: packageTooltip
-                            anchorItem: packageName
-                            atCursor: true
-                            enabled: packageRow.url !== "" || packageName.truncated
-                            cursorShape: packageRow.url ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            text: (packageName.truncated ? packageRow.modelData.name + "\n" : "") + packageRow.url
+                        url: Updates.link(packageRow.modelData.name)
+                        tooltip.atCursor: true
+                        tooltip.text: (truncated ? packageRow.modelData.name + "\n" : "") + url
+                        onClicked: {
+                            popup.closeAll();
+                            Updates.openDetails(packageRow.modelData.name);
                         }
                     }
                     RowLayout {
