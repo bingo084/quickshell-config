@@ -1,70 +1,45 @@
 pragma Singleton
 
 import Quickshell
-import Quickshell.Io
 
 Singleton {
-    readonly property var queriesByCapability: ({
-            suspend: suspendQuery,
-            hibernate: hibernateQuery
-        })
+    id: root
+    property var capabilities: ({})
+    property bool checking
 
     function refresh() {
-        for (const capability in queriesByCapability)
-            queriesByCapability[capability].refresh();
+        if (checking)
+            return;
+        checking = true;
+        capabilities = {};
+        const suspend = query("CanSuspend");
+        const hibernate = query("CanHibernate");
+        return Promise.all([suspend, hibernate]).then(([suspend, hibernate]) => {
+            root.capabilities = {
+                suspend,
+                hibernate
+            };
+            root.checking = false;
+        });
     }
 
     function canExecute(capability): bool {
         if (capability == null)
             return true;
-        return queriesByCapability[capability]?.status === "yes";
+        return capabilities[capability] === "yes";
     }
 
-    component CapabilityQuery: Process {
-        id: query
-        required property string methodName
-        property string status: "unknown"
-
-        function refresh() {
-            status = "unknown";
-            running = true;
-        }
-
-        command: ["busctl", "--json=short", "call", "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", methodName]
-        stdout: StdioCollector {
-            id: queryOutput
-        }
-        stderr: StdioCollector {
-            id: queryErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn(methodName + " query failed (exit " + exitCode + "):", queryErrors.text.trim());
-                status = "error";
-                return;
-            }
-            try {
-                const result = JSON.parse(queryOutput.text);
-                if (result.type !== "s" || !Array.isArray(result.data) || typeof result.data[0] !== "string") {
-                    console.warn("Invalid " + methodName + " response:", queryOutput.text.trim());
-                    status = "error";
-                    return;
-                }
-                status = result.data[0];
-            } catch (e) {
-                console.warn("Invalid " + methodName + " response:", e.message, queryOutput.text.trim());
-                status = "error";
-            }
-        }
-    }
-
-    CapabilityQuery {
-        id: hibernateQuery
-        methodName: "CanHibernate"
-    }
-
-    CapabilityQuery {
-        id: suspendQuery
-        methodName: "CanSuspend"
+    function query(methodName: string): var {
+        return Command.run(["busctl", "--json=short", "call", "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", methodName]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            const response = JSON.parse(result.stdout);
+            if (response.type !== "s" || !Array.isArray(response.data) || typeof response.data[0] !== "string")
+                throw new Error("Invalid response: " + result.stdout.trim());
+            return response.data[0];
+        }).catch(error => {
+            console.warn(methodName + " query failed:", error.message);
+            return "error";
+        });
     }
 }
