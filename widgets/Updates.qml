@@ -45,7 +45,7 @@ Bar.Button {
     }
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-    visible: Updates.checking || Updates.updating || Updates.error !== "" || Updates.count > 0
+    visible: Updates.checking || Updates.installerOpen || Updates.error !== "" || Updates.count > 0
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
             popup.closeOthers();
@@ -70,7 +70,7 @@ Bar.Button {
                 to: 360
                 duration: 1300
                 loops: Animation.Infinite
-                running: Updates.checking || Updates.updating
+                running: Updates.checking
                 onStopped: refreshIcon.rotation = 0
             }
         }
@@ -99,15 +99,14 @@ Bar.Button {
                 RefreshControl {
                     updatedAt: Updates.updatedAt
                     refreshing: Updates.checking
-                    enabled: !Updates.updating
                     onRefreshRequested: Updates.refresh()
                 }
                 Button {
                     id: updateButton
                     visible: Updates.count > 0
                     flat: true
-                    text: Updates.updating ? "Installing updates…" : "Install updates"
-                    enabled: !Updates.checking && !Updates.updating
+                    text: "Install updates"
+                    enabled: !Updates.checking && !Updates.installerOpen
                     onClicked: {
                         popup.closeAll();
                         Updates.install();

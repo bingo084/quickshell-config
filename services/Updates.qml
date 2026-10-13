@@ -31,7 +31,9 @@ Singleton {
     readonly property var packages: sortedPackages(repoQuery.packages).concat(sortedPackages(aurQuery.packages))
     readonly property int count: packages.length
     readonly property bool checking: repoQuery.running || aurQuery.running
-    property bool updating: false
+    readonly property bool busy: checking || websiteQuery.running
+    readonly property bool installerOpen: installer.running
+    property bool pending
     property var updatedAt
     readonly property string error: [repoQuery.error, aurQuery.error].filter(Boolean).join("\n")
 
@@ -40,16 +42,23 @@ Singleton {
             refreshLinks();
     }
 
+    onBusyChanged: {
+        if (!busy && pending && !refreshDelay.running)
+            refreshDelay.start();
+    }
+
     function refresh() {
-        if (repoQuery.running || aurQuery.running || websiteQuery.running || updating)
+        if (busy)
             return;
+        pending = false;
+        refreshDelay.stop();
         repoQuery.running = true;
         aurQuery.running = true;
     }
 
     function install() {
-        if (!updateTerminal.running && !root.updating)
-            updateTerminal.running = true;
+        if (!installerOpen)
+            installer.running = true;
     }
 
     function refreshLinks() {
@@ -117,28 +126,39 @@ Singleton {
         }
     }
 
-    IpcHandler {
-        target: "updates"
-
-        function begin(): void {
-            root.updating = true;
-        }
-
-        function end(): void {
-            root.updating = false;
-            root.refresh();
-        }
+    Process {
+        id: installer
+        command: ["kitty", "--title", "System update", "zsh", "-ic", "command paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
     }
 
     Process {
-        id: updateTerminal
-        command: ["kitty", "--title", "System update", "zsh", "-ic", "paru; update_exit=$?; printf '\\nPress Enter to close...'; read -r; exit $update_exit"]
-        onExited: {
-            if (root.updating) {
-                root.updating = false;
-                root.refresh();
+        id: monitor
+        command: ["tail", "-n", "0", "-F", "/var/log/pacman.log"]
+        running: true
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.endsWith("[ALPM] transaction completed")) {
+                    root.pending = true;
+                    refreshDelay.restart();
+                }
             }
         }
+        stderr: SplitParser {
+            onRead: line => console.warn("Package monitor:", line)
+        }
+        onExited: reconnect.restart()
+    }
+
+    Timer {
+        id: refreshDelay
+        interval: 1000
+        onTriggered: root.refresh()
+    }
+
+    Timer {
+        id: reconnect
+        interval: 3000
+        onTriggered: monitor.running = true
     }
 
     Process {
