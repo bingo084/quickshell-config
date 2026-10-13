@@ -3,7 +3,6 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
-import qs.components.bar
 import qs.config
 
 PopupWindow {

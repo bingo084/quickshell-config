@@ -4,7 +4,6 @@ import QtQuick
 import QtCore
 import Quickshell
 import Quickshell.Io
-import qs.services
 
 Singleton {
     id: root

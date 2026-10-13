@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import qs.components.bar
 
 Scope {
     id: root
