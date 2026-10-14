@@ -2,7 +2,6 @@ pragma Singleton
 
 import QtQml
 import Quickshell
-import Quickshell.Io
 import Quickshell.Networking
 
 Singleton {
@@ -14,7 +13,7 @@ Singleton {
     readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
     property var details: null
     property int detailsRevision
-    readonly property bool detailsLoading: detailQuery.running
+    property bool detailsLoading
     signal ready
 
     onOnlineChanged: {
@@ -34,10 +33,26 @@ Singleton {
 
     function refreshDetails() {
         detailsRevision++;
-        if (detailQuery.running || !root.device || !root.network)
+        if (detailsLoading || !root.device || !root.network)
             return;
-        detailQuery.revision = detailsRevision;
-        detailQuery.running = true;
+        const revision = detailsRevision;
+        detailsLoading = true;
+        return Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device.name]).then(result => {
+            if (revision !== root.detailsRevision)
+                return;
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            root.details = root.parseDetails(result.stdout);
+        }).catch(error => {
+            if (revision !== root.detailsRevision)
+                return;
+            root.details = null;
+            console.warn("network details query failed:", error.message);
+        }).then(() => {
+            root.detailsLoading = false;
+            if (revision !== root.detailsRevision)
+                Qt.callLater(root.refreshDetails);
+        });
     }
 
     function parseDetails(text: string): var {
@@ -55,36 +70,6 @@ Singleton {
             result[key].push(value);
         }
         return result;
-    }
-
-    Process {
-        id: detailQuery
-        property int revision
-
-        // qmllint disable incompatible-type
-        environment: ({
-                LC_ALL: "C"
-            })
-        // qmllint enable incompatible-type
-        command: ["nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device?.name ?? ""]
-        stdout: StdioCollector {
-            id: queryOutput
-        }
-        stderr: StdioCollector {
-            id: queryErrors
-        }
-        onExited: exitCode => {
-            if (detailQuery.revision !== root.detailsRevision) {
-                Qt.callLater(root.refreshDetails);
-                return;
-            }
-            if (exitCode !== 0) {
-                root.details = null;
-                console.warn("network details query failed (exit " + exitCode + "):", queryErrors.text.trim());
-                return;
-            }
-            root.details = root.parseDetails(queryOutput.text);
-        }
     }
 
     Timer {
