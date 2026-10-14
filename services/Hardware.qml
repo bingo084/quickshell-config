@@ -7,6 +7,9 @@ import qs.components
 
 Singleton {
     id: root
+    property real uptime: -1
+    property var cpuInfo: null
+    property var loadAverage: []
     property real cpuUsage
     property bool cpuValid
     property var previousCpu: null
@@ -33,6 +36,8 @@ Singleton {
     property real diskUsed
     property real diskAvailable
     property bool diskValid
+    property var diskInfo: []
+    property var rootFilesystem: null
     property var diskDevices: []
     property real diskReadBps
     property real diskWriteBps
@@ -62,7 +67,58 @@ Singleton {
                 throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
             root.cpuTemperaturePath = result.stdout.trim();
         }).catch(error => console.warn("CPU temperature discovery failed:", error.message));
+        root.readCpuInfo();
+        root.readDiskInfo();
         root.discoverDisks();
+    }
+
+    function readCpuInfo() {
+        Command.run(["env", "LC_ALL=C", "lscpu", "--json", "--extended=MODELNAME,CORE,SOCKET"]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            const cpus = JSON.parse(result.stdout).cpus;
+            if (cpus.length === 0)
+                throw new Error("No CPU information");
+            const cores = new Set(cpus.filter(cpu => Number.isInteger(cpu.socket) && Number.isInteger(cpu.core)).map(cpu => `${cpu.socket}:${cpu.core}`));
+            root.cpuInfo = {
+                model: [...new Set(cpus.map(cpu => cpu.modelname).filter(Boolean))].join(" / "),
+                cores: cores.size || null,
+                threads: cpus.length
+            };
+        }).catch(error => {
+            root.cpuInfo = null;
+            console.warn("CPU information query failed:", error.message);
+        });
+    }
+
+    function readDiskInfo() {
+        Command.run(["lsblk", "--json", "--list", "--output", "NAME,PKNAME,PATH,MODEL,TRAN,FSTYPE,MOUNTPOINTS"]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            const devices = JSON.parse(result.stdout).blockdevices;
+            root.diskInfo = devices;
+            const volume = devices.find(device => device.mountpoints?.includes("/"));
+            if (!volume) {
+                root.rootFilesystem = null;
+                return;
+            }
+            let disk = volume;
+            while (disk.pkname) {
+                const parent = devices.find(device => device.name === disk.pkname);
+                if (!parent)
+                    break;
+                disk = parent;
+            }
+            root.rootFilesystem = {
+                device: volume.path,
+                model: disk.model?.trim() ?? "",
+                fstype: volume.fstype
+            };
+        }).catch(error => {
+            root.diskInfo = [];
+            root.rootFilesystem = null;
+            console.warn("Disk information query failed:", error.message);
+        });
     }
 
     function sampleCpu(text: string) {
@@ -182,6 +238,26 @@ Singleton {
             root.memoryUsed = (total - available) * 1024;
             root.memoryUsage = (total - available) / total;
         }
+    }
+
+    FileView {
+        id: uptimeFile
+        path: "/proc/uptime"
+        onLoaded: {
+            const value = Number(uptimeFile.text().trim().split(/\s+/)[0] || NaN);
+            root.uptime = Number.isFinite(value) && value >= 0 ? value : -1;
+        }
+        onLoadFailed: root.uptime = -1
+    }
+
+    FileView {
+        id: loadFile
+        path: "/proc/loadavg"
+        onLoaded: {
+            const values = loadFile.text().trim().split(/\s+/).slice(0, 3).map(Number);
+            root.loadAverage = values.length === 3 && values.every(value => Number.isFinite(value) && value >= 0) ? values : [];
+        }
+        onLoadFailed: root.loadAverage = []
     }
 
     FileView {
@@ -310,6 +386,8 @@ Singleton {
         running: true
         repeat: true
         onTriggered: {
+            uptimeFile.reload();
+            loadFile.reload();
             cpuFile.reload();
             diskIoFile.reload();
             memoryFile.reload();
@@ -328,6 +406,9 @@ Singleton {
     Connections {
         target: Sleep
         function onResumed() {
+            uptimeFile.reload();
+            loadFile.reload();
+            root.readDiskInfo();
             root.previousCpu = null;
             root.cpuHistory = [];
             root.cpuValid = false;

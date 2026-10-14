@@ -19,7 +19,7 @@ ColumnLayout {
             series: [Hardware.cpuHistory],
             maximum: 100,
             statistics: [["Average", Hardware.cpuStats ? Math.round(Hardware.cpuStats.average) + "%" : "—"], ["Peak", Hardware.cpuStats ? Math.round(Hardware.cpuStats.peak) + "%" : "—"]],
-            details: [["Model", "—"], ["Cores / threads", "—"], ["Clock speed", "—"], ["Load (1 / 5 / 15m)", "—"]]
+            details: [["Model", Hardware.cpuInfo?.model || "—"], ["Cores / threads", Hardware.cpuInfo ? `${Hardware.cpuInfo.cores ?? "—"} / ${Hardware.cpuInfo.threads}` : "—"], ["Clock speed", "—"], ["Load (1 / 5 / 15m)", Hardware.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
         },
         {
             title: "GPU",
@@ -41,7 +41,7 @@ ColumnLayout {
                             value: point.write
                         }))],
             maximum: Math.max(1000, Hardware.diskPeak),
-            details: [["Device", Hardware.diskDevices.join(", ") || "—"], ["Model", "—"], ["Interface", "—"]]
+            details: [["Device", Hardware.diskDevices.join(", ") || "—"], ["Model", root.diskDetail("model")], ["Interface", root.diskDetail("tran").toUpperCase()]]
         },
         {
             title: "Network",
@@ -71,11 +71,27 @@ ColumnLayout {
             fraction: Hardware.diskValid ? Hardware.diskUsed / Hardware.diskTotal : 0,
             value: root.capacity(Hardware.diskValid, Hardware.diskUsed, Hardware.diskTotal),
             available: Hardware.diskValid ? root.gib(Hardware.diskAvailable) + " GiB available" : "—",
-            details: [["Device", "—"], ["Model", "—"], ["Filesystem", "—"]]
+            details: [["Device", Hardware.rootFilesystem?.device || "—"], ["Model", Hardware.rootFilesystem?.model || "—"], ["Filesystem", Hardware.rootFilesystem?.fstype || "—"]]
         }
     ]
 
     spacing: 12
+
+    function diskDetail(field: string): string {
+        const values = Hardware.diskInfo.filter(device => Hardware.diskDevices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);
+        return [...new Set(values)].join(", ") || "—";
+    }
+
+    function uptime(seconds: real): string {
+        if (seconds < 0)
+            return "—";
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        if (days > 0)
+            return `${days} d ${hours % 24} h`;
+        return `${hours} h ${minutes % 60} m`;
+    }
 
     function gib(bytes: real): string {
         return (bytes / 1024 ** 3).toFixed(1);
@@ -112,7 +128,7 @@ ColumnLayout {
             visible: root.selected < 0
             color: Theme.textSecondary
             font.pixelSize: 11
-            text: "Up —"
+            text: "Up  " + root.uptime(Hardware.uptime)
         }
     }
 
