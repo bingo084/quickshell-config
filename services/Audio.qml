@@ -19,6 +19,7 @@ Singleton {
     readonly property bool muted: ready && sink.audio.muted
     readonly property int percent: Math.round(volume * 100)
     property var portData: ({})
+    property bool switching
 
     function ports(node: PwNode): var {
         return portData[node?.name]?.ports ?? [];
@@ -94,15 +95,23 @@ Singleton {
     }
 
     function selectDevice(node, port): bool {
-        if (!node || port?.availability === "not available" || portSwitch.running)
+        if (!node || port?.availability === "not available" || switching)
             return false;
         if (!port || port.name === activePort(node)?.name) {
             setDevice(node);
             return true;
         }
-        portSwitch.node = node;
-        portSwitch.port = port.name;
-        portSwitch.running = true;
+        switching = true;
+        Command.run(["pactl", node.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node.name, port.name]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            root.setDevice(node);
+            root.refreshPorts();
+        }).catch(error => {
+            console.warn("Audio port switch failed:", error.message);
+        }).then(() => {
+            root.switching = false;
+        });
         return true;
     }
 
@@ -147,25 +156,6 @@ Singleton {
             if (JSON.stringify(result) === JSON.stringify(root.portData))
                 return;
             root.portData = result;
-        }
-    }
-
-    Process {
-        id: portSwitch
-        property var node: null
-        property string port
-
-        command: ["pactl", node?.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node?.name ?? "", port]
-        stderr: StdioCollector {
-            id: switchErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("Audio port switch failed:", switchErrors.text.trim());
-                return;
-            }
-            root.setDevice(node);
-            root.refreshPorts();
         }
     }
 
