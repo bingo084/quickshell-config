@@ -10,6 +10,8 @@ Singleton {
     property real txBps
     property bool valid
     property var previous: null
+    property var history: []
+    readonly property real peak: history.reduce((peak, point) => Math.max(peak, point.rx ?? 0, point.tx ?? 0), 0)
 
     function parse(text: string): var {
         const counters = {};
@@ -27,7 +29,10 @@ Singleton {
             const tx = Number(fields[8]);
             if (!Number.isFinite(rx) || !Number.isFinite(tx) || rx < 0 || tx < 0)
                 continue;
-            counters[name] = { rx, tx };
+            counters[name] = {
+                rx,
+                tx
+            };
         }
         return counters;
     }
@@ -69,6 +74,15 @@ Singleton {
         txBps = valid ? txBytes / seconds : 0;
     }
 
+    function record() {
+        const time = Date.now();
+        history = history.filter(point => point.time >= time - 60000).concat({
+            time,
+            rx: valid ? rxBps : null,
+            tx: valid ? txBps : null
+        });
+    }
+
     ElapsedTimer {
         id: sampleTimer
     }
@@ -76,10 +90,14 @@ Singleton {
     FileView {
         id: netDev
         path: "/proc/net/dev"
-        onLoaded: root.sample(netDev.text())
+        onLoaded: {
+            root.sample(netDev.text());
+            root.record();
+        }
         onLoadFailed: {
             root.previous = null;
             root.invalidate();
+            root.record();
         }
     }
 
@@ -88,5 +106,15 @@ Singleton {
         repeat: true
         running: true
         onTriggered: netDev.reload()
+    }
+
+    Connections {
+        target: Sleep
+        function onResumed() {
+            root.previous = null;
+            root.history = [];
+            root.invalidate();
+            netDev.reload();
+        }
     }
 }

@@ -51,6 +51,7 @@ WrapperMouseArea {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 series: root.metric.series
+                maximum: root.metric.maximum ?? 100
             }
 
             RowLayout {

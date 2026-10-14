@@ -16,7 +16,9 @@ ColumnLayout {
             title: "CPU",
             value: Hardware.cpuValid ? Math.round(Hardware.cpuUsage * 100) + "%" : "—",
             readings: [],
-            series: [],
+            series: [Hardware.cpuHistory],
+            maximum: 100,
+            statistics: [["Average", Hardware.cpuStats ? Math.round(Hardware.cpuStats.average) + "%" : "—"], ["Peak", Hardware.cpuStats ? Math.round(Hardware.cpuStats.peak) + "%" : "—"]],
             details: [["Model", "—"], ["Cores / threads", "—"], ["Clock speed", "—"], ["Load (1 / 5 / 15m)", "—"]]
         },
         {
@@ -24,6 +26,7 @@ ColumnLayout {
             value: "—",
             readings: [],
             series: [],
+            statistics: [["Average", "—"], ["Peak", "—"]],
             details: [["Model", "—"], ["VRAM", "—"], ["Clock speed", "—"]]
         },
         {
@@ -37,7 +40,14 @@ ColumnLayout {
             title: "Network",
             value: "",
             readings: ["↓ " + root.speed(Traffic.rxBps), "↑ " + root.speed(Traffic.txBps)],
-            series: [],
+            series: [Traffic.history.map(point => ({
+                            time: point.time,
+                            value: point.rx
+                        })), Traffic.history.map(point => ({
+                            time: point.time,
+                            value: point.tx
+                        }))],
+            maximum: Math.max(1000, Traffic.peak),
             details: [["Interface", "—"], ["Link speed", "—"]]
         },
         {
@@ -195,6 +205,7 @@ ColumnLayout {
 
                 Trend {
                     series: root.metric?.series ?? []
+                    maximum: root.metric?.maximum ?? 100
                 }
             }
             RowLayout {
@@ -224,22 +235,22 @@ ColumnLayout {
             RowLayout {
                 visible: root.selected < 2
                 Repeater {
-                    model: ["Average", "Peak"]
+                    model: root.metric?.statistics ?? []
                     ColumnLayout {
                         id: statistic
-                        required property string modelData
+                        required property var modelData
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                         Text {
                             Layout.fillWidth: true
                             color: Theme.textSecondary
                             font.pixelSize: 11
-                            text: statistic.modelData
+                            text: statistic.modelData[0]
                         }
                         Text {
                             color: Theme.textPrimary
                             font.pixelSize: 20
-                            text: "—"
+                            text: statistic.modelData[1]
                         }
                     }
                 }

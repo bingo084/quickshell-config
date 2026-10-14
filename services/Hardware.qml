@@ -10,6 +10,16 @@ Singleton {
     property real cpuUsage
     property bool cpuValid
     property var previousCpu: null
+    property var cpuHistory: []
+    readonly property var cpuStats: {
+        const values = cpuHistory.filter(point => point.value !== null).map(point => point.value);
+        if (values.length === 0)
+            return null;
+        return {
+            average: values.reduce((sum, value) => sum + value, 0) / values.length,
+            peak: Math.max(...values)
+        };
+    }
     property string cpuTemperaturePath
     property real cpuTemperature
     property bool cpuTemperatureValid
@@ -72,6 +82,14 @@ Singleton {
             root.cpuUsage = (totalDelta - idleDelta) / totalDelta;
     }
 
+    function recordCpu() {
+        const time = Date.now();
+        cpuHistory = cpuHistory.filter(point => point.time >= time - 60000).concat({
+            time,
+            value: cpuValid ? cpuUsage * 100 : null
+        });
+    }
+
     function sampleMemory(text: string) {
         const total = Number(text.match(/^MemTotal:\s+(\d+)\s+kB$/m)?.[1]);
         const available = Number(text.match(/^MemAvailable:\s+(\d+)\s+kB$/m)?.[1]);
@@ -98,10 +116,14 @@ Singleton {
     FileView {
         id: cpuFile
         path: "/proc/stat"
-        onLoaded: root.sampleCpu(cpuFile.text())
+        onLoaded: {
+            root.sampleCpu(cpuFile.text());
+            root.recordCpu();
+        }
         onLoadFailed: {
             root.previousCpu = null;
             root.cpuValid = false;
+            root.recordCpu();
         }
     }
 
@@ -199,5 +221,15 @@ Singleton {
         running: true
         repeat: true
         onTriggered: diskProcess.run()
+    }
+
+    Connections {
+        target: Sleep
+        function onResumed() {
+            root.previousCpu = null;
+            root.cpuHistory = [];
+            root.cpuValid = false;
+            cpuFile.reload();
+        }
     }
 }

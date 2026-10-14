@@ -5,6 +5,8 @@ Item {
     id: root
     property var series: []
     property real maximum: 100
+    readonly property real endTime: Math.max(0, ...series.map(values => values[values.length - 1]?.time ?? 0))
+    readonly property bool hasData: series.some(values => values.some(point => point.value !== null))
 
     implicitHeight: 72
     onSeriesChanged: graph.requestPaint()
@@ -42,13 +44,19 @@ Item {
                 ctx.lineWidth = 1.5;
                 ctx.lineJoin = "round";
                 ctx.beginPath();
-                values.forEach((value, point) => {
-                    const x = point * width / (values.length - 1);
-                    const y = 1 + (1 - Math.max(0, Math.min(1, value / root.maximum))) * (height - 2);
-                    if (point === 0)
+                let previous = null;
+                values.forEach(point => {
+                    if (point.value === null) {
+                        previous = null;
+                        return;
+                    }
+                    const x = (point.time - (root.endTime - 60000)) * width / 60000;
+                    const y = 1 + (1 - Math.max(0, Math.min(1, point.value / root.maximum))) * (height - 2);
+                    if (previous === null || point.time - previous.time > 5000)
                         ctx.moveTo(x, y);
                     else
                         ctx.lineTo(x, y);
+                    previous = point;
                 });
                 ctx.stroke();
             });
@@ -57,7 +65,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        visible: root.series.length === 0
+        visible: !root.hasData
         color: Theme.textSecondary
         text: "—"
     }
