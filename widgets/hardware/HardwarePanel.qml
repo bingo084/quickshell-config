@@ -55,7 +55,7 @@ ColumnLayout {
                             value: point.tx
                         }))],
             maximum: Math.max(1000, Traffic.peak),
-            details: [["Interface", "—"], ["Link speed", "—"]]
+            details: [["Interfaces", Traffic.interfaces.join(", ") || "—"], ["Wired link", Network.wired?.linkSpeed > 0 ? Network.wired.linkSpeed + " Mbps" : "—"], ["Wi-Fi link", Network.wifiLink > 0 ? Network.wifiLink + " Mbps" : "—"], ["Wi-Fi signal", Network.wifiNetwork ? Math.round(Network.wifiNetwork.signalStrength * 100) + "%" : "—"]]
         },
         {
             title: "Memory",
@@ -76,6 +76,11 @@ ColumnLayout {
     ]
 
     spacing: 12
+
+    onSelectedChanged: {
+        if (selected === 3)
+            Network.refreshWifiLink();
+    }
 
     function diskDetail(field: string): string {
         const values = Hardware.diskInfo.filter(device => Hardware.diskDevices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);

@@ -10,6 +10,7 @@ Singleton {
     property real txBps
     property bool valid
     property var previous: null
+    readonly property list<string> interfaces: Object.keys(previous ?? {})
     property var history: []
     readonly property real peak: history.reduce((peak, point) => Math.max(peak, point.rx ?? 0, point.tx ?? 0), 0)
 

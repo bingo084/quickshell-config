@@ -6,11 +6,14 @@ import Quickshell.Networking
 
 Singleton {
     id: root
-    readonly property NetworkDevice wired: Networking.devices.values.find(device => device.type === DeviceType.Wired && device.connected) ?? null // qmllint disable missing-property
+    readonly property WiredDevice wired: Networking.devices.values.find(device => device.type === DeviceType.Wired && device.connected) ?? null // qmllint disable missing-property
     readonly property NetworkDevice wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? null // qmllint disable missing-property
+    readonly property WifiNetwork wifiNetwork: wifi?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property NetworkDevice device: wired ?? wifi
     readonly property Network network: device?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
+    property real wifiLink: -1
+    property var wifiRequest: null
     property var details: null
     property var request: null
     readonly property bool detailsLoading: request !== null
@@ -29,6 +32,10 @@ Singleton {
     onNetworkChanged: {
         details = null;
         refreshDetails();
+    }
+    onWifiNetworkChanged: {
+        wifiLink = -1;
+        refreshWifiLink();
     }
 
     function refreshDetails() {
@@ -51,6 +58,34 @@ Singleton {
             root.details = null;
             root.request = null;
             console.warn("network details query failed:", error.message);
+        });
+    }
+
+    function refreshWifiLink() {
+        if (!root.wifiNetwork) {
+            root.wifiRequest = null;
+            return;
+        }
+        const request = Command.run(["busctl", "--system", "--json=short", "call", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", "org.freedesktop.NetworkManager", "GetDeviceByIpIface", "s", root.wifi.name]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error(result.stderr.trim());
+            const path = JSON.parse(result.stdout).data[0];
+            return Command.run(["busctl", "--system", "--json=short", "get-property", "org.freedesktop.NetworkManager", path, "org.freedesktop.NetworkManager.Device.Wireless", "Bitrate"]);
+        });
+        root.wifiRequest = request;
+        return request.then(result => {
+            if (root.wifiRequest !== request)
+                return;
+            if (result.exitCode !== 0)
+                throw new Error(result.stderr.trim());
+            root.wifiLink = JSON.parse(result.stdout).data / 1000;
+            root.wifiRequest = null;
+        }).catch(error => {
+            if (root.wifiRequest !== request)
+                return;
+            root.wifiLink = -1;
+            root.wifiRequest = null;
+            console.warn("Wi-Fi link query failed:", error.message);
         });
     }
 
