@@ -14,20 +14,18 @@ Singleton {
     property bool cpuValid
     property var previousCpu: null
     property var cpuHistory: []
-    readonly property var cpuStats: {
-        const values = cpuHistory.filter(point => point.value !== null).map(point => point.value);
-        if (values.length === 0)
-            return null;
-        return {
-            average: values.reduce((sum, value) => sum + value, 0) / values.length,
-            peak: Math.max(...values)
-        };
-    }
+    readonly property var cpuStats: usageStats(cpuHistory)
     property string cpuTemperaturePath
     property real cpuTemperature
     property bool cpuTemperatureValid
-    property real gpuTemperature
-    property bool gpuTemperatureValid
+    property string gpuModel
+    property var gpuInfo: null
+    readonly property real gpuUsage: (gpuInfo?.usage ?? 0) / 100
+    readonly property bool gpuValid: gpuInfo !== null && gpuInfo.usage !== null
+    readonly property real gpuTemperature: gpuInfo?.temperature ?? 0
+    readonly property bool gpuTemperatureValid: gpuInfo !== null && gpuInfo.temperature !== null
+    property var gpuHistory: []
+    readonly property var gpuStats: usageStats(gpuHistory)
     property real memoryTotal
     property real memoryUsed
     property real memoryUsage
@@ -70,6 +68,16 @@ Singleton {
         root.readCpuInfo();
         root.readDiskInfo();
         root.discoverDisks();
+    }
+
+    function usageStats(history: var): var {
+        const values = history.filter(point => point.value !== null).map(point => point.value);
+        if (values.length === 0)
+            return null;
+        return {
+            average: values.reduce((sum, value) => sum + value, 0) / values.length,
+            peak: Math.max(...values)
+        };
     }
 
     function readCpuInfo() {
@@ -151,6 +159,41 @@ Singleton {
         cpuHistory = cpuHistory.filter(point => point.time >= time - 60000).concat({
             time,
             value: cpuValid ? cpuUsage * 100 : null
+        });
+    }
+
+    function sampleGpu(text: string) {
+        const output = text.trim();
+        if (output === "") {
+            gpuInfo = null;
+            return;
+        }
+        const fields = output.split(",").map(field => field.trim());
+        if (fields.length !== 6) {
+            gpuInfo = null;
+            console.warn("Unexpected GPU query output:", output);
+            return;
+        }
+        const values = fields.slice(1).map(field => {
+            const value = Number(field || NaN);
+            return Number.isFinite(value) && value >= 0 ? value : null;
+        });
+        const [usage, temperature, used, total, clock] = values;
+        gpuModel = fields[0] || gpuModel;
+        gpuInfo = {
+            usage: usage !== null && usage <= 100 ? usage : null,
+            temperature,
+            memoryUsed: used !== null ? used * 1024 ** 2 : null,
+            memoryTotal: total !== null && total > 0 ? total * 1024 ** 2 : null,
+            clock
+        };
+    }
+
+    function recordGpu() {
+        const time = Date.now();
+        gpuHistory = gpuHistory.filter(point => point.time >= time - 60000).concat({
+            time,
+            value: gpuValid ? gpuUsage * 100 : null
         });
     }
 
@@ -355,7 +398,7 @@ Singleton {
                 case "$class" in 0x03*) ;; *) continue ;; esac
                 read -r state < "$device/power/runtime_status" || exit 0
                 [ "$state" = active ] || exit 0
-                exec nvidia-smi -i "\${device##*/}" --query-gpu=temperature.gpu --format=csv,noheader,nounits
+                exec nvidia-smi -i "\${device##*/}" --query-gpu=name,utilization.gpu,temperature.gpu,memory.used,memory.total,clocks.current.graphics --format=csv,noheader,nounits
             done
         `]
         stdout: StdioCollector {
@@ -365,20 +408,14 @@ Singleton {
             id: gpuError
         }
         onExited: exitCode => {
-            const value = Number(gpuOutput.text.trim() || NaN);
-            root.gpuTemperatureValid = exitCode === 0 && Number.isFinite(value);
-            if (root.gpuTemperatureValid)
-                root.gpuTemperature = value;
-            if (exitCode !== 0)
-                console.warn("GPU temperature query failed (exit " + exitCode + "):", gpuError.text.trim());
+            if (exitCode === 0)
+                root.sampleGpu(gpuOutput.text);
+            else {
+                root.gpuInfo = null;
+                console.warn("GPU query failed (exit " + exitCode + "):", gpuError.text.trim());
+            }
+            root.recordGpu();
         }
-    }
-
-    Timer {
-        interval: 5000
-        running: true
-        repeat: true
-        onTriggered: gpuProcess.run()
     }
 
     Timer {
@@ -386,6 +423,7 @@ Singleton {
         running: true
         repeat: true
         onTriggered: {
+            gpuProcess.run();
             uptimeFile.reload();
             loadFile.reload();
             cpuFile.reload();
@@ -409,6 +447,9 @@ Singleton {
             uptimeFile.reload();
             loadFile.reload();
             root.readDiskInfo();
+            root.gpuInfo = null;
+            root.gpuHistory = [];
+            gpuProcess.run();
             root.previousCpu = null;
             root.cpuHistory = [];
             root.cpuValid = false;

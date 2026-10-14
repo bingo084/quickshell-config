@@ -23,11 +23,11 @@ ColumnLayout {
         },
         {
             title: "GPU",
-            value: "—",
+            value: Hardware.gpuValid ? Math.round(Hardware.gpuUsage * 100) + "%" : "—",
             readings: [],
-            series: [],
-            statistics: [["Average", "—"], ["Peak", "—"]],
-            details: [["Model", "—"], ["VRAM", "—"], ["Clock speed", "—"]]
+            series: [Hardware.gpuHistory],
+            statistics: [["Average", Hardware.gpuStats ? Math.round(Hardware.gpuStats.average) + "%" : "—"], ["Peak", Hardware.gpuStats ? Math.round(Hardware.gpuStats.peak) + "%" : "—"]],
+            details: [["Model", Hardware.gpuModel || "—"], ["VRAM", Hardware.gpuInfo?.memoryUsed != null && Hardware.gpuInfo?.memoryTotal != null ? root.capacity(true, Hardware.gpuInfo.memoryUsed, Hardware.gpuInfo.memoryTotal) : "—"], ["Clock speed", Hardware.gpuInfo?.clock != null ? Math.round(Hardware.gpuInfo.clock) + " MHz" : "—"]]
         },
         {
             title: "Disk I/O",
