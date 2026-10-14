@@ -4,6 +4,7 @@ import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
+import qs.widgets.hardware
 
 Button {
     id: root
@@ -77,35 +78,14 @@ Button {
     Popup {
         id: popup
         anchorItem: root
+        contentWidth: 440
+        onVisibleChanged: {
+            if (visible)
+                panel.selected = -1;
+        }
 
-        ColumnLayout {
-            Text {
-                color: Theme.textPrimary
-                text: Hardware.cpuValid ? "CPU: " + Math.round(Hardware.cpuUsage * 100) + "%" : "CPU: —"
-            }
-            Text {
-                color: Theme.textPrimary
-                text: Hardware.cpuTemperatureValid ? "CPU temperature: " + Math.round(Hardware.cpuTemperature) + "°C" : "CPU temperature: —"
-            }
-            Text {
-                color: Theme.textPrimary
-                text: Hardware.gpuTemperatureValid ? "GPU temperature: " + Math.round(Hardware.gpuTemperature) + "°C" : "GPU temperature: —"
-            }
-            Text {
-                color: Theme.textPrimary
-                text: Hardware.memoryValid ? "RAM: " + (Hardware.memoryUsed / 1024 ** 3).toFixed(1) + " / " + (Hardware.memoryTotal / 1024 ** 3).toFixed(1) + " GiB" : "RAM: —"
-            }
-            Text {
-                color: Theme.textPrimary
-                text: {
-                    if (!Hardware.diskValid)
-                        return "Disk (/): —";
-                    const used = (Hardware.diskUsed / 1024 ** 3).toFixed(1);
-                    const total = (Hardware.diskTotal / 1024 ** 3).toFixed(1);
-                    const available = (Hardware.diskAvailable / 1024 ** 3).toFixed(1);
-                    return `Disk (/): ${used} / ${total} GiB (${available} GiB available)`;
-                }
-            }
+        HardwarePanel {
+            id: panel
         }
     }
 }
