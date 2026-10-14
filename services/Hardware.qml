@@ -33,6 +33,13 @@ Singleton {
     property real diskUsed
     property real diskAvailable
     property bool diskValid
+    property var diskDevices: []
+    property real diskReadBps
+    property real diskWriteBps
+    property bool diskIoValid
+    property var previousDisk: null
+    property var diskHistory: []
+    readonly property real diskPeak: diskHistory.reduce((peak, point) => Math.max(peak, point.read ?? 0, point.write ?? 0), 0)
 
     Component.onCompleted: {
         Command.run(["sh", "-c", `
@@ -55,6 +62,7 @@ Singleton {
                 throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
             root.cpuTemperaturePath = result.stdout.trim();
         }).catch(error => console.warn("CPU temperature discovery failed:", error.message));
+        root.discoverDisks();
     }
 
     function sampleCpu(text: string) {
@@ -87,6 +95,81 @@ Singleton {
         cpuHistory = cpuHistory.filter(point => point.time >= time - 60000).concat({
             time,
             value: cpuValid ? cpuUsage * 100 : null
+        });
+    }
+
+    function discoverDisks() {
+        Command.run(["sh", "-c", `
+            for device in /sys/block/*; do
+                [ -e "$device/device" ] || continue
+                [ -r "$device/stat" ] || continue
+                printf "%s\\n" "\${device##*/}"
+            done
+        `]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            root.diskDevices = result.stdout.trim().split("\n").filter(Boolean);
+            root.previousDisk = null;
+            diskIoFile.reload();
+        }).catch(error => {
+            root.diskDevices = [];
+            root.previousDisk = null;
+            root.diskIoValid = false;
+            console.warn("Disk discovery failed:", error.message);
+        });
+    }
+
+    function sampleDisk(text: string) {
+        const current = {};
+        for (const line of text.trim().split("\n")) {
+            const fields = line.trim().split(/\s+/);
+            const name = fields[2];
+            if (!diskDevices.includes(name))
+                continue;
+            const read = Number(fields[5]);
+            const write = Number(fields[9]);
+            if (!Number.isFinite(read) || !Number.isFinite(write) || read < 0 || write < 0)
+                continue;
+            current[name] = {
+                read,
+                write
+            };
+        }
+        if (Object.keys(current).length === 0) {
+            previousDisk = null;
+            diskIoValid = false;
+            return;
+        }
+        const before = previousDisk;
+        previousDisk = current;
+        const seconds = diskSampleTimer.restart();
+        if (before === null || seconds <= 0) {
+            diskIoValid = false;
+            return;
+        }
+        let readSectors = 0;
+        let writeSectors = 0;
+        let matched = 0;
+        for (const name of Object.keys(current)) {
+            const old = before[name];
+            const after = current[name];
+            if (old === undefined || after.read < old.read || after.write < old.write)
+                continue;
+            readSectors += after.read - old.read;
+            writeSectors += after.write - old.write;
+            matched++;
+        }
+        diskIoValid = matched > 0;
+        diskReadBps = diskIoValid ? readSectors * 512 / seconds : 0;
+        diskWriteBps = diskIoValid ? writeSectors * 512 / seconds : 0;
+    }
+
+    function recordDisk() {
+        const time = Date.now();
+        diskHistory = diskHistory.filter(point => point.time >= time - 60000).concat({
+            time,
+            read: diskIoValid ? diskReadBps : null,
+            write: diskIoValid ? diskWriteBps : null
         });
     }
 
@@ -132,6 +215,24 @@ Singleton {
         path: "/proc/meminfo"
         onLoaded: root.sampleMemory(memoryFile.text())
         onLoadFailed: root.memoryValid = false
+    }
+
+    ElapsedTimer {
+        id: diskSampleTimer
+    }
+
+    FileView {
+        id: diskIoFile
+        path: "/proc/diskstats"
+        onLoaded: {
+            root.sampleDisk(diskIoFile.text());
+            root.recordDisk();
+        }
+        onLoadFailed: {
+            root.previousDisk = null;
+            root.diskIoValid = false;
+            root.recordDisk();
+        }
     }
 
     Process {
@@ -210,6 +311,7 @@ Singleton {
         repeat: true
         onTriggered: {
             cpuFile.reload();
+            diskIoFile.reload();
             memoryFile.reload();
             if (root.cpuTemperaturePath !== "")
                 cpuTemperatureFile.reload();
@@ -230,6 +332,10 @@ Singleton {
             root.cpuHistory = [];
             root.cpuValid = false;
             cpuFile.reload();
+            root.previousDisk = null;
+            root.diskHistory = [];
+            root.diskIoValid = false;
+            root.discoverDisks();
         }
     }
 }

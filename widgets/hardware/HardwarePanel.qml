@@ -31,15 +31,22 @@ ColumnLayout {
         },
         {
             title: "Disk I/O",
-            value: "—",
-            readings: ["Read —", "Write —"],
-            series: [],
-            details: [["Device", "—"], ["Model", "—"], ["Interface", "—"]]
+            value: "",
+            readings: ["Read " + root.speed(Hardware.diskIoValid, Hardware.diskReadBps), "Write " + root.speed(Hardware.diskIoValid, Hardware.diskWriteBps)],
+            series: [Hardware.diskHistory.map(point => ({
+                            time: point.time,
+                            value: point.read
+                        })), Hardware.diskHistory.map(point => ({
+                            time: point.time,
+                            value: point.write
+                        }))],
+            maximum: Math.max(1000, Hardware.diskPeak),
+            details: [["Device", Hardware.diskDevices.join(", ") || "—"], ["Model", "—"], ["Interface", "—"]]
         },
         {
             title: "Network",
             value: "",
-            readings: ["↓ " + root.speed(Traffic.rxBps), "↑ " + root.speed(Traffic.txBps)],
+            readings: ["↓ " + root.speed(Traffic.valid, Traffic.rxBps), "↑ " + root.speed(Traffic.valid, Traffic.txBps)],
             series: [Traffic.history.map(point => ({
                             time: point.time,
                             value: point.rx
@@ -78,8 +85,8 @@ ColumnLayout {
         return valid ? `${gib(used)} / ${gib(total)} GiB` : "—";
     }
 
-    function speed(bytes: real): string {
-        if (!Traffic.valid)
+    function speed(valid: bool, bytes: real): string {
+        if (!valid)
             return "—";
         const megabytes = bytes >= 1000000;
         return (bytes / (megabytes ? 1000000 : 1000)).toFixed(1) + (megabytes ? " MB/s" : " KB/s");
