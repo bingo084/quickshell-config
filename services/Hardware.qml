@@ -24,6 +24,29 @@ Singleton {
     property real diskAvailable
     property bool diskValid
 
+    Component.onCompleted: {
+        Command.run(["sh", "-c", `
+            for sensor in /sys/class/hwmon/hwmon*; do
+                [ -r "$sensor/name" ] || continue
+                read -r name < "$sensor/name" || continue
+                [ "$name" = coretemp ] || continue
+                for label in "$sensor"/temp*_label; do
+                    [ -r "$label" ] || continue
+                    read -r name < "$label" || continue
+                    [ "$name" = "Package id 0" ] || continue
+                    input="\${label%_label}_input"
+                    [ -r "$input" ] || continue
+                    printf "%s\\n" "$input"
+                    exit 0
+                done
+            done
+        `]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            root.cpuTemperaturePath = result.stdout.trim();
+        }).catch(error => console.warn("CPU temperature discovery failed:", error.message));
+    }
+
     function sampleCpu(text: string) {
         const fields = text.split("\n", 1)[0].trim().split(/\s+/);
         const counters = fields.slice(1, 9).map(Number);
@@ -57,39 +80,6 @@ Singleton {
             root.memoryTotal = total * 1024;
             root.memoryUsed = (total - available) * 1024;
             root.memoryUsage = (total - available) / total;
-        }
-    }
-
-    Process {
-        running: true
-        command: ["sh", "-c", `
-            for sensor in /sys/class/hwmon/hwmon*; do
-                [ -r "$sensor/name" ] || continue
-                read -r name < "$sensor/name" || continue
-                [ "$name" = coretemp ] || continue
-                for label in "$sensor"/temp*_label; do
-                    [ -r "$label" ] || continue
-                    read -r name < "$label" || continue
-                    [ "$name" = "Package id 0" ] || continue
-                    input="\${label%_label}_input"
-                    [ -r "$input" ] || continue
-                    printf "%s\\n" "$input"
-                    exit 0
-                done
-            done
-        `]
-        stdout: StdioCollector {
-            id: temperaturePathOutput
-        }
-        stderr: StdioCollector {
-            id: temperaturePathError
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("CPU temperature discovery failed (exit " + exitCode + "):", temperaturePathError.text.trim());
-                return;
-            }
-            root.cpuTemperaturePath = temperaturePathOutput.text.trim();
         }
     }
 
