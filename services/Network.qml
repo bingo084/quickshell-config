@@ -12,8 +12,8 @@ Singleton {
     readonly property Network network: device?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
     property var details: null
-    property int detailsRevision
-    property bool detailsLoading
+    property var request: null
+    readonly property bool detailsLoading: request !== null
     signal ready
 
     onOnlineChanged: {
@@ -32,26 +32,25 @@ Singleton {
     }
 
     function refreshDetails() {
-        detailsRevision++;
-        if (detailsLoading || !root.device || !root.network)
+        if (!root.device || !root.network) {
+            root.request = null;
             return;
-        const revision = detailsRevision;
-        detailsLoading = true;
-        return Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device.name]).then(result => {
-            if (revision !== root.detailsRevision)
+        }
+        const request = Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device.name]);
+        root.request = request;
+        return request.then(result => {
+            if (root.request !== request)
                 return;
             if (result.exitCode !== 0)
                 throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
             root.details = root.parseDetails(result.stdout);
+            root.request = null;
         }).catch(error => {
-            if (revision !== root.detailsRevision)
+            if (root.request !== request)
                 return;
             root.details = null;
+            root.request = null;
             console.warn("network details query failed:", error.message);
-        }).then(() => {
-            root.detailsLoading = false;
-            if (revision !== root.detailsRevision)
-                Qt.callLater(root.refreshDetails);
         });
     }
 
