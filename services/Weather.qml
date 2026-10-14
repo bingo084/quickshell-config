@@ -31,81 +31,84 @@ Singleton {
         console.warn(message);
     }
 
-    function fetchJson(url: string, label: string, callback, apiKey: string) {
-        const request = new XMLHttpRequest();
-        requestState.request = request;
-        request.open("GET", url);
-        if (apiKey !== "")
-            request.setRequestHeader("X-QW-Api-Key", apiKey);
-        request.onreadystatechange = () => {
-            if (request.readyState !== XMLHttpRequest.DONE || requestState.request !== request)
-                return;
-            requestTimeout.stop();
-            requestState.request = null;
-            request.onreadystatechange = null;
-            if (request.status !== 200) {
-                fail(label + " request failed (HTTP " + request.status + ").");
-                return;
-            }
-            let response;
-            try {
-                response = JSON.parse(request.responseText);
-            } catch (e) {
-                fail(label + " returned invalid JSON.");
-                return;
-            }
-            callback(response);
-        };
-        requestTimeout.restart();
-        request.send();
+    function fetchJson(url: string, label: string, apiKey: string): var {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            requestState.request = request;
+            requestTimeout.reject = reject;
+            request.open("GET", url);
+            if (apiKey !== "")
+                request.setRequestHeader("X-QW-Api-Key", apiKey);
+            request.onreadystatechange = () => {
+                if (request.readyState !== XMLHttpRequest.DONE || requestState.request !== request)
+                    return;
+                requestTimeout.stop();
+                requestTimeout.reject = null;
+                requestState.request = null;
+                request.onreadystatechange = null;
+                if (request.status !== 200) {
+                    reject(new Error(label + " request failed (HTTP " + request.status + ")."));
+                    return;
+                }
+                try {
+                    resolve(JSON.parse(request.responseText));
+                } catch (e) {
+                    reject(new Error(label + " returned invalid JSON."));
+                }
+            };
+            requestTimeout.restart();
+            request.send();
+        });
     }
 
     function fetchWeather(config) {
+        return fetchLocation(config).then(location => root.fetchCurrent(config, location)).then(coordinates => root.fetchWeatherUrl(config, coordinates)).then(() => {
+            root.refreshing = false;
+        }).catch(error => root.fail(error.message));
+    }
+
+    function fetchLocation(config): var {
         const map = config.tencent_map;
         const api = "/ws/location/v1/ip?key=" + encodeURIComponent(map.key);
         const signature = Qt.md5(api + map.secret_key);
-        fetchJson("https://apis.map.qq.com" + api + "&sig=" + signature, "Location", response => {
+        return fetchJson("https://apis.map.qq.com" + api + "&sig=" + signature, "Location", "").then(response => {
             const location = response?.result;
             const coordinates = location?.location;
-            if (response?.status !== 0 || !Number.isFinite(coordinates?.lat) || !Number.isFinite(coordinates?.lng)) {
-                fail("Location lookup failed or returned invalid coordinates.");
-                return;
-            }
-            const position = coordinates.lat.toFixed(2) + "/" + coordinates.lng.toFixed(2);
-            const url = "https://" + config.weather_host + "/weather/v1/current/" + position + "?lang=zh";
-            fetchJson(url, "Weather", response => {
-                if (!Number.isFinite(response?.temperature?.value)) {
-                    fail("Weather lookup failed or returned invalid temperature.");
-                    return;
-                }
-                root.location = location;
-                current = Object.assign({}, response, {
-                    fetchedAt: new Date()
-                });
-                error = "";
-                fetchWeatherUrl(config, coordinates);
-            }, config.weather_key);
-        }, "");
+            if (response?.status !== 0 || !Number.isFinite(coordinates?.lat) || !Number.isFinite(coordinates?.lng))
+                throw new Error("Location lookup failed or returned invalid coordinates.");
+            return location;
+        });
+    }
+
+    function fetchCurrent(config, location): var {
+        const coordinates = location.location;
+        const position = coordinates.lat.toFixed(2) + "/" + coordinates.lng.toFixed(2);
+        const url = "https://" + config.weather_host + "/weather/v1/current/" + position + "?lang=zh";
+        return fetchJson(url, "Weather", config.weather_key).then(response => {
+            if (!Number.isFinite(response?.temperature?.value))
+                throw new Error("Weather lookup failed or returned invalid temperature.");
+            root.location = location;
+            current = Object.assign({}, response, {
+                fetchedAt: new Date()
+            });
+            error = "";
+            return coordinates;
+        });
     }
 
     function fetchWeatherUrl(config, coordinates) {
         const position = coordinates.lng.toFixed(2) + "," + coordinates.lat.toFixed(2);
-        if (requestState.linkPosition === position && weatherUrl !== "") {
-            refreshing = false;
+        if (requestState.linkPosition === position && weatherUrl !== "")
             return;
-        }
         weatherUrl = "";
         const url = "https://" + config.weather_host + "/geo/v2/city/lookup?location=" + encodeURIComponent(position) + "&number=1&lang=zh";
-        fetchJson(url, "Weather page", response => {
+        return fetchJson(url, "Weather page", config.weather_key).then(response => {
             const link = response?.location?.[0]?.fxLink;
-            if (response?.code !== "200" || typeof link !== "string" || !link.startsWith("https://")) {
-                fail("Weather page lookup failed or returned no link.");
-                return;
-            }
+            if (response?.code !== "200" || typeof link !== "string" || !link.startsWith("https://"))
+                throw new Error("Weather page lookup failed or returned no link.");
             requestState.linkPosition = position;
             weatherUrl = link;
-            refreshing = false;
-        }, config.weather_key);
+        });
     }
 
     Connections {
@@ -154,15 +157,18 @@ Singleton {
 
     Timer {
         id: requestTimeout
+        property var reject
         interval: 20000
         onTriggered: {
             const request = requestState.request;
+            const reject = requestTimeout.reject;
+            if (request === null)
+                return;
             requestState.request = null;
-            if (request !== null) {
-                request.onreadystatechange = null;
-                request.abort();
-            }
-            root.fail("Weather refresh timed out.");
+            requestTimeout.reject = null;
+            request.onreadystatechange = null;
+            request.abort();
+            reject(new Error("Weather refresh timed out."));
         }
     }
 
