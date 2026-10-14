@@ -9,6 +9,7 @@ Singleton {
     id: root
     property real uptime: -1
     property var cpuInfo: null
+    property real cpuClock: -1
     property var loadAverage: []
     property real cpuUsage
     property bool cpuValid
@@ -30,6 +31,7 @@ Singleton {
     property real memoryUsed
     property real memoryUsage
     property bool memoryValid
+    property var swap
     property real diskTotal
     property real diskUsed
     property real diskAvailable
@@ -152,6 +154,11 @@ Singleton {
         root.cpuValid = totalDelta > 0 && idleDelta >= 0 && idleDelta <= totalDelta;
         if (root.cpuValid)
             root.cpuUsage = (totalDelta - idleDelta) / totalDelta;
+    }
+
+    function sampleCpuClock(text: string) {
+        const values = (text.match(/^cpu MHz\s*:\s*\d+(?:\.\d+)?$/gm) ?? []).map(line => Number(line.split(":")[1])).filter(value => value > 0);
+        cpuClock = values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : -1;
     }
 
     function recordCpu() {
@@ -281,6 +288,12 @@ Singleton {
             root.memoryUsed = (total - available) * 1024;
             root.memoryUsage = (total - available) / total;
         }
+        const swapTotal = Number(text.match(/^SwapTotal:\s+(\d+)\s+kB$/m)?.[1]);
+        const swapFree = Number(text.match(/^SwapFree:\s+(\d+)\s+kB$/m)?.[1]);
+        root.swap = swapTotal >= 0 && swapFree >= 0 && swapFree <= swapTotal ? {
+            total: swapTotal * 1024,
+            used: (swapTotal - swapFree) * 1024
+        } : null;
     }
 
     FileView {
@@ -316,6 +329,13 @@ Singleton {
     }
 
     FileView {
+        id: cpuClockFile
+        path: "/proc/cpuinfo"
+        onLoaded: root.sampleCpuClock(cpuClockFile.text())
+        onLoadFailed: root.cpuClock = -1
+    }
+
+    FileView {
         id: cpuFile
         path: "/proc/stat"
         onLoaded: {
@@ -333,7 +353,10 @@ Singleton {
         id: memoryFile
         path: "/proc/meminfo"
         onLoaded: root.sampleMemory(memoryFile.text())
-        onLoadFailed: root.memoryValid = false
+        onLoadFailed: {
+            root.memoryValid = false;
+            root.swap = null;
+        }
     }
 
     ElapsedTimer {
@@ -427,6 +450,7 @@ Singleton {
             uptimeFile.reload();
             loadFile.reload();
             cpuFile.reload();
+            cpuClockFile.reload();
             diskIoFile.reload();
             memoryFile.reload();
             if (root.cpuTemperaturePath !== "")
@@ -446,6 +470,8 @@ Singleton {
         function onResumed() {
             uptimeFile.reload();
             loadFile.reload();
+            cpuClockFile.reload();
+            memoryFile.reload();
             root.readDiskInfo();
             root.gpuInfo = null;
             root.gpuHistory = [];

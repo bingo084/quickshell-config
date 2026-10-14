@@ -19,7 +19,7 @@ ColumnLayout {
             series: [Hardware.cpuHistory],
             maximum: 100,
             statistics: [["Average", Hardware.cpuStats ? Math.round(Hardware.cpuStats.average) + "%" : "—"], ["Peak", Hardware.cpuStats ? Math.round(Hardware.cpuStats.peak) + "%" : "—"]],
-            details: [["Model", Hardware.cpuInfo?.model || "—"], ["Cores / threads", Hardware.cpuInfo ? `${Hardware.cpuInfo.cores ?? "—"} / ${Hardware.cpuInfo.threads}` : "—"], ["Clock speed", "—"], ["Load (1 / 5 / 15m)", Hardware.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
+            details: [["Model", Hardware.cpuInfo?.model || "—"], ["Cores / threads", Hardware.cpuInfo ? `${Hardware.cpuInfo.cores ?? "—"} / ${Hardware.cpuInfo.threads}` : "—"], ["Average clock", Hardware.cpuClock >= 0 ? (Hardware.cpuClock / 1000).toFixed(2) + " GHz" : "—"], ["Load (1 / 5 / 15m)", Hardware.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
         },
         {
             title: "GPU",
@@ -63,7 +63,7 @@ ColumnLayout {
             fraction: Hardware.memoryUsage,
             value: root.capacity(Hardware.memoryValid, Hardware.memoryUsed, Hardware.memoryTotal),
             available: Hardware.memoryValid ? root.gib(Hardware.memoryTotal - Hardware.memoryUsed) + " GiB available" : "—",
-            details: [["Type", "—"], ["Speed", "—"], ["Swap", "—"]]
+            details: [["Type", "—"], ["Speed", "—"], ["Swap", Hardware.swap ? (Hardware.swap.total === 0 ? "None" : root.capacity(true, Hardware.swap.used, Hardware.swap.total)) : "—"]]
         },
         {
             title: "Disk /",
