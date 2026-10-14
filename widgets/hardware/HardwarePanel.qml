@@ -63,7 +63,7 @@ ColumnLayout {
             fraction: Hardware.memoryUsage,
             value: root.capacity(Hardware.memoryValid, Hardware.memoryUsed, Hardware.memoryTotal),
             available: Hardware.memoryValid ? root.gib(Hardware.memoryTotal - Hardware.memoryUsed) + " GiB available" : "—",
-            details: [["Type", "—"], ["Speed", "—"], ["Swap", Hardware.swap ? (Hardware.swap.total === 0 ? "None" : root.capacity(true, Hardware.swap.used, Hardware.swap.total)) : "—"]]
+            details: [["Type", Hardware.memoryInfo?.types.join(" / ") || "—"], ["Speed", Hardware.memoryInfo?.speeds.length > 0 ? Hardware.memoryInfo.speeds.join(" / ") + " MT/s" : "—"], ["Swap", Hardware.swap ? (Hardware.swap.total === 0 ? "None" : root.capacity(true, Hardware.swap.used, Hardware.swap.total)) : "—"]]
         },
         {
             title: "Disk /",

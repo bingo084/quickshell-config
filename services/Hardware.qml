@@ -31,6 +31,7 @@ Singleton {
     property real memoryUsed
     property real memoryUsage
     property bool memoryValid
+    property var memoryInfo: null
     property var swap
     property real diskTotal
     property real diskUsed
@@ -68,6 +69,7 @@ Singleton {
             root.cpuTemperaturePath = result.stdout.trim();
         }).catch(error => console.warn("CPU temperature discovery failed:", error.message));
         root.readCpuInfo();
+        root.readMemoryInfo();
         root.readDiskInfo();
         root.discoverDisks();
     }
@@ -98,6 +100,22 @@ Singleton {
         }).catch(error => {
             root.cpuInfo = null;
             console.warn("CPU information query failed:", error.message);
+        });
+    }
+
+    function readMemoryInfo() {
+        Command.run(["udevadm", "info", "--query=all", "--path=/sys/devices/virtual/dmi/id", "--json=short"]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
+            const properties = JSON.parse(result.stdout);
+            const slots = Object.keys(properties).filter(key => /^MEMORY_DEVICE_\d+_SIZE$/.test(key) && Number(properties[key]) > 0).map(key => key.slice(0, -5));
+            root.memoryInfo = {
+                types: [...new Set(slots.map(slot => properties[slot + "_TYPE"]).filter(type => type && type !== "Unknown"))],
+                speeds: [...new Set(slots.map(slot => Number(properties[slot + "_CONFIGURED_SPEED_MTS"])).filter(speed => speed > 0))]
+            };
+        }).catch(error => {
+            root.memoryInfo = null;
+            console.warn("Memory information query failed:", error.message);
         });
     }
 
