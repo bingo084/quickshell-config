@@ -88,51 +88,15 @@ Button {
         Icon {
             id: codexIcon
             name: "openai"
+            spinning: Codex.busy && !root.waiting
+            pulsing: root.waiting
+            showBadge: root.waiting
             color: {
                 if (root.waiting)
                     return Theme.warning;
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
                 return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
-            }
-            RotationAnimator {
-                target: codexIcon
-                from: 0
-                to: 360
-                duration: 1600
-                loops: Animation.Infinite
-                running: Codex.busy && !root.waiting
-                onStopped: codexIcon.rotation = 0
-            }
-
-            SequentialAnimation on opacity {
-                running: root.waiting
-                loops: Animation.Infinite
-                NumberAnimation {
-                    from: 1
-                    to: 0.45
-                    duration: 800
-                    easing.type: Easing.InOutSine
-                }
-                NumberAnimation {
-                    from: 0.45
-                    to: 1
-                    duration: 800
-                    easing.type: Easing.InOutSine
-                }
-                onStopped: codexIcon.opacity = 1
-            }
-
-            Rectangle {
-                anchors.top: parent.top
-                anchors.right: parent.right
-                width: 6
-                height: 6
-                radius: 3
-                visible: root.waiting
-                color: Theme.warning
-                border.color: Theme.barBackground
-                border.width: 1
             }
         }
 

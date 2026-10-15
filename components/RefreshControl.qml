@@ -32,19 +32,10 @@ RowLayout {
         onClicked: root.refreshRequested()
 
         contentItem: Icon {
-            id: refreshIcon
             implicitSize: 14
             name: "emblem-synchronizing-symbolic"
             color: Theme.textSecondary
-
-            RotationAnimator on rotation {
-                from: 0
-                to: 360
-                duration: 1300
-                loops: Animation.Infinite
-                running: root.refreshing
-                onStopped: refreshIcon.rotation = 0
-            }
+            spinning: root.refreshing
         }
 
         Tooltip {

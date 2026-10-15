@@ -62,28 +62,9 @@ Bar.Button {
         spacing: 4
 
         Icon {
-            id: refreshIcon
             name: "emblem-synchronizing-symbolic"
-            NumberAnimation on backer.rotation {
-                from: 0
-                to: 360
-                duration: 1300
-                loops: Animation.Infinite
-                running: Updates.checking
-                onStopped: refreshIcon.backer.rotation = 0
-            }
-
-            Rectangle {
-                anchors.top: parent.top
-                anchors.right: parent.right
-                width: 6
-                height: 6
-                radius: 3
-                visible: Updates.news.length > 0
-                color: Theme.warning
-                border.color: Theme.barBackground
-                border.width: 1
-            }
+            spinning: Updates.checking
+            showBadge: Updates.news.length > 0
         }
 
         Text {
