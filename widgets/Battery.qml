@@ -58,6 +58,7 @@ Button {
         spacing: 4
         Icon {
             name: root.iconName(UPower.displayDevice)
+            colorize: false
         }
         Text {
             color: Theme.textPrimary
@@ -131,6 +132,7 @@ Button {
                         Icon {
                             implicitSize: device.iconSize
                             name: root.iconName(device.modelData)
+                            colorize: false
                         }
                         Text {
                             Layout.preferredWidth: deviceList.percentageWidth || implicitWidth
