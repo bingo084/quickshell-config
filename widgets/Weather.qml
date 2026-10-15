@@ -55,15 +55,17 @@ Button {
             id: weatherIcon
             readonly property string code: Weather.current?.condition?.code ?? "999"
             name: `qweather/${weatherIcon.code}`
+            color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
             Icon {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
                 name: "qweather/999"
+                color: weatherIcon.color
             }
         }
 
         Text {
-            color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
+            color: Theme.textPrimary
             text: {
                 const current = Weather.current;
                 if (current === null)
