@@ -7,6 +7,7 @@ import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
+import qs.widgets.codex
 
 Button {
     id: root
@@ -47,6 +48,13 @@ Button {
             })[minutes] ?? (minutes == null ? "--" : `${minutes}m`);
     }
 
+    function resetFraction(window: var): real {
+        if (window?.resetsAt == null || !(window.windowDurationMins > 0))
+            return -1;
+        const remaining = window.resetsAt * 1000 - root.now.getTime();
+        return Math.max(0, Math.min(1, remaining / (window.windowDurationMins * 60000)));
+    }
+
     function resetText(window) {
         if (window.resetsAt == null)
             return "Resets: --";
@@ -70,9 +78,8 @@ Button {
 
     Timer {
         interval: 60000
-        running: popup.visible
+        running: true
         repeat: true
-        triggeredOnStart: true
         onTriggered: root.now = new Date()
     }
 
@@ -151,6 +158,9 @@ Button {
                         radius: parent.radius
                         color: root.meterColor(summary.modelData)
                     }
+                    ResetTick {
+                        fraction: root.resetFraction(summary.modelData)
+                    }
                 }
             }
         }
@@ -161,8 +171,10 @@ Button {
         anchorItem: root
         contentWidth: 280
         onVisibleChanged: {
-            if (visible)
+            if (visible) {
+                root.now = new Date();
                 Codex.refresh();
+            }
         }
 
         ColumnLayout {
@@ -300,6 +312,10 @@ Button {
                             height: parent.height
                             radius: parent.radius
                             color: root.meterColor(detail.modelData)
+                        }
+                        ResetTick {
+                            fraction: root.resetFraction(detail.modelData)
+                            overhang: 3
                         }
                     }
                 }
