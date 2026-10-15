@@ -6,6 +6,7 @@ Item {
 
     required property real fraction
     required property bool valid
+    property int level
 
     implicitWidth: 64
     implicitHeight: 64
@@ -16,7 +17,7 @@ Item {
         id: ring
 
         readonly property color trackColor: Theme.meterBackground
-        readonly property color fillColor: Theme.accent
+        readonly property color fillColor: [Theme.accent, Theme.warning, Theme.critical][root.level]
 
         anchors.fill: parent
         onWidthChanged: requestPaint()
@@ -45,7 +46,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        color: Theme.textPrimary
+        color: [Theme.textPrimary, Theme.warning, Theme.critical][root.level]
         font.pixelSize: 16
         text: root.valid ? Math.round(root.fraction * 100) + "%" : "—"
     }

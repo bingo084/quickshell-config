@@ -27,7 +27,7 @@ WrapperMouseArea {
                 }
                 Text {
                     visible: root.metric.readings.length === 0
-                    color: Theme.textPrimary
+                    color: [Theme.textPrimary, Theme.warning, Theme.critical][root.metric.level]
                     font.pixelSize: 14
                     text: root.metric.value
                 }

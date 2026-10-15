@@ -13,30 +13,36 @@ Singleton {
     property var loadAverage: []
     property real cpuUsage
     property bool cpuValid
+    readonly property int cpuLevel: cpuValid ? level(cpuUsage, 0.5, 0.8) : 0
     property var previousCpu: null
     property var cpuHistory: []
     readonly property var cpuStats: usageStats(cpuHistory)
     property string cpuTemperaturePath
     property real cpuTemperature
     property bool cpuTemperatureValid
+    readonly property int cpuTemperatureLevel: cpuTemperatureValid ? level(cpuTemperature, 70, 90) : 0
     property string gpuModel
     property var gpuInfo: null
     readonly property real gpuUsage: (gpuInfo?.usage ?? 0) / 100
     readonly property bool gpuValid: gpuInfo !== null && gpuInfo.usage !== null
+    readonly property int gpuLevel: gpuValid ? level(gpuUsage, 0.5, 0.8) : 0
     readonly property real gpuTemperature: gpuInfo?.temperature ?? 0
     readonly property bool gpuTemperatureValid: gpuInfo !== null && gpuInfo.temperature !== null
+    readonly property int gpuTemperatureLevel: gpuTemperatureValid ? level(gpuTemperature, 70, 90) : 0
     property var gpuHistory: []
     readonly property var gpuStats: usageStats(gpuHistory)
     property real memoryTotal
     property real memoryUsed
     property real memoryUsage
     property bool memoryValid
+    readonly property int memoryLevel: memoryValid ? level(memoryUsage, 0.7, 0.9) : 0
     property var memoryInfo: null
     property var swap
     property real diskTotal
     property real diskUsed
     property real diskAvailable
     property bool diskValid
+    readonly property int diskLevel: diskValid ? level(diskUsed / diskTotal, 0.8, 0.9) : 0
     property var diskInfo: []
     property var rootFilesystem: null
     property var diskDevices: []
@@ -72,6 +78,10 @@ Singleton {
         root.readMemoryInfo();
         root.readDiskInfo();
         root.discoverDisks();
+    }
+
+    function level(value: real, warning: real, critical: real): int {
+        return value >= critical ? 2 : value >= warning ? 1 : 0;
     }
 
     function usageStats(history: var): var {

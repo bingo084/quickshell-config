@@ -29,13 +29,14 @@ WrapperMouseArea {
                 Ring {
                     fraction: root.metric.fraction
                     valid: root.metric.valid
+                    level: root.metric.level
                 }
 
                 ColumnLayout {
                     spacing: 4
 
                     Text {
-                        color: Theme.textPrimary
+                        color: [Theme.textPrimary, Theme.warning, Theme.critical][root.metric.level]
                         font.pixelSize: 13
                         text: root.metric.value
                     }

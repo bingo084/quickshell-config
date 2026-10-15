@@ -14,6 +14,7 @@ ColumnLayout {
     readonly property var metrics: [
         {
             title: "CPU",
+            level: Hardware.cpuLevel,
             value: Hardware.cpuValid ? Math.round(Hardware.cpuUsage * 100) + "%" : "—",
             readings: [],
             series: [Hardware.cpuHistory],
@@ -23,6 +24,7 @@ ColumnLayout {
         },
         {
             title: "GPU",
+            level: Hardware.gpuLevel,
             value: Hardware.gpuValid ? Math.round(Hardware.gpuUsage * 100) + "%" : "—",
             readings: [],
             series: [Hardware.gpuHistory],
@@ -31,6 +33,7 @@ ColumnLayout {
         },
         {
             title: "Disk I/O",
+            level: 0,
             value: "",
             readings: ["Read " + root.speed(Hardware.diskIoValid, Hardware.diskReadBps), "Write " + root.speed(Hardware.diskIoValid, Hardware.diskWriteBps)],
             series: [Hardware.diskHistory.map(point => ({
@@ -45,6 +48,7 @@ ColumnLayout {
         },
         {
             title: "Network",
+            level: 0,
             value: "",
             readings: ["↓ " + root.speed(Traffic.valid, Traffic.rxBps), "↑ " + root.speed(Traffic.valid, Traffic.txBps)],
             series: [Traffic.history.map(point => ({
@@ -59,6 +63,7 @@ ColumnLayout {
         },
         {
             title: "Memory",
+            level: Hardware.memoryLevel,
             valid: Hardware.memoryValid,
             fraction: Hardware.memoryUsage,
             value: root.capacity(Hardware.memoryValid, Hardware.memoryUsed, Hardware.memoryTotal),
@@ -67,6 +72,7 @@ ColumnLayout {
         },
         {
             title: "Disk /",
+            level: Hardware.diskLevel,
             valid: Hardware.diskValid,
             fraction: Hardware.diskValid ? Hardware.diskUsed / Hardware.diskTotal : 0,
             value: root.capacity(Hardware.diskValid, Hardware.diskUsed, Hardware.diskTotal),
@@ -167,11 +173,13 @@ ColumnLayout {
             model: [
                 {
                     title: "CPU temperature",
+                    level: Hardware.cpuTemperatureLevel,
                     value: Hardware.cpuTemperature,
                     valid: Hardware.cpuTemperatureValid
                 },
                 {
                     title: "GPU temperature",
+                    level: Hardware.gpuTemperatureLevel,
                     value: Hardware.gpuTemperature,
                     valid: Hardware.gpuTemperatureValid
                 }
@@ -193,7 +201,7 @@ ColumnLayout {
                         text: temperature.modelData.title
                     }
                     Text {
-                        color: Theme.textPrimary
+                        color: [Theme.textPrimary, Theme.warning, Theme.critical][temperature.modelData.level]
                         font.pixelSize: 24
                         text: temperature.modelData.valid ? Math.round(temperature.modelData.value) + "°C" : "—"
                     }
@@ -214,7 +222,7 @@ ColumnLayout {
                 text: root.metric?.title ?? ""
             }
             Text {
-                color: Theme.textPrimary
+                color: [Theme.textPrimary, Theme.warning, Theme.critical][root.metric?.level ?? 0]
                 font.pixelSize: root.selected < 4 ? 22 : 14
                 text: root.metric?.value ?? ""
             }
@@ -292,6 +300,7 @@ ColumnLayout {
             visible: root.selected >= 4
             fraction: root.metric?.fraction ?? 0
             valid: root.metric?.valid ?? false
+            level: root.metric?.level ?? 0
         }
         Text {
             Layout.alignment: Qt.AlignHCenter
