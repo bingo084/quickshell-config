@@ -36,7 +36,7 @@ WrapperMouseArea {
                     spacing: 4
 
                     Text {
-                        color: [Theme.textPrimary, Theme.warning, Theme.critical][root.metric.level]
+                        color: Theme.levelColor(root.metric.level)
                         font.pixelSize: 13
                         text: root.metric.value
                     }

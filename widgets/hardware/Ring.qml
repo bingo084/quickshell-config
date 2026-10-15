@@ -17,7 +17,7 @@ Item {
         id: ring
 
         readonly property color trackColor: Theme.meterBackground
-        readonly property color fillColor: [Theme.accent, Theme.warning, Theme.critical][root.level]
+        readonly property color fillColor: Theme.levelColor(root.level, Theme.accent)
 
         anchors.fill: parent
         onWidthChanged: requestPaint()
@@ -46,7 +46,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        color: [Theme.textPrimary, Theme.warning, Theme.critical][root.level]
+        color: Theme.levelColor(root.level)
         font.pixelSize: 16
         text: root.valid ? Math.round(root.fraction * 100) + "%" : "—"
     }

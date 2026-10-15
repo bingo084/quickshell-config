@@ -6,6 +6,7 @@ import qs.config
 
 ProgressBar {
     id: root
+    property int level
     property real tickPosition: -1
     property real tickOverhang: 1.5
 
@@ -13,7 +14,7 @@ ProgressBar {
     implicitWidth: 200
     implicitHeight: 4
     padding: 0
-    palette.highlight: Theme.accent
+    palette.highlight: Theme.levelColor(root.level, Theme.accent)
     palette.mid: Theme.meterBackground
 
     background: Rectangle {

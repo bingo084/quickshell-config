@@ -201,7 +201,7 @@ ColumnLayout {
                         text: temperature.modelData.title
                     }
                     Text {
-                        color: [Theme.textPrimary, Theme.warning, Theme.critical][temperature.modelData.level]
+                        color: Theme.levelColor(temperature.modelData.level)
                         font.pixelSize: 24
                         text: temperature.modelData.valid ? Math.round(temperature.modelData.value) + "°C" : "—"
                     }
@@ -222,7 +222,7 @@ ColumnLayout {
                 text: root.metric?.title ?? ""
             }
             Text {
-                color: [Theme.textPrimary, Theme.warning, Theme.critical][root.metric?.level ?? 0]
+                color: Theme.levelColor(root.metric?.level ?? 0)
                 font.pixelSize: root.selected < 4 ? 22 : 14
                 text: root.metric?.value ?? ""
             }

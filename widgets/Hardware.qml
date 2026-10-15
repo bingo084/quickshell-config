@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import qs.components
 import qs.components.bar
-import qs.config
 import qs.services
 import qs.widgets.hardware
 
@@ -50,7 +49,7 @@ Button {
                     implicitWidth: 60
                     implicitHeight: 2
                     value: modelData.valid ? modelData.value : 0
-                    palette.highlight: [Theme.accent, Theme.warning, Theme.critical][modelData.level]
+                    level: modelData.level
                 }
             }
         }

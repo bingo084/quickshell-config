@@ -23,4 +23,8 @@ Singleton {
     readonly property int popupRadius: 8
     readonly property color warning: Colors.data.warning
     readonly property color critical: Colors.data.error
+
+    function levelColor(level: int, normal = textPrimary): color {
+        return [normal, warning, critical][level];
+    }
 }

@@ -32,12 +32,8 @@ Button {
         return window ? `${100 - window.usedPercent}%` : "--";
     }
 
-    function meterColor(window) {
-        if (window?.usedPercent >= 90)
-            return Theme.critical;
-        if (window?.usedPercent >= 75)
-            return Theme.warning;
-        return Theme.accent;
+    function meterLevel(window): int {
+        return window?.usedPercent >= 90 ? 2 : window?.usedPercent >= 75 ? 1 : 0;
     }
 
     function windowLabel(window) {
@@ -65,7 +61,7 @@ Button {
     }
 
     function expiryColor(level: int): color {
-        return [Theme.textSecondary, Theme.warning, Theme.critical][level];
+        return Theme.levelColor(level, Theme.textSecondary);
     }
 
     function resetText(window) {
@@ -133,7 +129,7 @@ Button {
                     implicitHeight: 2
                     opacity: modelData ? 1 : 0.4
                     value: modelData ? 1 - modelData.usedPercent / 100 : 0
-                    palette.highlight: root.meterColor(modelData)
+                    level: root.meterLevel(modelData)
                     tickPosition: root.resetFraction(modelData)
                 }
             }
@@ -278,7 +274,7 @@ Button {
 
                     ProgressBar {
                         value: 1 - detail.modelData.usedPercent / 100
-                        palette.highlight: root.meterColor(detail.modelData)
+                        level: root.meterLevel(detail.modelData)
                         tickPosition: root.resetFraction(detail.modelData)
                         tickOverhang: 3
                     }
