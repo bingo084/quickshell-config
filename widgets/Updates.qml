@@ -63,12 +63,13 @@ Bar.Button {
 
         Icon {
             name: "emblem-synchronizing-symbolic"
+            color: Updates.error !== "" ? Theme.warning : Theme.textPrimary
             spinning: Updates.checking
             showBadge: Updates.news.length > 0
         }
 
         Text {
-            color: Updates.error !== "" ? Theme.warning : Theme.textPrimary
+            color: Updates.count >= 100 ? Theme.critical : Updates.count >= 50 ? Theme.warning : Theme.textPrimary
             text: Updates.count
         }
     }
@@ -165,7 +166,7 @@ Bar.Button {
                 Layout.preferredWidth: 1
                 visible: Updates.error !== ""
                 text: Updates.error
-                color: Theme.critical
+                color: Theme.warning
                 wrapMode: Text.Wrap
             }
             Text {
