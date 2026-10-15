@@ -197,12 +197,6 @@ Singleton {
         return "https://" + repo[1] + "/" + repo[2] + "/" + repo[3].replace(/\.git$/, "") + "/" + path;
     }
 
-    function openDetails(name: string) {
-        const url = root.link(name);
-        if (url)
-            Qt.openUrlExternally(url);
-    }
-
     function sortedPackages(packages: var): var {
         const priority = name => {
             const index = root.importantPackages.indexOf(name);

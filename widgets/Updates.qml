@@ -159,10 +159,6 @@ Bar.Button {
                             text: article.modelData.title
                             url: article.modelData.url
                             wrapMode: Text.Wrap
-                            onClicked: {
-                                popup.closeAll();
-                                Qt.openUrlExternally(url);
-                            }
                         }
                         Text {
                             id: newsDate
@@ -252,10 +248,6 @@ Bar.Button {
                         text: packageRow.modelData.name
                         url: Updates.link(packageRow.modelData.name)
                         tooltip.atCursor: true
-                        onClicked: {
-                            popup.closeAll();
-                            Updates.openDetails(packageRow.modelData.name);
-                        }
 
                         Text {
                             id: marker

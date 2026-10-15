@@ -1,18 +1,27 @@
 import QtQuick
+import Quickshell
+import qs.components.bar
 import qs.config
 
 Text {
     id: root
     property string url
     property alias tooltip: hint
-    signal clicked()
 
     color: Theme.textPrimary
     font.underline: url !== "" && hint.hovered
 
     TapHandler {
         enabled: root.url !== ""
-        onTapped: root.clicked()
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        onTapped: (eventPoint, button) => {
+            if (button === Qt.MiddleButton) {
+                Quickshell.execDetached(["xdg-open", root.url]);
+            } else {
+                PopupHost.close();
+                Qt.openUrlExternally(root.url);
+            }
+        }
     }
 
     Tooltip {
