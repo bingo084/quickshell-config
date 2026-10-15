@@ -13,6 +13,7 @@ Button {
     property date now: new Date()
     readonly property var windows: [Codex.rateLimits?.primary, Codex.rateLimits?.secondary]
     readonly property bool waiting: Codex.waiting.length > 0
+    readonly property int expiryLevel: Math.max(0, ...resetSection.credits.map(credit => root.creditLevel(credit)))
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
@@ -54,6 +55,19 @@ Button {
         return Math.max(0, Math.min(1, remaining / (window.windowDurationMins * 60000)));
     }
 
+    function creditLevel(credit: var): int {
+        if (credit.expiresAt == null)
+            return 0;
+        const days = (credit.expiresAt * 1000 - root.now.getTime()) / (24 * 60 * 60 * 1000);
+        if (days <= 0 || days > 3)
+            return 0;
+        return days <= 1 ? 2 : 1;
+    }
+
+    function expiryColor(level: int): color {
+        return [Theme.textSecondary, Theme.warning, Theme.critical][level];
+    }
+
     function resetText(window) {
         if (window.resetsAt == null)
             return "Resets: --";
@@ -90,13 +104,19 @@ Button {
             name: "openai"
             spinning: Codex.busy && !root.waiting
             pulsing: root.waiting
-            showBadge: root.waiting
+            showBadge: root.waiting || root.expiryLevel > 0
+            badgeColor: root.waiting ? Theme.warning : root.expiryColor(root.expiryLevel)
             color: {
                 if (root.waiting)
                     return Theme.warning;
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
                 return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
+            }
+            Tooltip {
+                anchorItem: codexIcon
+                enabled: root.expiryLevel > 0 && !root.waiting
+                text: "Usage limit reset expires soon"
             }
         }
 
@@ -317,7 +337,7 @@ Button {
                             Text {
                                 text: `${Codex.resetCredits?.availableCount ?? 0} available`
                                 font.pixelSize: 12
-                                color: Theme.textSecondary
+                                color: root.expiryColor(root.expiryLevel)
                             }
                             Icon {
                                 implicitSize: 12
@@ -354,17 +374,24 @@ Button {
                             delegate: RowLayout {
                                 id: creditRow
                                 required property var modelData
+                                readonly property int expiryLevel: root.creditLevel(modelData)
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: creditRow.modelData.expiresAt == null ? "No expiration" : "Expires"
+                                    text: creditRow.modelData.expiresAt == null ? "No expiration" : creditRow.expiryLevel > 0 ? "Expires soon" : "Expires"
                                     font.pixelSize: 12
-                                    color: Theme.textSecondary
+                                    color: root.expiryColor(creditRow.expiryLevel)
                                 }
                                 Text {
                                     text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), "MMM d  hh:mm")
                                     font.pixelSize: 12
-                                    color: Theme.textSecondary
+                                    color: root.expiryColor(creditRow.expiryLevel)
+                                }
+
+                                Tooltip {
+                                    anchorItem: creditRow
+                                    text: creditRow.modelData.description ?? ""
+                                    enabled: text !== ""
                                 }
                             }
                         }
