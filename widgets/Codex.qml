@@ -7,7 +7,6 @@ import qs.components
 import qs.components.bar
 import qs.config
 import qs.services
-import qs.widgets.codex
 
 Button {
     id: root
@@ -143,24 +142,15 @@ Button {
             Repeater {
                 model: root.windows
 
-                delegate: Rectangle {
-                    id: summary
+                delegate: ProgressBar {
                     required property var modelData
 
                     implicitWidth: 36
                     implicitHeight: 2
-                    radius: height / 2
-                    color: Theme.meterBackground
                     opacity: modelData ? 1 : 0.4
-                    Rectangle {
-                        width: summary.modelData ? parent.width * (1 - summary.modelData.usedPercent / 100) : 0
-                        height: parent.height
-                        radius: parent.radius
-                        color: root.meterColor(summary.modelData)
-                    }
-                    ResetTick {
-                        fraction: root.resetFraction(summary.modelData)
-                    }
+                    value: modelData ? 1 - modelData.usedPercent / 100 : 0
+                    palette.highlight: root.meterColor(modelData)
+                    tickPosition: root.resetFraction(modelData)
                 }
             }
         }
@@ -302,21 +292,11 @@ Button {
                         }
                     }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: 4
-                        radius: height / 2
-                        color: Theme.meterBackground
-                        Rectangle {
-                            width: parent.width * (1 - detail.modelData.usedPercent / 100)
-                            height: parent.height
-                            radius: parent.radius
-                            color: root.meterColor(detail.modelData)
-                        }
-                        ResetTick {
-                            fraction: root.resetFraction(detail.modelData)
-                            overhang: 3
-                        }
+                    ProgressBar {
+                        value: 1 - detail.modelData.usedPercent / 100
+                        palette.highlight: root.meterColor(detail.modelData)
+                        tickPosition: root.resetFraction(detail.modelData)
+                        tickOverhang: 3
                     }
                 }
             }

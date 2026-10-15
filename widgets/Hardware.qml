@@ -48,27 +48,19 @@ Button {
                     }
                 ]
 
-                delegate: Rectangle {
-                    id: track
+                delegate: ProgressBar {
                     required property var modelData
 
                     implicitWidth: 60
                     implicitHeight: 2
-                    radius: height / 2
-                    color: Theme.meterBackground
-
-                    Rectangle {
-                        width: track.modelData.valid ? track.width * Math.max(0, Math.min(1, track.modelData.value)) : 0
-                        height: track.height
-                        radius: track.radius
-                        color: {
-                            const metric = track.modelData;
-                            if (metric.value >= metric.critical)
-                                return Theme.critical;
-                            if (metric.value >= metric.warning)
-                                return Theme.warning;
-                            return Theme.accent;
-                        }
+                    value: modelData.valid ? modelData.value : 0
+                    palette.highlight: {
+                        const metric = modelData;
+                        if (metric.value >= metric.critical)
+                            return Theme.critical;
+                        if (metric.value >= metric.warning)
+                            return Theme.warning;
+                        return Theme.accent;
                     }
                 }
             }
