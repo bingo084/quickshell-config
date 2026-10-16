@@ -6,12 +6,25 @@ import qs.services
 Controls.Button {
     id: root
     property string iconName
+    property alias radius: background.radius
 
     padding: 6
     opacity: enabled ? 1 : 0.5
     palette.buttonText: checked ? Theme.textOnSelected : Theme.textPrimary
     icon.color: palette.buttonText
     icon.source: Icons.source(root.iconName)
+    baselineOffset: {
+        if (!contentItem)
+            return 0;
+        if (contentItem.baselineOffset !== 0)
+            return topPadding + contentItem.baselineOffset;
+        return topPadding + availableHeight / 2 + fontMetrics.capitalHeight / 2;
+    }
+
+    FontMetrics {
+        id: fontMetrics
+        font: root.font
+    }
 
     Behavior on palette.buttonText {
         ColorAnimation {
@@ -25,6 +38,7 @@ Controls.Button {
     }
 
     background: Rectangle {
+        id: background
         radius: 5
         color: {
             const overlay = root.down ? Theme.pressedBackground : root.hovered ? Theme.hoveredBackground : "transparent";
