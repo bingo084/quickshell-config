@@ -26,7 +26,6 @@ RowLayout {
 
     Button {
         id: refreshButton
-        flat: true
         text: root.chinese ? "刷新" : "Refresh"
         enabled: !root.refreshing
         onClicked: root.refreshRequested()

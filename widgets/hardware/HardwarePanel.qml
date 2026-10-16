@@ -130,7 +130,6 @@ ColumnLayout {
         }
         Button {
             visible: root.selected >= 0
-            flat: true
             text: "Hardware"
             iconName: "go-previous-symbolic"
             onClicked: root.selected = -1

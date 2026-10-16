@@ -97,7 +97,6 @@ Bar.Button {
                 Button {
                     id: updateButton
                     visible: Updates.count > 0
-                    flat: true
                     text: "Install updates"
                     enabled: !Updates.checking && !Updates.installerOpen
                     onClicked: {

@@ -37,7 +37,6 @@ ColumnLayout {
         Button {
             iconName: Audio.volumeIconName(root.node)
             checked: root.node.audio.muted
-            flat: true
             onClicked: Audio.toggleMuted(root.node)
         }
         VolumeSlider {

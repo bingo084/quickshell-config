@@ -5,12 +5,20 @@ import qs.services
 
 Controls.Button {
     id: root
+    enum Variant {
+        Accent,
+        Bordered,
+        Filled,
+        Plain
+    }
+
+    property int variant: Button.Plain
     property string iconName
     property alias radius: background.radius
 
     padding: 6
     opacity: enabled ? 1 : 0.5
-    palette.buttonText: checked ? Theme.textOnSelected : Theme.textPrimary
+    palette.buttonText: checked ? Theme.textOnSelected : variant === Button.Accent ? Theme.textOnAccent : Theme.textPrimary
     icon.color: palette.buttonText
     icon.source: Icons.source(root.iconName)
     baselineOffset: {
@@ -44,15 +52,23 @@ Controls.Button {
             const overlay = root.down ? Theme.pressedBackground : root.hovered ? Theme.hoveredBackground : "transparent";
             if (root.checked)
                 return Qt.tint(Theme.selectedBackground, overlay);
-            return root.flat ? overlay : Qt.tint(Theme.controlBackground, overlay);
+            switch (root.variant) {
+            case Button.Accent:
+                return Qt.tint(Theme.accent, overlay);
+            case Button.Bordered:
+            case Button.Filled:
+                return Qt.tint(Theme.controlBackground, overlay);
+            default:
+                return overlay;
+            }
         }
 
         border.color: {
-            if (root.visualFocus || root.checked)
+            if (root.visualFocus)
+                return root.variant === Button.Accent && !root.checked ? Theme.textOnAccent : Theme.accent;
+            if (root.checked)
                 return Theme.accent;
-            if (root.flat && !root.hovered)
-                return "transparent";
-            return Theme.popupBorder;
+            return root.variant === Button.Bordered ? Theme.popupBorder : "transparent";
         }
 
         Behavior on color {

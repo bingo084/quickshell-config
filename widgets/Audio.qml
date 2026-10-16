@@ -61,7 +61,6 @@ Bar.Button {
                 }
                 Button {
                     iconName: "preferences-system-symbolic"
-                    flat: true
                     onClicked: {
                         popup.close();
                         Quickshell.execDetached(["pavucontrol"]);
