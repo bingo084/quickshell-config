@@ -17,6 +17,7 @@ ShellRoot {
 
             screen: modelData
             color: Theme.barBackground
+            focusable: PopupHost.opened && PopupHost.bar === bar.contentItem && (PopupHost.activePopup?.focusable ?? false)
             anchors {
                 left: true
                 top: true

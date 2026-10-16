@@ -7,6 +7,7 @@ Scope {
     default property Item content
     property real contentMargin: 12
     property real contentWidth: content.implicitWidth
+    property bool focusable
     readonly property bool visible: PopupHost.activePopup === root && PopupHost.opened
 
     function open() {
