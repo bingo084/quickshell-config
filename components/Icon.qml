@@ -42,12 +42,12 @@ IconImage {
         loops: Animation.Infinite
         NumberAnimation {
             from: 1
-            to: 0.45
+            to: 0.25
             duration: 800
             easing.type: Easing.InOutSine
         }
         NumberAnimation {
-            from: 0.45
+            from: 0.25
             to: 1
             duration: 800
             easing.type: Easing.InOutSine
