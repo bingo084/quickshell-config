@@ -11,7 +11,7 @@ import qs.config
 WrapperRectangle {
     id: root
     required property BluetoothDevice device
-    property int buttonSize: 32
+    required property int controlSize
     property int padding: 6
     readonly property bool busy: device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting
     signal detailsRequested
@@ -43,7 +43,7 @@ WrapperRectangle {
                 spacing: 8
 
                 Icon {
-                    Layout.margins: (root.buttonSize - implicitSize) / 2
+                    padding: (root.controlSize - implicitSize) / 2
                     name: (root.device.icon || "bluetooth") + "-symbolic"
                     pulsing: root.busy
                     color: Theme.textSecondary
@@ -86,8 +86,8 @@ WrapperRectangle {
         }
 
         Button {
-            Layout.preferredWidth: root.buttonSize
-            Layout.preferredHeight: root.buttonSize
+            Layout.preferredWidth: root.controlSize
+            Layout.preferredHeight: root.controlSize
             Layout.rightMargin: root.padding
             radius: height / 2
             iconName: "preferences-system-symbolic"

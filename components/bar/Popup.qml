@@ -10,8 +10,8 @@ Scope {
     property bool focusable
     readonly property bool visible: PopupHost.activePopup === root && PopupHost.opened
 
-    function open() {
-        PopupHost.open(root);
+    function open(anchorItem = root.anchorItem) {
+        PopupHost.open(root, anchorItem);
     }
 
     function close() {
@@ -28,11 +28,11 @@ Scope {
         PopupHost.close();
     }
 
-    function toggle() {
-        if (visible)
+    function toggle(anchorItem = root.anchorItem) {
+        if (visible && root.anchorItem === anchorItem)
             close();
         else
-            open();
+            open(anchorItem);
     }
 
     Component.onDestruction: {

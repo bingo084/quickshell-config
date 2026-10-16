@@ -13,6 +13,7 @@ import qs.config
 ColumnLayout {
     id: root
     required property BluetoothDevice device
+    required property int controlSize
     readonly property bool busy: device?.state === BluetoothDeviceState.Connecting || device?.state === BluetoothDeviceState.Disconnecting
     property bool editing: false
     property bool confirming: false
@@ -29,7 +30,7 @@ ColumnLayout {
 
         Icon {
             Layout.alignment: Qt.AlignHCenter
-            implicitSize: 32
+            implicitSize: root.controlSize
             name: (root.device?.icon || "bluetooth") + "-symbolic"
             pulsing: root.busy
             color: Theme.textSecondary
@@ -156,7 +157,7 @@ ColumnLayout {
 
     RowLayout {
         visible: root.device?.batteryAvailable ?? false
-        Layout.minimumHeight: 32
+        Layout.minimumHeight: root.controlSize
         Layout.leftMargin: 8
         Layout.rightMargin: 8
         spacing: 4
@@ -182,7 +183,7 @@ ColumnLayout {
     }
 
     RowLayout {
-        Layout.minimumHeight: 32
+        Layout.minimumHeight: root.controlSize
         Layout.leftMargin: 8
         Layout.rightMargin: 8
 

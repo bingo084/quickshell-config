@@ -9,7 +9,7 @@ PopupWindow {
     id: root
     property Popup activePopup: null
     property bool opened: false
-    readonly property Item bar: activePopup?.anchorItem.QsWindow.contentItem ?? null
+    readonly property Item bar: activePopup?.anchorItem?.QsWindow.contentItem ?? null
 
     grabFocus: true
     implicitWidth: root.bar?.width ?? 0
@@ -33,15 +33,17 @@ PopupWindow {
         backgroundFade.restart();
     }
 
-    function open(popup: Popup) {
+    function open(popup: Popup, anchorItem = popup.anchorItem) {
         const previous = activePopup;
         background.forceActiveFocus();
-        if (previous !== null && previous.anchorItem.QsWindow.window !== popup.anchorItem.QsWindow.window)
+        if (previous !== null && previous.anchorItem?.QsWindow.window !== anchorItem.QsWindow.window)
             root.visible = false;
         if (previous !== null && previous !== popup)
             previous.content.parent = null;
+        if (popup.anchorItem !== anchorItem)
+            popup.anchorItem = anchorItem;
         activePopup = popup;
-        const center = popup.anchorItem.mapToItem(root.bar, popup.anchorItem.width / 2, 0).x;
+        const center = anchorItem.mapToItem(root.bar, anchorItem.width / 2, 0).x;
         background.x = Math.max(0, Math.min(root.bar.width - background.width, center - background.width / 2));
         opened = true;
         root.visible = true;
