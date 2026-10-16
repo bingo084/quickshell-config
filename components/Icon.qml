@@ -9,6 +9,8 @@ import qs.services
 IconImage {
     id: root
     property string name
+    property real padding
+    property font font
     property color color: Theme.textPrimary
     property bool colorize: true
     property bool spinning
@@ -17,8 +19,19 @@ IconImage {
     property color badgeColor: Theme.warning
 
     implicitSize: 18
+    implicitWidth: implicitSize + 2 * padding
+    implicitHeight: implicitWidth
+    baselineOffset: height / 2 + fontMetrics.capitalHeight / 2
     source: Icons.source(root.name)
 
+    FontMetrics {
+        id: fontMetrics
+        font: root.font
+    }
+
+    backer.anchors.margins: root.padding
+    backer.sourceSize.width: Math.max(0, actualSize - 2 * padding)
+    backer.sourceSize.height: Math.max(0, actualSize - 2 * padding)
     backer.layer.enabled: root.colorize
 
     backer.layer.effect: MultiEffect {
@@ -56,8 +69,8 @@ IconImage {
     }
 
     Rectangle {
-        anchors.top: parent.top
-        anchors.right: parent.right
+        anchors.top: root.backer.top
+        anchors.right: root.backer.right
         width: 6
         height: 6
         radius: 3
