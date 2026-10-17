@@ -17,7 +17,7 @@ Button {
                 return "bluetooth-hardware-disabled-symbolic";
             if (!BluetoothPopup.adapter?.enabled)
                 return "bluetooth-disabled-symbolic";
-            if (BluetoothPopup.devices.some(device => device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting))
+            if (BluetoothPopup.pairing || BluetoothPopup.devices.some(device => device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting))
                 return "bluetooth-acquiring-symbolic";
             return BluetoothPopup.devices.some(device => device.connected) ? "bluetooth-active-symbolic" : "bluetooth-symbolic";
         }

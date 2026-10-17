@@ -4,7 +4,6 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import Quickshell.Bluetooth
-import Quickshell.Widgets
 import qs.components
 import qs.config
 
@@ -15,6 +14,7 @@ ColumnLayout {
     required property int controlSize
     property bool scanning
     readonly property var devices: adapter?.devices.values.filter(device => !device.paired && !device.connected) ?? [] // qmllint disable missing-property
+    signal pairRequested(device: BluetoothDevice)
 
     spacing: 10
 
@@ -28,13 +28,13 @@ ColumnLayout {
         model: root.devices
         Controls.ScrollBar.vertical: Controls.ScrollBar {}
 
-        delegate: WrapperItem {
+        delegate: Button {
             id: entry
             required property BluetoothDevice modelData
             width: deviceList.width
-            margin: 6
+            onClicked: root.pairRequested(modelData)
 
-            RowLayout {
+            contentItem: RowLayout {
                 spacing: 8
 
                 Icon {

@@ -16,15 +16,17 @@ Singleton {
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
     readonly property var devices: adapter?.devices.values.filter(device => device.paired || device.connected).sort((a, b) => Number(b.connected) - Number(a.connected)) ?? [] // qmllint disable missing-property
     property BluetoothDevice selected: null
+    property BluetoothDevice pairingDevice: null
     property bool adding: false
     readonly property bool visible: popup.visible
+    readonly property bool pairing: (pairingPage.item as DevicePairing)?.busy ?? false
 
     function toggle(anchorItem: Item) {
         popup.toggle(anchorItem);
     }
 
     function sync() {
-        if (!visible || !adding || adapter?.state !== BluetoothAdapterState.Enabled) {
+        if (!visible || !adding || pairingDevice !== null || adapter?.state !== BluetoothAdapterState.Enabled) {
             release();
             return;
         }
@@ -49,15 +51,17 @@ Singleton {
     }
 
     onVisibleChanged: {
-        if (visible) {
+        if (visible && pairingDevice === null) {
             selected = null;
             adding = false;
         }
         sync();
     }
     onAddingChanged: sync()
+    onPairingDeviceChanged: sync()
     onAdapterChanged: {
         selected = null;
+        pairingDevice = null;
         adding = false;
         sync();
     }
@@ -156,7 +160,12 @@ Singleton {
                     font: title.font
                     radius: height / 2
                     iconName: "go-previous-symbolic"
+                    enabled: !root.pairing
                     onClicked: {
+                        if (root.pairingDevice !== null) {
+                            root.pairingDevice = null;
+                            return;
+                        }
                         root.selected = null;
                         root.adding = false;
                     }
@@ -165,7 +174,7 @@ Singleton {
                 Text {
                     id: title
                     Layout.alignment: Qt.AlignBaseline
-                    text: root.selected !== null ? "Device details" : "Add device"
+                    text: root.pairingDevice !== null ? "Pair device" : root.selected !== null ? "Device details" : "Add device"
                     font.pixelSize: 14
                     font.bold: true
                     color: Theme.textPrimary
@@ -227,10 +236,28 @@ Singleton {
             }
 
             DeviceDiscovery {
-                visible: root.adding && root.selected === null
+                visible: root.adding && root.selected === null && root.pairingDevice === null
                 adapter: root.adapter
                 controlSize: popup.controlSize
                 scanning: root.visible && root.adding && (root.adapter?.discovering ?? false)
+                onPairRequested: device => root.pairingDevice = device
+            }
+
+            Loader {
+                id: pairingPage
+                Layout.fillWidth: true
+                active: root.pairingDevice !== null
+                visible: active
+                sourceComponent: DevicePairing {
+                    device: root.pairingDevice
+                    controlSize: popup.controlSize
+                    opened: root.visible
+                    onPaired: {
+                        root.adding = false;
+                        root.pairingDevice = null;
+                    }
+                    onCancelled: root.pairingDevice = null
+                }
             }
 
             Flickable {
