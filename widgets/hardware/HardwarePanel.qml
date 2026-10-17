@@ -14,37 +14,37 @@ ColumnLayout {
     readonly property var metrics: [
         {
             title: "CPU",
-            level: Hardware.cpuLevel,
-            value: Hardware.cpuValid ? Math.round(Hardware.cpuUsage * 100) + "%" : "—",
+            level: Hardware.cpu.level,
+            value: Hardware.cpu.valid ? Math.round(Hardware.cpu.usage * 100) + "%" : "—",
             readings: [],
-            series: [Hardware.cpuHistory],
+            series: [Hardware.cpu.history],
             maximum: 100,
-            statistics: [["Average", Hardware.cpuStats ? Math.round(Hardware.cpuStats.average) + "%" : "—"], ["Peak", Hardware.cpuStats ? Math.round(Hardware.cpuStats.peak) + "%" : "—"]],
-            details: [["Model", Hardware.cpuInfo?.model || "—"], ["Cores / threads", Hardware.cpuInfo ? `${Hardware.cpuInfo.cores ?? "—"} / ${Hardware.cpuInfo.threads}` : "—"], ["Average clock", Hardware.cpuClock >= 0 ? (Hardware.cpuClock / 1000).toFixed(2) + " GHz" : "—"], ["Load (1 / 5 / 15m)", Hardware.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
+            statistics: [["Average", Hardware.cpu.stats ? Math.round(Hardware.cpu.stats.average) + "%" : "—"], ["Peak", Hardware.cpu.stats ? Math.round(Hardware.cpu.stats.peak) + "%" : "—"]],
+            details: [["Model", Hardware.cpu.info?.model || "—"], ["Cores / threads", Hardware.cpu.info ? `${Hardware.cpu.info.cores ?? "—"} / ${Hardware.cpu.info.threads}` : "—"], ["Average clock", Hardware.cpu.clock >= 0 ? (Hardware.cpu.clock / 1000).toFixed(2) + " GHz" : "—"], ["Load (1 / 5 / 15m)", Hardware.cpu.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
         },
         {
             title: "GPU",
-            level: Hardware.gpuLevel,
-            value: Hardware.gpuValid ? Math.round(Hardware.gpuUsage * 100) + "%" : "—",
+            level: Hardware.gpu.level,
+            value: Hardware.gpu.valid ? Math.round(Hardware.gpu.usage * 100) + "%" : "—",
             readings: [],
-            series: [Hardware.gpuHistory],
-            statistics: [["Average", Hardware.gpuStats ? Math.round(Hardware.gpuStats.average) + "%" : "—"], ["Peak", Hardware.gpuStats ? Math.round(Hardware.gpuStats.peak) + "%" : "—"]],
-            details: [["Model", Hardware.gpuModel || "—"], ["VRAM", Hardware.gpuInfo?.memoryUsed != null && Hardware.gpuInfo?.memoryTotal != null ? root.capacity(true, Hardware.gpuInfo.memoryUsed, Hardware.gpuInfo.memoryTotal) : "—"], ["Clock speed", Hardware.gpuInfo?.clock != null ? Math.round(Hardware.gpuInfo.clock) + " MHz" : "—"]]
+            series: [Hardware.gpu.history],
+            statistics: [["Average", Hardware.gpu.stats ? Math.round(Hardware.gpu.stats.average) + "%" : "—"], ["Peak", Hardware.gpu.stats ? Math.round(Hardware.gpu.stats.peak) + "%" : "—"]],
+            details: [["Model", Hardware.gpu.model || "—"], ["VRAM", Hardware.gpu.sample?.memoryUsed != null && Hardware.gpu.sample?.memoryTotal != null ? root.capacity(true, Hardware.gpu.sample.memoryUsed, Hardware.gpu.sample.memoryTotal) : "—"], ["Clock speed", Hardware.gpu.sample?.clock != null ? Math.round(Hardware.gpu.sample.clock) + " MHz" : "—"]]
         },
         {
             title: "Disk I/O",
             level: 0,
             value: "",
-            readings: ["Read " + root.speed(Hardware.diskIoValid, Hardware.diskReadBps), "Write " + root.speed(Hardware.diskIoValid, Hardware.diskWriteBps)],
-            series: [Hardware.diskHistory.map(point => ({
+            readings: ["Read " + root.speed(Hardware.diskIo.valid, Hardware.diskIo.readBps), "Write " + root.speed(Hardware.diskIo.valid, Hardware.diskIo.writeBps)],
+            series: [Hardware.diskIo.history.map(point => ({
                             time: point.time,
                             value: point.read
-                        })), Hardware.diskHistory.map(point => ({
+                        })), Hardware.diskIo.history.map(point => ({
                             time: point.time,
                             value: point.write
                         }))],
-            maximum: Math.max(1000, Hardware.diskPeak),
-            details: [["Device", Hardware.diskDevices.join(", ") || "—"], ["Model", root.diskDetail("model")], ["Interface", root.diskDetail("tran").toUpperCase()]]
+            maximum: Math.max(1000, Hardware.diskIo.peak),
+            details: [["Device", Hardware.diskIo.devices.join(", ") || "—"], ["Model", root.diskDetail("model")], ["Interface", root.diskDetail("tran").toUpperCase()]]
         },
         {
             title: "Network",
@@ -63,21 +63,21 @@ ColumnLayout {
         },
         {
             title: "Memory",
-            level: Hardware.memoryLevel,
-            valid: Hardware.memoryValid,
-            fraction: Hardware.memoryUsage,
-            value: root.capacity(Hardware.memoryValid, Hardware.memoryUsed, Hardware.memoryTotal),
-            available: Hardware.memoryValid ? root.gib(Hardware.memoryTotal - Hardware.memoryUsed) + " GiB available" : "—",
-            details: [["Type", Hardware.memoryInfo?.types.join(" / ") || "—"], ["Speed", Hardware.memoryInfo?.speeds.length > 0 ? Hardware.memoryInfo.speeds.join(" / ") + " MT/s" : "—"], ["Swap", Hardware.swap ? (Hardware.swap.total === 0 ? "None" : root.capacity(true, Hardware.swap.used, Hardware.swap.total)) : "—"]]
+            level: Hardware.memory.level,
+            valid: Hardware.memory.valid,
+            fraction: Hardware.memory.usage,
+            value: root.capacity(Hardware.memory.valid, Hardware.memory.used, Hardware.memory.total),
+            available: Hardware.memory.valid ? root.gib(Hardware.memory.total - Hardware.memory.used) + " GiB available" : "—",
+            details: [["Type", Hardware.memory.info?.types.join(" / ") || "—"], ["Speed", Hardware.memory.info?.speeds.length > 0 ? Hardware.memory.info.speeds.join(" / ") + " MT/s" : "—"], ["Swap", Hardware.memory.swap ? (Hardware.memory.swap.total === 0 ? "None" : root.capacity(true, Hardware.memory.swap.used, Hardware.memory.swap.total)) : "—"]]
         },
         {
             title: "Disk /",
-            level: Hardware.diskLevel,
-            valid: Hardware.diskValid,
-            fraction: Hardware.diskValid ? Hardware.diskUsed / Hardware.diskTotal : 0,
-            value: root.capacity(Hardware.diskValid, Hardware.diskUsed, Hardware.diskTotal),
-            available: Hardware.diskValid ? root.gib(Hardware.diskAvailable) + " GiB available" : "—",
-            details: [["Device", Hardware.rootFilesystem?.device || "—"], ["Model", Hardware.rootFilesystem?.model || "—"], ["Filesystem", Hardware.rootFilesystem?.fstype || "—"]]
+            level: Hardware.filesystem.level,
+            valid: Hardware.filesystem.valid,
+            fraction: Hardware.filesystem.usage,
+            value: root.capacity(Hardware.filesystem.valid, Hardware.filesystem.used, Hardware.filesystem.total),
+            available: Hardware.filesystem.valid ? root.gib(Hardware.filesystem.available) + " GiB available" : "—",
+            details: [["Device", Hardware.filesystem.info?.device || "—"], ["Model", Hardware.filesystem.info?.model || "—"], ["Filesystem", Hardware.filesystem.info?.fstype || "—"]]
         }
     ]
 
@@ -89,7 +89,7 @@ ColumnLayout {
     }
 
     function diskDetail(field: string): string {
-        const values = Hardware.diskInfo.filter(device => Hardware.diskDevices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);
+        const values = Hardware.diskIo.info.filter(device => Hardware.diskIo.devices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);
         return [...new Set(values)].join(", ") || "—";
     }
 
@@ -172,15 +172,15 @@ ColumnLayout {
             model: [
                 {
                     title: "CPU temperature",
-                    level: Hardware.cpuTemperatureLevel,
-                    value: Hardware.cpuTemperature,
-                    valid: Hardware.cpuTemperatureValid
+                    level: Hardware.cpu.temperatureLevel,
+                    value: Hardware.cpu.temperature,
+                    valid: Hardware.cpu.temperatureValid
                 },
                 {
                     title: "GPU temperature",
-                    level: Hardware.gpuTemperatureLevel,
-                    value: Hardware.gpuTemperature,
-                    valid: Hardware.gpuTemperatureValid
+                    level: Hardware.gpu.temperatureLevel,
+                    value: Hardware.gpu.temperature,
+                    valid: Hardware.gpu.temperatureValid
                 }
             ]
             WrapperRectangle {

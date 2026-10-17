@@ -22,24 +22,24 @@ Button {
             Repeater {
                 model: [
                     {
-                        value: Hardware.cpuUsage,
-                        valid: Hardware.cpuValid,
-                        level: Hardware.cpuLevel
+                        value: Hardware.cpu.usage,
+                        valid: Hardware.cpu.valid,
+                        level: Hardware.cpu.level
                     },
                     {
-                        value: Hardware.memoryUsage,
-                        valid: Hardware.memoryValid,
-                        level: Hardware.memoryLevel
+                        value: Hardware.memory.usage,
+                        valid: Hardware.memory.valid,
+                        level: Hardware.memory.level
                     },
                     {
-                        value: Hardware.cpuTemperature / 100,
-                        valid: Hardware.cpuTemperatureValid,
-                        level: Hardware.cpuTemperatureLevel
+                        value: Hardware.cpu.temperature / 100,
+                        valid: Hardware.cpu.temperatureValid,
+                        level: Hardware.cpu.temperatureLevel
                     },
                     {
-                        value: Hardware.diskValid ? Hardware.diskUsed / Hardware.diskTotal : 0,
-                        valid: Hardware.diskValid,
-                        level: Hardware.diskLevel
+                        value: Hardware.filesystem.usage,
+                        valid: Hardware.filesystem.valid,
+                        level: Hardware.filesystem.level
                     }
                 ]
 
