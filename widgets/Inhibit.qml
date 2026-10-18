@@ -32,8 +32,31 @@ Button {
     }
 
     content: Icon {
-        color: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
-        name: Inhibit.mode === "off" ? "inhibit-symbolic" : "inhibit-active-symbolic"
+        id: inhibitIcon
+        name: "inhibit-symbolic"
+
+        Rectangle {
+            id: statusBadge
+            // Keep the badge proportions in the theme icon's 16px grid.
+            readonly property real unit: inhibitIcon.backer.width / 16
+            anchors.right: inhibitIcon.backer.right
+            anchors.bottom: inhibitIcon.backer.bottom
+            anchors.margins: -unit
+            width: 9 * unit
+            height: width
+            radius: width / 2
+            visible: Inhibit.mode !== "off"
+            color: Inhibit.mode === "awake" ? Theme.warning : Theme.critical
+            border.color: Theme.barBackground
+            border.width: unit
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 5 * statusBadge.unit
+                height: statusBadge.unit
+                color: statusBadge.border.color
+            }
+        }
     }
 
     Popup {
