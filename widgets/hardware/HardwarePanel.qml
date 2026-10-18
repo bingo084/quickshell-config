@@ -100,8 +100,8 @@ ColumnLayout {
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
         if (days > 0)
-            return `${days} d ${hours % 24} h`;
-        return `${hours} h ${minutes % 60} m`;
+            return `${days}d ${hours % 24}h`;
+        return `${hours}h ${minutes % 60}m`;
     }
 
     function gib(bytes: real): string {
