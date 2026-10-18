@@ -21,18 +21,6 @@ Controls.Button {
     palette.buttonText: checked ? Theme.textOnSelected : variant === Button.Accent ? Theme.textOnAccent : Theme.textPrimary
     icon.color: palette.buttonText
     icon.source: Icons.source(root.iconName)
-    baselineOffset: {
-        if (!contentItem)
-            return 0;
-        if (contentItem.baselineOffset !== 0)
-            return topPadding + contentItem.baselineOffset;
-        return topPadding + availableHeight / 2 + fontMetrics.capitalHeight / 2;
-    }
-
-    FontMetrics {
-        id: fontMetrics
-        font: root.font
-    }
 
     Behavior on palette.buttonText {
         ColorAnimation {

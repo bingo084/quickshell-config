@@ -130,8 +130,5 @@ Button {
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 14
         font.weight: Font.Medium
-        transform: Translate {
-            y: -1.5
-        }
     }
 }

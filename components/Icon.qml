@@ -10,7 +10,6 @@ IconImage {
     id: root
     property string name
     property real padding
-    property font font
     property color color: Theme.textPrimary
     property bool colorize: true
     property bool spinning
@@ -21,13 +20,7 @@ IconImage {
     implicitSize: 18
     implicitWidth: implicitSize + 2 * padding
     implicitHeight: implicitWidth
-    baselineOffset: height / 2 + fontMetrics.capitalHeight / 2
     source: Icons.source(root.name)
-
-    FontMetrics {
-        id: fontMetrics
-        font: root.font
-    }
 
     backer.anchors.margins: root.padding
     backer.sourceSize.width: Math.max(0, actualSize - 2 * padding)

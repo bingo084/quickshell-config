@@ -154,10 +154,8 @@ Singleton {
                 visible: root.selected !== null || root.adding
 
                 Button {
-                    Layout.alignment: Qt.AlignBaseline
                     Layout.preferredWidth: popup.controlSize
                     Layout.preferredHeight: popup.controlSize
-                    font: title.font
                     radius: height / 2
                     iconName: "go-previous-symbolic"
                     enabled: !root.pairing
@@ -172,8 +170,6 @@ Singleton {
                 }
 
                 Text {
-                    id: title
-                    Layout.alignment: Qt.AlignBaseline
                     text: root.pairingDevice !== null ? "Pair device" : root.selected !== null ? "Device details" : "Add device"
                     font.pixelSize: 14
                     font.bold: true
@@ -217,16 +213,12 @@ Singleton {
                     spacing: 8
 
                     Icon {
-                        Layout.alignment: Qt.AlignBaseline
                         padding: (popup.controlSize - implicitSize) / 2
-                        font: addText.font
-                        name: "list-add-symbolic"
+                        name: "plus-symbolic"
                         color: Theme.textSecondary
                     }
 
                     Text {
-                        id: addText
-                        Layout.alignment: Qt.AlignBaseline
                         Layout.fillWidth: true
                         text: addButton.text
                         font.pixelSize: 13
