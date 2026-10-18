@@ -23,7 +23,7 @@ Button {
 
     content: Text {
         color: Theme.textPrimary
-        text: Qt.formatDateTime(Clock.date, `ddd MMM d  hh:mm${root.showSeconds ? ":ss" : ""}`)
+        text: Qt.formatDateTime(Clock.date, `ddd ${Clock.dateTimeFormat}${root.showSeconds ? ":ss" : ""}`)
     }
 
     Popup {

@@ -68,7 +68,7 @@ Button {
         if (window.resetsAt == null)
             return "Resets: --";
         const resetAt = new Date(window.resetsAt * 1000);
-        const time = Qt.formatDateTime(resetAt, resetAt.toDateString() === root.now.toDateString() ? "hh:mm" : "MMM d  hh:mm");
+        const time = Qt.formatDateTime(resetAt, resetAt.toDateString() === root.now.toDateString() ? Clock.timeFormat : Clock.dateTimeFormat);
         const totalMinutes = Math.ceil((resetAt.getTime() - root.now.getTime()) / 60000);
         if (totalMinutes <= 0)
             return `Reset pending · ${time}`;
@@ -379,7 +379,7 @@ Button {
                                     color: root.expiryColor(creditRow.expiryLevel)
                                 }
                                 Text {
-                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), "MMM d  hh:mm")
+                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), Clock.dateTimeFormat)
                                     font.pixelSize: 12
                                     color: root.expiryColor(creditRow.expiryLevel)
                                 }

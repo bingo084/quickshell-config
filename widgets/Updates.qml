@@ -144,13 +144,13 @@ Bar.Button {
                         Text {
                             id: newsDate
                             Layout.alignment: Qt.AlignTop
-                            text: Qt.formatDateTime(article.modelData.date, "MMM d")
+                            text: Qt.formatDateTime(article.modelData.date, Clock.dateFormat)
                             font.pixelSize: 11
                             color: Theme.textTertiary
 
                             Tooltip {
                                 anchorItem: newsDate
-                                text: Qt.formatDateTime(article.modelData.date, "yyyy-MM-dd hh:mm:ss")
+                                text: Qt.formatDateTime(article.modelData.date, Clock.fullDateTimeFormat)
                             }
                         }
                     }
