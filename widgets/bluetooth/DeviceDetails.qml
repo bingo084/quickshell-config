@@ -172,7 +172,7 @@ ColumnLayout {
         Icon {
             implicitSize: 16
             name: "battery-level-" + Math.round((root.device?.battery ?? 0) * 10) * 10 + "-symbolic"
-            color: Theme.textSecondary
+            colorize: false
         }
 
         Text {

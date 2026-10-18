@@ -6,6 +6,7 @@ import qs.services
 
 Singleton {
     readonly property color barBackground: Colors.data.surface
+    readonly property bool dark: barBackground.hslLightness < 0.5
     readonly property color textPrimary: Colors.data.on_surface
     readonly property color textSecondary: Colors.data.on_surface_variant
     readonly property color textTertiary: Qt.tint(popupBackground, Qt.alpha(textSecondary, 0.8))
