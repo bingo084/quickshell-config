@@ -59,7 +59,7 @@ ColumnLayout {
                             value: point.tx
                         }))],
             maximum: Math.max(1000, Traffic.peak),
-            details: [["Interfaces", Traffic.interfaces.join(", ") || "—"], ["Wired link", Network.wired?.linkSpeed > 0 ? Network.wired.linkSpeed + " Mbps" : "—"], ["Wi-Fi link", Network.wifiLink > 0 ? Network.wifiLink + " Mbps" : "—"], ["Wi-Fi signal", Network.wifiNetwork ? Math.round(Network.wifiNetwork.signalStrength * 100) + "%" : "—"]]
+            details: [["Interfaces", Traffic.interfaces.join(", ") || "—"], ["Wired link", Network.wired?.linkSpeed > 0 ? Network.wired.linkSpeed + " Mbps" : "—"], ["Wi-Fi link", Network.wifiLink?.speed > 0 ? Network.wifiLink.speed + " Mbps" : "—"], ["Wi-Fi signal", Network.wifiNetwork ? Math.round(Network.wifiNetwork.signalStrength * 100) + "%" : "—"]]
         },
         {
             title: "Memory",

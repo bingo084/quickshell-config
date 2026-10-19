@@ -6,17 +6,15 @@ import Quickshell.Networking
 
 Singleton {
     id: root
+    readonly property WifiDevice adapter: (Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? Networking.devices.values.find(device => device.type === DeviceType.Wifi)) ?? null // qmllint disable missing-property
     readonly property WiredDevice wired: Networking.devices.values.find(device => device.type === DeviceType.Wired && device.connected) ?? null // qmllint disable missing-property
-    readonly property NetworkDevice wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi && device.connected) ?? null // qmllint disable missing-property
+    readonly property WifiDevice wifi: adapter?.connected ? adapter : null
+    readonly property list<WifiNetwork> networks: adapter?.networks.values ?? [] // qmllint disable missing-property
     readonly property WifiNetwork wifiNetwork: wifi?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property NetworkDevice device: wired ?? wifi
-    readonly property Network network: device?.networks.values.find(network => network.connected) ?? null // qmllint disable missing-property
     readonly property bool online: device !== null && (!Networking.connectivityCheckEnabled || Networking.connectivity === NetworkConnectivity.Full)
-    property real wifiLink: -1
+    property var wifiLink: null
     property var wifiRequest: null
-    property var details: null
-    property var request: null
-    readonly property bool detailsLoading: request !== null
     signal ready
 
     onOnlineChanged: {
@@ -25,68 +23,101 @@ Singleton {
         else
             refreshDelay.stop();
     }
-    onDeviceChanged: {
-        details = null;
-        refreshDetails();
-    }
-    onNetworkChanged: {
-        details = null;
-        refreshDetails();
-    }
     onWifiNetworkChanged: {
-        wifiLink = -1;
+        wifiLink = null;
         refreshWifiLink();
     }
 
-    function refreshDetails() {
-        if (!root.device || !root.network) {
-            root.request = null;
-            return;
-        }
-        const request = Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS", "device", "show", root.device.name]);
-        root.request = request;
-        return request.then(result => {
-            if (root.request !== request)
-                return;
+    function queryDetails(device: NetworkDevice): var {
+        return Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "GENERAL.CON-UUID,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS,AP.IN-USE,AP.SECURITY", "device", "show", device.name]).then(result => {
             if (result.exitCode !== 0)
-                throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
-            root.details = root.parseDetails(result.stdout);
-            root.request = null;
-        }).catch(error => {
-            if (root.request !== request)
-                return;
-            root.details = null;
-            root.request = null;
-            console.warn("network details query failed:", error.message);
+                throw new Error(result.stderr.trim());
+            const details = parseDetails(result.stdout);
+            const active = Object.keys(details).find(key => key.endsWith(".IN-USE") && details[key][0] === "*");
+            if (active)
+                details["WIFI.SECURITY"] = details[active.replace(".IN-USE", ".SECURITY")];
+            return details;
         });
+    }
+
+    function scan(ssid = ""): var {
+        const command = ["nmcli", "device", "wifi", "rescan", "ifname", adapter.name];
+        if (ssid !== "")
+            command.push("ssid", ssid);
+        return Command.run(command).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error(result.stderr.trim());
+        });
+    }
+
+    function iconName(network = root.wired?.network ?? root.wifiNetwork): string {
+        if (network === null)
+            return "network-wireless-disconnected-symbolic";
+        if (network.device.type === DeviceType.Wired)
+            return "network-wired-symbolic";
+        const wifi = network as WifiNetwork;
+        const strength = wifi.signalStrength;
+        const level = strength < 0.25 ? "weak" : strength < 0.5 ? "ok" : strength < 0.75 ? "good" : "excellent";
+        return `network-wireless-signal-${level}-symbolic`;
+    }
+
+    function usesPassword(network: WifiNetwork): bool {
+        return [WifiSecurityType.WpaPsk, WifiSecurityType.Wpa2Psk, WifiSecurityType.Sae].includes(network.security);
+    }
+
+    function validPassword(network: WifiNetwork, password: string): bool {
+        if (network?.security === WifiSecurityType.Sae)
+            return password.length > 0;
+        return password.length >= 8 && password.length <= 63 || /^[0-9a-fA-F]{64}$/.test(password);
+    }
+
+    function markHidden(network: WifiNetwork) {
+        queryDetails(network.device).then(details => {
+            const profile = network.nmSettings.find(profile => profile.uuid === details["GENERAL.CON-UUID"]?.[0]);
+            profile?.write({
+                "802-11-wireless": {
+                    hidden: true
+                }
+            });
+        }).catch(error => console.warn("Could not save hidden network settings:", error.message));
     }
 
     function refreshWifiLink() {
         if (!root.wifiNetwork) {
             root.wifiRequest = null;
+            root.wifiLink = null;
             return;
         }
-        const request = Command.run(["busctl", "--system", "--json=short", "call", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager", "org.freedesktop.NetworkManager", "GetDeviceByIpIface", "s", root.wifi.name]).then(result => {
-            if (result.exitCode !== 0)
-                throw new Error(result.stderr.trim());
-            const path = JSON.parse(result.stdout).data[0];
-            return Command.run(["busctl", "--system", "--json=short", "get-property", "org.freedesktop.NetworkManager", path, "org.freedesktop.NetworkManager.Device.Wireless", "Bitrate"]);
-        });
+        const request = Command.run(["iw", "dev", root.wifi.name, "link"]);
         root.wifiRequest = request;
         return request.then(result => {
             if (root.wifiRequest !== request)
                 return;
             if (result.exitCode !== 0)
                 throw new Error(result.stderr.trim());
-            root.wifiLink = JSON.parse(result.stdout).data / 1000;
+            root.wifiLink = parseWifiLink(result.stdout);
             root.wifiRequest = null;
         }).catch(error => {
             if (root.wifiRequest !== request)
                 return;
-            root.wifiLink = -1;
+            root.wifiLink = null;
             root.wifiRequest = null;
             console.warn("Wi-Fi link query failed:", error.message);
         });
+    }
+
+    function parseWifiLink(text: string): var {
+        const details = parseDetails(text);
+        const tx = details["tx bitrate"]?.[0] ?? "";
+        const rx = details["rx bitrate"]?.[0] ?? "";
+        const rates = tx + " " + rx;
+        const speed = Number.parseFloat(tx);
+        const frequency = Number(details.freq?.[0] ?? 0);
+        return {
+            speed: Number.isFinite(speed) ? speed : -1,
+            band: frequency >= 2400 && frequency < 2500 ? "2.4 GHz" : frequency >= 4900 && frequency < 5925 ? "5 GHz" : frequency >= 5925 && frequency <= 7125 ? "6 GHz" : "",
+            standard: rates.includes("EHT-MCS") ? "Wi-Fi 7" : rates.includes("HE-MCS") ? "Wi-Fi 6" : rates.includes("VHT-MCS") ? "Wi-Fi 5" : /\bMCS\b/.test(rates) ? "Wi-Fi 4" : ""
+        };
     }
 
     function parseDetails(text: string): var {
@@ -95,7 +126,7 @@ Singleton {
             const colon = line.indexOf(":");
             if (colon < 0)
                 continue;
-            const key = line.slice(0, colon).replace(/\[\d+\]$/, "");
+            const key = line.slice(0, colon).trim().replace(/\[\d+\]$/, "");
             const value = line.slice(colon + 1).trim();
             if (value === "")
                 continue;
