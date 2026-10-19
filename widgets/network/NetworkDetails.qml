@@ -97,22 +97,16 @@ ColumnLayout {
         spacing: 10
 
         Button {
-            id: connectButton
             Layout.preferredWidth: root.controlSize
             Layout.preferredHeight: root.controlSize
             variant: Button.Filled
             iconName: root.network?.connected ? "entries-unlinked-symbolic" : "entries-linked-symbolic"
             enabled: root.network !== null && !root.network.stateChanging
             onClicked: root.network.connected ? root.network.disconnect() : root.joinRequested()
-
-            Tooltip {
-                anchorItem: connectButton
-                text: root.network?.stateChanging ? Net.ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Disconnect" : "Connect"
-            }
+            tooltip.text: root.network?.stateChanging ? Net.ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Disconnect" : "Connect"
         }
 
         Button {
-            id: forgetButton
             Layout.preferredWidth: root.controlSize
             Layout.preferredHeight: root.controlSize
             variant: Button.Filled
@@ -121,11 +115,7 @@ ColumnLayout {
             iconName: "user-trash-symbolic"
             palette.buttonText: Theme.critical
             onClicked: root.confirming = true
-
-            Tooltip {
-                anchorItem: forgetButton
-                text: "Forget network"
-            }
+            tooltip.text: "Forget network"
         }
     }
 

@@ -25,7 +25,6 @@ RowLayout {
     }
 
     Button {
-        id: refreshButton
         text: root.chinese ? "刷新" : "Refresh"
         enabled: !root.refreshing
         onClicked: root.refreshRequested()
@@ -37,10 +36,7 @@ RowLayout {
             spinning: root.refreshing
         }
 
-        Tooltip {
-            anchorItem: refreshButton
-            text: refreshButton.text
-        }
+        tooltip.text: text
     }
 
     Tooltip {

@@ -95,7 +95,6 @@ Bar.Button {
                     onRefreshRequested: Updates.refresh()
                 }
                 Button {
-                    id: updateButton
                     visible: Updates.count > 0
                     text: "Install updates"
                     enabled: !Updates.checking && !Updates.installerOpen
@@ -110,10 +109,7 @@ Bar.Button {
                     icon.color: Theme.textSecondary
                     display: AbstractButton.IconOnly
 
-                    Tooltip {
-                        anchorItem: updateButton
-                        text: updateButton.text
-                    }
+                    tooltip.text: text
                 }
             }
 

@@ -15,6 +15,7 @@ Controls.Button {
     property int variant: Button.Plain
     property string iconName
     property alias radius: background.radius
+    property alias tooltip: hint
 
     padding: 6
     opacity: enabled ? 1 : 0.5
@@ -31,6 +32,12 @@ Controls.Button {
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
+    }
+
+    Tooltip {
+        id: hint
+        anchorItem: root
+        enabled: text !== ""
     }
 
     background: Rectangle {

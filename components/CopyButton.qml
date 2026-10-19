@@ -38,9 +38,6 @@ Button {
         }
     }
 
-    Tooltip {
-        anchorItem: root
-        enabled: label.truncated
-        text: root.text
-    }
+    tooltip.enabled: label.truncated
+    tooltip.text: root.text
 }

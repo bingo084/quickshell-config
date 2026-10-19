@@ -98,7 +98,6 @@ ColumnLayout {
             }
 
             Button {
-                id: restoreControl
                 iconName: "edit-undo-symbolic"
                 enabled: nameField.text.trim() !== (root.device?.deviceName ?? "")
                 onClicked: {
@@ -106,10 +105,7 @@ ColumnLayout {
                     nameField.forceActiveFocus();
                 }
 
-                Tooltip {
-                    anchorItem: restoreControl
-                    text: "Restore “" + (root.device?.deviceName ?? "") + "”"
-                }
+                tooltip.text: "Restore “" + (root.device?.deviceName ?? "") + "”"
             }
 
             Button {

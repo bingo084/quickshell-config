@@ -340,7 +340,6 @@ Singleton {
                     }
 
                     Button {
-                        id: refreshButton
                         Layout.preferredWidth: popup.controlSize
                         Layout.preferredHeight: popup.controlSize
                         Layout.rightMargin: rightPadding
@@ -355,10 +354,7 @@ Singleton {
                             color: Theme.textSecondary
                         }
 
-                        Tooltip {
-                            anchorItem: refreshButton
-                            text: "Scan for networks"
-                        }
+                        tooltip.text: "Scan for networks"
                     }
                 }
 

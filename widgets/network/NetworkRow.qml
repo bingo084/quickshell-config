@@ -88,7 +88,6 @@ WrapperRectangle {
         }
 
         Button {
-            id: action
             visible: (root.network?.connected ?? false) || root.joining
             Layout.preferredWidth: root.controlSize
             Layout.preferredHeight: root.controlSize
@@ -98,10 +97,7 @@ WrapperRectangle {
             icon.color: hovered ? Theme.textPrimary : Theme.textSecondary
             onClicked: root.joining ? root.cancelRequested() : root.detailsRequested()
 
-            Tooltip {
-                anchorItem: action
-                text: root.joining ? "Cancel connection" : "Network details"
-            }
+            tooltip.text: root.joining ? "Cancel connection" : "Network details"
         }
     }
 }

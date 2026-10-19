@@ -31,10 +31,7 @@ Controls.TextField {
             root.forceActiveFocus();
         }
 
-        Tooltip {
-            anchorItem: revealButton
-            text: revealButton.revealed ? "Hide password" : "Show password"
-        }
+        tooltip.text: revealButton.revealed ? "Hide password" : "Show password"
     }
 
     background: Rectangle {
