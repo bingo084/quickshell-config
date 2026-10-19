@@ -1,9 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Widgets
 import qs.components
@@ -83,10 +81,8 @@ ColumnLayout {
             visible: root.editing
             spacing: 4
 
-            Controls.TextField {
+            TextField {
                 id: nameField
-                Layout.fillWidth: true
-                color: Theme.textPrimary
                 font.pixelSize: 15
 
                 function save() {
@@ -99,12 +95,6 @@ ColumnLayout {
 
                 onAccepted: save()
                 Keys.onEscapePressed: root.editing = false
-
-                background: Rectangle {
-                    radius: 5
-                    color: Theme.controlBackground
-                    border.color: nameField.activeFocus ? Theme.accent : Theme.popupBorder
-                }
             }
 
             Button {
@@ -155,59 +145,52 @@ ColumnLayout {
         Layout.bottomMargin: 4
     }
 
-    RowLayout {
-        visible: root.device?.batteryAvailable ?? false
-        Layout.minimumHeight: root.controlSize
+    ColumnLayout {
         Layout.leftMargin: 8
         Layout.rightMargin: 8
-        spacing: 4
+        spacing: 0
 
-        Text {
-            Layout.fillWidth: true
-            text: "Battery"
-            font.pixelSize: 12
-            color: Theme.textPrimary
-        }
-
-        Icon {
-            implicitSize: 16
-            name: "battery-level-" + Math.round((root.device?.battery ?? 0) * 10) * 10 + "-symbolic"
-            colorize: false
-        }
-
-        Text {
-            text: Math.round((root.device?.battery ?? 0) * 100) + "%"
-            font.pixelSize: 12
-            color: Theme.textSecondary
-        }
-    }
-
-    RowLayout {
-        Layout.minimumHeight: root.controlSize
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
-
-        Text {
-            Layout.fillWidth: true
+        TextMetrics {
+            id: labelMetrics
             text: "Address"
-            color: Theme.textPrimary
             font.pixelSize: 12
         }
 
-        Button {
-            Layout.rightMargin: -rightPadding
-            text: root.device?.address ?? ""
-            font.pixelSize: 11
-            palette.buttonText: Theme.textSecondary
-            iconName: copyFeedback.running ? "object-select-symbolic" : "edit-copy-symbolic"
-            onClicked: {
-                Quickshell.clipboardText = root.device.address;
-                copyFeedback.restart();
+        RowLayout {
+            visible: root.device?.batteryAvailable ?? false
+            Layout.minimumHeight: root.controlSize
+            spacing: 8
+
+            Text {
+                Layout.minimumWidth: Math.ceil(labelMetrics.advanceWidth)
+                text: "Battery"
+                font.pixelSize: 12
+                color: Theme.textPrimary
             }
 
-            Timer {
-                id: copyFeedback
-                interval: 1500
+            CopyButton {
+                Layout.rightMargin: -rightPadding
+                iconName: "battery-level-" + Math.round((root.device?.battery ?? 0) * 10) * 10 + "-symbolic"
+                text: Math.round((root.device?.battery ?? 0) * 100) + "%"
+                palette.buttonText: Theme.textSecondary
+            }
+        }
+
+        RowLayout {
+            Layout.minimumHeight: root.controlSize
+            spacing: 8
+
+            Text {
+                Layout.minimumWidth: Math.ceil(labelMetrics.advanceWidth)
+                text: "Address"
+                color: Theme.textPrimary
+                font.pixelSize: 12
+            }
+
+            CopyButton {
+                Layout.rightMargin: -rightPadding
+                text: root.device?.address ?? ""
+                palette.buttonText: Theme.textSecondary
             }
         }
     }

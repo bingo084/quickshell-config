@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
@@ -181,25 +180,18 @@ ColumnLayout {
         color: Theme.textSecondary
     }
 
-    Controls.TextField {
+    TextField {
         id: input
-        Layout.fillWidth: true
         visible: root.prompt?.kind === "pin" || root.prompt?.kind === "passkey"
         enabled: !root.cancelling
         maximumLength: root.prompt?.kind === "pin" ? 16 : 6
         font.pixelSize: 15
-        color: Theme.textPrimary
         horizontalAlignment: TextInput.AlignHCenter
         validator: RegularExpressionValidator {
             regularExpression: root.prompt?.kind === "pin" ? /[A-Za-z0-9]{1,16}/ : /[0-9]{1,6}/
         }
         onAccepted: if (acceptableInput)
             root.reply()
-        background: Rectangle {
-            radius: 5
-            color: Theme.controlBackground
-            border.color: input.activeFocus ? Theme.accent : Theme.popupBorder
-        }
     }
 
     Text {
