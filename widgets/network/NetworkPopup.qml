@@ -241,12 +241,12 @@ Singleton {
                     Layout.preferredHeight: popup.controlSize
                     radius: height / 2
                     iconName: "go-previous-symbolic"
-                    onClicked: root.cancel()
+                    onClicked: root.page === "share" ? root.page = "details" : root.cancel()
                 }
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.page === "details" ? "Network details" : root.page === "hidden" ? "Join other network" : root.page === "password" ? "Join network" : "Wi-Fi"
+                    text: root.page === "share" ? "Share network" : root.page === "details" ? "Network details" : root.page === "hidden" ? "Join other network" : root.page === "password" ? "Join network" : "Wi-Fi"
                     color: Theme.textPrimary
                     font.pixelSize: 14
                     font.bold: true
@@ -442,9 +442,9 @@ Singleton {
                 NetworkDetails {
                     id: details
                     width: parent.width
-                    network: root.page === "details" ? root.selected : null
+                    network: root.page === "details" || root.page === "share" ? root.selected : null
                     controlSize: popup.controlSize
-                    opened: popup.visible
+                    opened: popup.visible && root.page === "details"
                     connectionError: root.error
                     onJoinRequested: {
                         if (wifi !== null) {
@@ -454,6 +454,17 @@ Singleton {
                         }
                     }
                     onForgotten: root.cancel()
+                    onShareRequested: root.page = "share"
+                }
+            }
+
+            Loader {
+                Layout.fillWidth: true
+                active: popup.visible && root.page === "share"
+                visible: active
+                sourceComponent: NetworkShare {
+                    network: root.selected as Net.WifiNetwork
+                    profile: details.profile
                 }
             }
         }

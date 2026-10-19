@@ -25,6 +25,7 @@ ColumnLayout {
     readonly property var link: wifi?.connected ? Network.wifiLink : null
     readonly property var profile: network?.nmSettings.find(profile => profile.uuid === values?.["GENERAL.CON-UUID"]?.[0]) ?? network?.nmSettings[0] ?? null // qmllint disable missing-property
     signal joinRequested
+    signal shareRequested
     signal forgotten
 
     spacing: 8
@@ -104,6 +105,17 @@ ColumnLayout {
             enabled: root.network !== null && !root.network.stateChanging
             onClicked: root.network.connected ? root.network.disconnect() : root.joinRequested()
             tooltip.text: root.network?.stateChanging ? Net.ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Disconnect" : "Connect"
+        }
+
+        Button {
+            Layout.preferredWidth: root.controlSize
+            Layout.preferredHeight: root.controlSize
+            variant: Button.Filled
+            visible: root.wifi !== null && (Network.usesPassword(root.wifi) || root.wifi.security === Net.WifiSecurityType.Open)
+            enabled: root.wifi !== null && !root.wifi.stateChanging && (root.wifi.security === Net.WifiSecurityType.Open || root.profile !== null && (!root.wifi.connected || root.values !== null))
+            iconName: "qr-code"
+            onClicked: root.shareRequested()
+            tooltip.text: "Share network"
         }
 
         Button {

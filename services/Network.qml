@@ -50,6 +50,32 @@ Singleton {
         });
     }
 
+    function queryShare(network: WifiNetwork, profile): var {
+        const name = network.name;
+        const secured = usesPassword(network);
+        const hidden = profile?.read()?.["802-11-wireless"]?.hidden ?? false;
+        const password = secured ? Command.run(["nmcli", "--show-secrets", "--escape", "no", "--get-values", "802-11-wireless-security.psk", "connection", "show", "uuid", profile.uuid]).then(result => {
+            if (result.exitCode !== 0)
+                throw new Error("Could not read the saved Wi-Fi password.");
+            const password = result.stdout.replace(/\n$/, "");
+            if (password === "")
+                throw new Error("No saved password is available for this network.");
+            return password;
+        }) : Promise.resolve("");
+        return password.then(password => {
+            const escape = value => /^[0-9a-f]+$/i.test(value) ? '"' + value + '"' : value.replace(/[\\;,:\"]/g, "\\$&");
+            const content = `WIFI:T:${secured ? "WPA" : "nopass"};S:${escape(name)};P:${escape(password)};H:${hidden};;`;
+            return Command.run(["qrencode", "--type", "SVG", "--level", "M", "--output", "-", content]).then(result => {
+                if (result.exitCode !== 0)
+                    throw new Error("Could not generate the Wi-Fi QR code.");
+                return {
+                    password,
+                    image: "data:image/svg+xml," + encodeURIComponent(result.stdout)
+                };
+            });
+        });
+    }
+
     function iconName(network = root.wired?.network ?? root.wifiNetwork): string {
         if (network === null)
             return "network-wireless-disconnected-symbolic";
