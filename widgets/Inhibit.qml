@@ -67,96 +67,29 @@ Button {
         ColumnLayout {
             spacing: 10
 
-            Rectangle {
-                id: modeSelector
-                readonly property Item selectedButton: modeButtons.count > 0 ? modeButtons.itemAt(Inhibit.mode === "off" ? 0 : Inhibit.mode === "awake" ? 1 : 2) : null
+            SegmentedControl {
+                readonly property color modeColor: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
 
-                Layout.fillWidth: true
-                implicitHeight: 34
-                radius: 6
-                color: Qt.tint(Theme.meterBackground, Theme.hoveredBackground)
-
-                Rectangle {
-                    readonly property color modeColor: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
-
-                    x: modeRow.x + (modeSelector.selectedButton?.x ?? 0)
-                    y: modeRow.y
-                    width: modeSelector.selectedButton?.width ?? 0
-                    height: modeRow.height
-                    radius: 4
-                    border.width: 1
-                    border.color: Inhibit.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
-                    color: Inhibit.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
-
-                    Behavior on x {
-                        enabled: popup.visible
-                        NumberAnimation {
-                            duration: 150
-                            easing.type: Easing.OutCubic
-                        }
+                animated: popup.visible
+                currentIndex: model.findIndex(mode => mode.value === Inhibit.mode)
+                onActivated: index => Inhibit.setMode(model[index].value)
+                palette.highlight: Inhibit.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
+                palette.mid: Inhibit.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
+                palette.highlightedText: modeColor
+                model: [
+                    {
+                        text: "Off",
+                        value: "off"
+                    },
+                    {
+                        text: "Awake",
+                        value: "awake"
+                    },
+                    {
+                        text: "Active",
+                        value: "active"
                     }
-
-                    Behavior on color {
-                        enabled: popup.visible
-                        ColorAnimation {
-                            duration: 150
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-
-                    Behavior on border.color {
-                        enabled: popup.visible
-                        ColorAnimation {
-                            duration: 150
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-                }
-
-                RowLayout {
-                    id: modeRow
-                    anchors.fill: parent
-                    anchors.margins: 3
-                    spacing: 0
-
-                    Repeater {
-                        id: modeButtons
-                        model: ["off", "awake", "active"]
-
-                        delegate: Controls.Button {
-                            id: modeButton
-                            required property string modelData
-                            readonly property color modeColor: modelData === "off" ? Theme.textPrimary : modelData === "awake" ? Theme.warning : Theme.critical
-
-                            Layout.fillWidth: true
-                            implicitWidth: 80
-                            implicitHeight: 28
-                            text: modelData
-                            font.pixelSize: 12
-                            font.capitalization: Font.Capitalize
-                            checkable: true
-                            autoExclusive: true
-                            checked: Inhibit.mode === modelData
-                            onClicked: Inhibit.setMode(modelData)
-                            contentItem: Text {
-                                text: modeButton.text
-                                font: modeButton.font
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                color: modeButton.checked ? modeButton.modeColor : modeButton.hovered || modeButton.down ? Theme.textPrimary : Theme.textSecondary
-
-                                Behavior on color {
-                                    enabled: popup.visible
-                                    ColorAnimation {
-                                        duration: 150
-                                        easing.type: Easing.OutCubic
-                                    }
-                                }
-                            }
-                            background: null
-                        }
-                    }
-                }
+                ]
             }
 
             Separator {}
