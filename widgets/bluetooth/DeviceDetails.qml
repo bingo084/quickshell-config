@@ -120,19 +120,70 @@ ColumnLayout {
             }
         }
 
-        Button {
-            variant: Button.Filled
+        RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            font.pixelSize: 12
-            text: {
-                if (root.device?.blocked)
-                    return "Blocked";
-                if (root.busy)
-                    return BluetoothDeviceState.toString(root.device.state) + "…";
-                return root.device?.connected ? "Disconnect" : "Connect";
+            spacing: 10
+
+            Button {
+                Layout.preferredWidth: root.controlSize
+                Layout.preferredHeight: root.controlSize
+                variant: Button.Filled
+                iconName: root.device?.connected ? "entries-unlinked-symbolic" : "entries-linked-symbolic"
+                enabled: root.device?.adapter?.state === BluetoothAdapterState.Enabled && !root.busy && !root.device.blocked
+                onClicked: root.device.connected ? root.device.disconnect() : root.device.connect()
+                tooltip.text: root.device?.blocked ? "Blocked" : root.busy ? BluetoothDeviceState.toString(root.device.state) + "…" : root.device?.connected ? "Disconnect" : "Connect"
             }
-            enabled: root.device?.adapter?.state === BluetoothAdapterState.Enabled && !root.busy && !root.device.blocked
-            onClicked: root.device.connected ? root.device.disconnect() : root.device.connect()
+
+            Button {
+                Layout.preferredWidth: root.controlSize
+                Layout.preferredHeight: root.controlSize
+                variant: Button.Filled
+                enabled: !root.confirming
+                iconName: "user-trash-symbolic"
+                palette.buttonText: Theme.critical
+                onClicked: root.confirming = true
+                tooltip.text: "Forget device"
+            }
+        }
+    }
+
+    WrapperRectangle {
+        Layout.fillWidth: true
+        visible: root.confirming
+        margin: 12
+        radius: 8
+        color: Qt.alpha(Theme.textPrimary, 0.04)
+
+        ColumnLayout {
+            spacing: 8
+
+            Text {
+                Layout.fillWidth: true
+                text: "Forget this device? You'll need to pair it again."
+                wrapMode: Text.Wrap
+                color: Theme.textPrimary
+                font.pixelSize: 12
+            }
+
+            RowLayout {
+                Layout.alignment: Qt.AlignRight
+
+                Button {
+                    text: "Cancel"
+                    font.pixelSize: 12
+                    onClicked: root.confirming = false
+                }
+
+                Button {
+                    text: "Forget"
+                    font.pixelSize: 12
+                    palette.buttonText: Theme.critical
+                    onClicked: {
+                        root.device.forget();
+                        root.backRequested();
+                    }
+                }
+            }
         }
     }
 
@@ -221,63 +272,5 @@ ColumnLayout {
         text: "Block connections"
         checked: root.device?.blocked ?? false
         onToggled: root.device.blocked = checked
-    }
-
-    Button {
-        id: forgetButton
-        Layout.fillWidth: true
-        visible: !root.confirming
-        leftPadding: 8
-        rightPadding: 8
-        text: "Forget device"
-        font.pixelSize: 12
-        palette.buttonText: Theme.critical
-        onClicked: root.confirming = true
-
-        contentItem: Text {
-            text: forgetButton.text
-            font: forgetButton.font
-            color: forgetButton.palette.buttonText
-        }
-    }
-
-    WrapperRectangle {
-        Layout.fillWidth: true
-        visible: root.confirming
-        margin: 12
-        radius: 8
-        color: Qt.alpha(Theme.textPrimary, 0.04)
-
-        ColumnLayout {
-            spacing: 8
-
-            Text {
-                Layout.fillWidth: true
-                text: "Forget this device? You'll need to pair it again."
-                wrapMode: Text.Wrap
-                color: Theme.textPrimary
-                font.pixelSize: 12
-            }
-
-            RowLayout {
-                Layout.alignment: Qt.AlignRight
-
-                Button {
-                    text: "Cancel"
-                    font.pixelSize: 12
-                    onClicked: root.confirming = false
-                }
-
-                Button {
-                    text: "Forget"
-                    font.pixelSize: 12
-                    palette.buttonText: Theme.critical
-                    onClicked: {
-                        root.device.forget();
-                        root.backRequested();
-                    }
-                }
-            }
-        }
     }
 }
