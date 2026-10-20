@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import qs.components
 import qs.components.bar as Bar
 import qs.config
@@ -9,8 +8,6 @@ import qs.widgets.audio
 
 Bar.Button {
     id: root
-    property bool outputExpanded: false
-    property bool inputExpanded: false
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onClicked: mouse => {
@@ -38,87 +35,8 @@ Bar.Button {
         }
     }
 
-    Bar.Popup {
+    AudioPopup {
         id: popup
         anchorItem: root
-        contentWidth: 300
-        onVisibleChanged: {
-            if (visible)
-                Audio.refreshPorts();
-        }
-
-        ColumnLayout {
-            spacing: 4
-
-            RowLayout {
-                Layout.bottomMargin: 4
-                spacing: 8
-                Text {
-                    Layout.fillWidth: true
-                    color: Theme.textPrimary
-                    font.bold: true
-                    text: "Audio"
-                }
-                Button {
-                    iconName: "preferences-system-symbolic"
-                    onClicked: {
-                        popup.close();
-                        Quickshell.execDetached(["pavucontrol"]);
-                    }
-                }
-            }
-
-            DeviceSection {
-                id: outputSection
-                node: Audio.sink
-                devices: Audio.sinks
-                title: "Output"
-                expanded: root.outputExpanded
-                onToggleExpanded: {
-                    root.inputExpanded = false;
-                    root.outputExpanded = !root.outputExpanded;
-                }
-                onSelected: root.outputExpanded = false
-            }
-
-            Separator {
-                visible: outputSection.visible && inputSection.visible
-            }
-
-            DeviceSection {
-                id: inputSection
-                node: Audio.source
-                devices: Audio.sources
-                title: "Input"
-                expanded: root.inputExpanded
-                onToggleExpanded: {
-                    root.outputExpanded = false;
-                    root.inputExpanded = !root.inputExpanded;
-                }
-                onSelected: root.inputExpanded = false
-            }
-
-            Separator {
-                visible: appsSection.visible && (outputSection.visible || inputSection.visible)
-            }
-
-            ColumnLayout {
-                id: appsSection
-                Layout.fillWidth: true
-                spacing: 6
-                visible: Audio.streams.length > 0
-                SectionLabel {
-                    text: "Apps"
-                }
-                Repeater {
-                    model: Audio.streams
-                    StreamRow {
-                        required property var modelData
-
-                        node: modelData
-                    }
-                }
-            }
-        }
     }
 }

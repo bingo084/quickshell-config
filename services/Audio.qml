@@ -42,11 +42,11 @@ Singleton {
         if (node?.type === PwNodeType.AudioOutStream)
             return props["application.icon-name"] || "application-x-executable-symbolic";
         if (props["device.api"] === "bluez5")
-            return "audio-headset-symbolic";
-        if (node?.type === PwNodeType.AudioSource)
-            return props["device.icon-name"] || "audio-input-microphone-symbolic";
-        if (node?.type === PwNodeType.AudioSink)
-            return props["device.icon-name"] || "audio-card-symbolic";
+            return "bluetooth-symbolic";
+        if (props["device.bus"] === "usb")
+            return "usb-stick-symbolic";
+        if (ports(node).some(port => port.type === "HDMI"))
+            return "video-display-symbolic";
         return "audio-card-symbolic";
     }
 
