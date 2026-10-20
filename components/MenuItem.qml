@@ -27,7 +27,7 @@ Controls.MenuItem {
         Icon {
             visible: root.reserveIcon
             implicitSize: 16
-            source: root.icon.source
+            source: Icons.resolve(root.icon.source.toString())
             color: root.icon.color
             colorize: root.icon.color.a !== 0
         }
