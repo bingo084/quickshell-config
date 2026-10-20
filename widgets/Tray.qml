@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Services.SystemTray
 import qs.components
 import qs.components.bar
+import qs.widgets.tray
 
 RowLayout {
     spacing: 0
@@ -13,7 +13,7 @@ RowLayout {
 
         Button {
             id: trayButton
-            required property var modelData
+            required property SystemTrayItem modelData
 
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             horizontalPadding: 3
@@ -21,12 +21,12 @@ RowLayout {
                 PopupHost.close();
                 if (mouse.button === Qt.LeftButton) {
                     if (modelData.hasMenu && modelData.onlyMenu) {
-                        menuAnchor.open();
+                        menu.popup(trayButton, 0, trayButton.height);
                     } else {
                         modelData.activate();
                     }
                 } else if (mouse.button === Qt.RightButton && modelData.hasMenu) {
-                    menuAnchor.open();
+                    menu.popup(trayButton, 0, trayButton.height);
                 } else if (mouse.button === Qt.MiddleButton) {
                     modelData.secondaryActivate();
                 }
@@ -35,13 +35,9 @@ RowLayout {
                 colorize: false
                 source: trayButton.modelData.icon
             }
-            QsMenuAnchor {
-                id: menuAnchor
-                menu: trayButton.modelData.menu
-                anchor {
-                    item: trayButton
-                    edges: Edges.Bottom // qmllint disable incompatible-type
-                }
+            TrayMenu {
+                id: menu
+                handle: trayButton.modelData.menu
             }
         }
     }
