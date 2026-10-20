@@ -13,14 +13,17 @@ Controls.Button {
     }
 
     property int variant: Button.Plain
+    property real size
     property string iconName
     property alias radius: background.radius
     property alias tooltip: hint
 
-    padding: 6
+    padding: size > 0 ? (size - icon.width) / 2 : 6
     opacity: enabled ? 1 : 0.5
     palette.buttonText: checked ? Theme.textOnSelected : variant === Button.Accent ? Theme.textOnAccent : Theme.textPrimary
     icon.color: palette.buttonText
+    icon.width: 16
+    icon.height: 16
     icon.source: Icons.source(root.iconName)
 
     Behavior on palette.buttonText {

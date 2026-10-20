@@ -154,8 +154,7 @@ Singleton {
                 visible: root.selected !== null || root.adding
 
                 Button {
-                    Layout.preferredWidth: popup.controlSize
-                    Layout.preferredHeight: popup.controlSize
+                    size: popup.controlSize
                     radius: height / 2
                     iconName: "go-previous-symbolic"
                     enabled: !root.pairing
@@ -213,7 +212,7 @@ Singleton {
                     spacing: 8
 
                     Icon {
-                        padding: (popup.controlSize - implicitSize) / 2
+                        size: popup.controlSize
                         name: "plus-symbolic"
                         color: Theme.textSecondary
                     }

@@ -38,7 +38,7 @@ ColumnLayout {
                 spacing: 8
 
                 Icon {
-                    padding: (root.controlSize - implicitSize) / 2
+                    size: root.controlSize
                     name: (entry.modelData?.icon || "bluetooth") + "-symbolic"
                     color: Theme.textSecondary
                 }

@@ -44,7 +44,7 @@ WrapperRectangle {
                 spacing: 8
 
                 Icon {
-                    padding: (root.controlSize - implicitSize) / 2
+                    size: root.controlSize
                     name: Network.iconName(root.network)
                     pulsing: root.joining || (root.network?.stateChanging ?? false)
                     color: Theme.textSecondary
@@ -81,7 +81,7 @@ WrapperRectangle {
                     visible: root.network !== null && !root.network.connected && !root.joining && ![Net.WifiSecurityType.Open, Net.WifiSecurityType.Owe].includes(root.network.security)
                     name: "system-lock-screen-symbolic"
                     implicitSize: 16
-                    padding: (root.controlSize - implicitSize) / 2
+                    size: root.controlSize
                     color: Theme.textTertiary
                 }
             }
@@ -89,8 +89,7 @@ WrapperRectangle {
 
         Button {
             visible: (root.network?.connected ?? false) || root.joining
-            Layout.preferredWidth: root.controlSize
-            Layout.preferredHeight: root.controlSize
+            size: root.controlSize
             Layout.rightMargin: body.padding
             radius: height / 2
             iconName: root.joining ? "window-close-symbolic" : "preferences-system-symbolic"

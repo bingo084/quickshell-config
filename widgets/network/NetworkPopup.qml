@@ -237,8 +237,7 @@ Singleton {
 
                 Button {
                     visible: root.page !== "list"
-                    Layout.preferredWidth: popup.controlSize
-                    Layout.preferredHeight: popup.controlSize
+                    size: popup.controlSize
                     radius: height / 2
                     iconName: "go-previous-symbolic"
                     onClicked: root.page === "share" ? root.page = "details" : root.cancel()
@@ -275,7 +274,7 @@ Singleton {
                     contentItem: RowLayout {
                         spacing: 8
                         Icon {
-                            padding: (popup.controlSize - implicitSize) / 2
+                            size: popup.controlSize
                             name: "network-wired-symbolic"
                             color: Theme.textSecondary
                         }
@@ -294,7 +293,7 @@ Singleton {
                             }
                         }
                         Icon {
-                            padding: (popup.controlSize - implicitSize) / 2
+                            size: popup.controlSize
                             name: "preferences-system-symbolic"
                             color: Theme.textSecondary
                         }

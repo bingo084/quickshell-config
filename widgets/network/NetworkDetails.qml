@@ -98,8 +98,7 @@ ColumnLayout {
         spacing: 10
 
         Button {
-            Layout.preferredWidth: root.controlSize
-            Layout.preferredHeight: root.controlSize
+            size: root.controlSize
             variant: Button.Filled
             iconName: root.network?.connected ? "entries-unlinked-symbolic" : "entries-linked-symbolic"
             enabled: root.network !== null && !root.network.stateChanging
@@ -108,8 +107,7 @@ ColumnLayout {
         }
 
         Button {
-            Layout.preferredWidth: root.controlSize
-            Layout.preferredHeight: root.controlSize
+            size: root.controlSize
             variant: Button.Filled
             visible: root.wifi !== null && (Network.usesPassword(root.wifi) || root.wifi.security === Net.WifiSecurityType.Open)
             enabled: root.wifi !== null && !root.wifi.stateChanging && (root.wifi.security === Net.WifiSecurityType.Open || root.profile !== null && (!root.wifi.connected || root.values !== null))
@@ -119,8 +117,7 @@ ColumnLayout {
         }
 
         Button {
-            Layout.preferredWidth: root.controlSize
-            Layout.preferredHeight: root.controlSize
+            size: root.controlSize
             variant: Button.Filled
             visible: root.network?.known ?? false
             enabled: !root.confirming

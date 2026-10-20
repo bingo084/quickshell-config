@@ -43,7 +43,7 @@ WrapperRectangle {
                 spacing: 8
 
                 Icon {
-                    padding: (root.controlSize - implicitSize) / 2
+                    size: root.controlSize
                     name: (root.device.icon || "bluetooth") + "-symbolic"
                     pulsing: root.busy
                     color: Theme.textSecondary
@@ -86,8 +86,7 @@ WrapperRectangle {
         }
 
         Button {
-            Layout.preferredWidth: root.controlSize
-            Layout.preferredHeight: root.controlSize
+            size: root.controlSize
             Layout.rightMargin: root.padding
             radius: height / 2
             iconName: "preferences-system-symbolic"

@@ -125,8 +125,7 @@ ColumnLayout {
             spacing: 10
 
             Button {
-                Layout.preferredWidth: root.controlSize
-                Layout.preferredHeight: root.controlSize
+                size: root.controlSize
                 variant: Button.Filled
                 iconName: root.device?.connected ? "entries-unlinked-symbolic" : "entries-linked-symbolic"
                 enabled: root.device?.adapter?.state === BluetoothAdapterState.Enabled && !root.busy && !root.device.blocked
@@ -135,8 +134,7 @@ ColumnLayout {
             }
 
             Button {
-                Layout.preferredWidth: root.controlSize
-                Layout.preferredHeight: root.controlSize
+                size: root.controlSize
                 variant: Button.Filled
                 enabled: !root.confirming
                 iconName: "user-trash-symbolic"

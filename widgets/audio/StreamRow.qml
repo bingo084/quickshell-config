@@ -25,7 +25,7 @@ ColumnLayout {
         RowLayout {
             spacing: 6
             Icon {
-                padding: (root.controlSize - implicitSize) / 2
+                size: root.controlSize
                 colorize: false
                 source: Quickshell.iconPath(Audio.nodeIconName(root.node))
             }

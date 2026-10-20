@@ -22,11 +22,10 @@ WrapperItem {
 
         Button {
             id: muteButton
+            size: root.controlSize
             iconName: Audio.volumeIconName(root.node)
             icon.width: 18
             icon.height: 18
-            padding: (root.controlSize - icon.width) / 2
-            horizontalPadding: padding
             enabled: root.ready
             checked: root.node?.audio?.muted ?? false
             onClicked: Audio.toggleMuted(root.node)

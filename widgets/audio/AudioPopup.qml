@@ -45,12 +45,9 @@ Bar.Popup {
                     text: "Audio"
                 }
                 Button {
-                    Layout.preferredWidth: root.controlSize
-                    Layout.preferredHeight: root.controlSize
+                    size: root.controlSize
                     radius: height / 2
                     iconName: "preferences-system-symbolic"
-                    icon.width: 16
-                    icon.height: 16
                     tooltip.text: "Audio settings"
                     onClicked: {
                         root.close();
@@ -128,8 +125,7 @@ Bar.Popup {
 
             RowLayout {
                 Button {
-                    Layout.preferredWidth: root.controlSize
-                    Layout.preferredHeight: root.controlSize
+                    size: root.controlSize
                     radius: height / 2
                     iconName: "go-previous-symbolic"
                     tooltip.text: "Back to Audio"

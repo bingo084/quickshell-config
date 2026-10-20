@@ -37,7 +37,7 @@ ColumnLayout {
             spacing: 6
             Icon {
                 implicitSize: 16
-                padding: (root.controlSize - implicitSize) / 2
+                size: root.controlSize
                 name: Audio.portIconName(deviceControl.port, root.node)
                 color: Theme.textSecondary
             }

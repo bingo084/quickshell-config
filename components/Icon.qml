@@ -9,7 +9,8 @@ import qs.services
 IconImage {
     id: root
     property string name
-    property real padding
+    property real size
+    property real padding: size > 0 ? (size - implicitSize) / 2 : 0
     property color color: Theme.textPrimary
     property bool colorize: true
     property bool spinning
