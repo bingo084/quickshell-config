@@ -4,7 +4,6 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import qs.config
-import qs.services
 
 Controls.Control {
     id: root
@@ -77,11 +76,10 @@ Controls.Control {
                 id: buttons
                 model: root.model
 
-                Controls.Button {
+                Button {
                     id: choice
                     required property int index
                     required property var modelData
-                    readonly property var resolvedIcon: Icons.resolve(modelData.icon ?? "")
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -91,33 +89,12 @@ Controls.Control {
                     checked: root.currentIndex === index
                     onClicked: root.activated(index)
                     enabled: modelData.enabled ?? true
-                    opacity: enabled ? 1 : 0.5
                     palette.buttonText: checked ? root.palette.highlightedText : hovered || down ? Theme.textPrimary : root.palette.buttonText
-                    icon.name: resolvedIcon.name
-                    icon.source: resolvedIcon.source
-                    icon.cache: false
+                    iconName: modelData.icon ?? ""
                     icon.width: 20
                     icon.height: 20
-                    icon.color: palette.buttonText
                     background: null
-
-                    Behavior on palette.buttonText {
-                        enabled: root.animated
-                        ColorAnimation {
-                            duration: 150
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-
-                    HoverHandler {
-                        cursorShape: Qt.PointingHandCursor
-                    }
-
-                    Tooltip {
-                        anchorItem: choice
-                        text: choice.modelData.tooltip ?? ""
-                        enabled: text !== ""
-                    }
+                    tooltip.text: modelData.tooltip ?? ""
                 }
             }
         }
