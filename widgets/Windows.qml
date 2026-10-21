@@ -71,7 +71,7 @@ RowLayout {
                                     })
                                 readonly property string fixedIconPath: iconByTitle[area.model.title] ?? area.model.iconPath
 
-                                colorize: false
+                                color: "transparent"
                                 source: fixedIconPath ? "file://" + fixedIconPath : ""
                                 visible: fixedIconPath !== ""
                             }

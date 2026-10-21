@@ -38,9 +38,9 @@ Button {
         Rectangle {
             id: statusBadge
             // Keep the badge proportions in the theme icon's 16px grid.
-            readonly property real unit: inhibitIcon.backer.width / 16
-            anchors.right: inhibitIcon.backer.right
-            anchors.bottom: inhibitIcon.backer.bottom
+            readonly property real unit: inhibitIcon.width / 16
+            anchors.right: inhibitIcon.right
+            anchors.bottom: inhibitIcon.bottom
             anchors.margins: -unit
             width: 9 * unit
             height: width

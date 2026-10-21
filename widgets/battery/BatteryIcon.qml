@@ -5,7 +5,7 @@ import qs.components
 Icon {
     required property UPowerDevice device
 
-    colorize: false
+    color: "transparent"
     name: {
         if (!device.ready || (device.type === UPowerDeviceType.Battery && !device.isPresent))
             return device.iconName || "battery-missing-symbolic";

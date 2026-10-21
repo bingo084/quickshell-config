@@ -15,6 +15,7 @@ Controls.Button {
     property int variant: Button.Plain
     property real size
     property string iconName
+    readonly property var resolvedIcon: Icons.resolve(root.iconName)
     property alias radius: background.radius
     property alias tooltip: hint
 
@@ -24,7 +25,16 @@ Controls.Button {
     icon.color: palette.buttonText
     icon.width: 16
     icon.height: 16
-    icon.source: Icons.source(root.iconName)
+    icon.name: resolvedIcon.name
+    icon.source: resolvedIcon.source
+    icon.cache: false
+
+    Binding {
+        target: root
+        property: "icon.name"
+        value: ""
+        when: Icons.refreshing
+    }
 
     Behavior on palette.buttonText {
         ColorAnimation {

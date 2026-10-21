@@ -63,7 +63,7 @@ Button {
     }
 
     content: Icon {
-        colorize: false
+        color: "transparent"
         source: OsInfo.logo()
     }
 

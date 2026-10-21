@@ -81,6 +81,7 @@ Controls.Control {
                     id: choice
                     required property int index
                     required property var modelData
+                    readonly property var resolvedIcon: Icons.resolve(modelData.icon ?? "")
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -92,7 +93,9 @@ Controls.Control {
                     enabled: modelData.enabled ?? true
                     opacity: enabled ? 1 : 0.5
                     palette.buttonText: checked ? root.palette.highlightedText : hovered || down ? Theme.textPrimary : root.palette.buttonText
-                    icon.source: modelData.icon ? Icons.source(modelData.icon) : ""
+                    icon.name: resolvedIcon.name
+                    icon.source: resolvedIcon.source
+                    icon.cache: false
                     icon.width: 20
                     icon.height: 20
                     icon.color: palette.buttonText

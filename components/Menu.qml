@@ -9,7 +9,7 @@ Controls.Menu {
     readonly property var items: Array.from({
         length: count
     }, (_, index) => itemAt(index))
-    readonly property bool hasIcons: items.some(item => item.icon?.source.toString())
+    readonly property bool hasIcons: items.some(item => item.icon?.name || item.icon?.source.toString())
 
     popupType: Controls.Popup.Window
     padding: 7

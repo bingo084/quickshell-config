@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 
 Button {
     id: root
@@ -19,11 +18,13 @@ Button {
             Layout.fillWidth: true
         }
 
-        IconImage {
+        Icon {
             Layout.rightMargin: root.spacing
-            visible: root.icon.source.toString() !== ""
+            visible: name !== "" || source.toString() !== ""
+            name: root.icon.name
             source: root.icon.source
             implicitSize: root.icon.width
+            color: root.icon.color
         }
 
         Text {

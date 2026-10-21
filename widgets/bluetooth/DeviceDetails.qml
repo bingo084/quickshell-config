@@ -216,6 +216,7 @@ ColumnLayout {
             CopyButton {
                 Layout.rightMargin: -rightPadding
                 iconName: "battery-level-" + Math.round((root.device?.battery ?? 0) * 10) * 10 + "-symbolic"
+                icon.color: "transparent"
                 text: Math.round((root.device?.battery ?? 0) * 100) + "%"
                 palette.buttonText: Theme.textSecondary
             }

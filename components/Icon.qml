@@ -1,47 +1,48 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Effects
-import Quickshell.Widgets
+import QtQuick.Controls.impl
 import qs.config
 import qs.services
 
-IconImage {
+Item {
     id: root
     property string name
+    property url source
+    property string theme
     property real size
     property real padding: size > 0 ? (size - implicitSize) / 2 : 0
-    property color color: Theme.textPrimary
-    property bool colorize: true
+    property alias color: image.color
     property bool spinning
     property bool pulsing
     property bool showBadge
     property color badgeColor: Theme.warning
+    property alias status: image.status
+    property real implicitSize: 18
 
-    implicitSize: 18
     implicitWidth: implicitSize + 2 * padding
     implicitHeight: implicitWidth
-    source: Icons.source(root.name)
 
-    backer.anchors.margins: root.padding
-    backer.sourceSize.width: Math.max(0, actualSize - 2 * padding)
-    backer.sourceSize.height: Math.max(0, actualSize - 2 * padding)
-    backer.layer.enabled: root.colorize
+    IconImage {
+        id: image
+        readonly property var resolved: Icons.resolve(root.name, root.source, root.theme)
+        anchors.fill: parent
+        anchors.margins: root.padding
+        name: resolved.name
+        source: resolved.source
+        sourceSize.width: Math.max(0, Math.min(width, height))
+        sourceSize.height: Math.max(0, Math.min(width, height))
+        cache: name === ""
+        color: Theme.textPrimary
 
-    backer.layer.effect: MultiEffect {
-        contrast: -1
-        brightness: 0.5
-        colorization: 1
-        colorizationColor: root.color
-    }
-
-    NumberAnimation on backer.rotation {
-        from: 0
-        to: 360
-        duration: 1300
-        loops: Animation.Infinite
-        running: root.spinning
-        onStopped: root.backer.rotation = 0
+        NumberAnimation on rotation {
+            from: 0
+            to: 360
+            duration: 1300
+            loops: Animation.Infinite
+            running: root.spinning
+            onStopped: image.rotation = 0
+        }
     }
 
     SequentialAnimation on opacity {
@@ -63,8 +64,8 @@ IconImage {
     }
 
     Rectangle {
-        anchors.top: root.backer.top
-        anchors.right: root.backer.right
+        anchors.top: image.top
+        anchors.right: image.right
         width: 6
         height: 6
         radius: 3

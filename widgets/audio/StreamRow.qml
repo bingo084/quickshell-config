@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import qs.components
@@ -26,8 +25,8 @@ ColumnLayout {
             spacing: 6
             Icon {
                 size: root.controlSize
-                colorize: false
-                source: Quickshell.iconPath(Audio.nodeIconName(root.node))
+                color: "transparent"
+                name: Audio.nodeIconName(root.node)
             }
             ColumnLayout {
                 spacing: 1

@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import qs.config
-import qs.services
 
 Controls.MenuItem {
     id: root
@@ -16,7 +15,7 @@ Controls.MenuItem {
     opacity: enabled ? 1 : 0.5
     indicator: null
     arrow: null
-    icon.source: Icons.source(root.iconName)
+    icon.name: root.iconName
     icon.color: Theme.textPrimary
 
     HoverHandler {
@@ -27,9 +26,9 @@ Controls.MenuItem {
         Icon {
             visible: root.reserveIcon
             implicitSize: 16
-            source: Icons.resolve(root.icon.source.toString())
+            name: root.icon.name
+            source: root.icon.source
             color: root.icon.color
-            colorize: root.icon.color.a !== 0
         }
         Text {
             id: label

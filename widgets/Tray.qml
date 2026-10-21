@@ -33,7 +33,8 @@ RowLayout {
                 }
             }
             content: Icon {
-                colorize: false
+                color: "transparent"
+                theme: "hicolor"
                 source: trayButton.modelData.icon
             }
             TrayMenu {
