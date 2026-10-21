@@ -15,7 +15,7 @@ Controls.Button {
     property int variant: Button.Plain
     property real size
     property string iconName
-    readonly property var resolvedIcon: Icons.resolve(root.iconName)
+    readonly property var resolvedIcon: IconService.resolve(root.iconName)
     property alias radius: background.radius
     property alias tooltip: hint
 
@@ -33,7 +33,7 @@ Controls.Button {
         target: root
         property: "icon.name"
         value: ""
-        when: Icons.refreshing
+        when: IconService.refreshing
     }
 
     Behavior on palette.buttonText {

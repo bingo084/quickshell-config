@@ -32,7 +32,7 @@ Flickable {
             ColumnLayout {
                 id: group
                 required property PwNode modelData
-                readonly property var ports: Audio.ports(modelData)
+                readonly property var ports: AudioService.ports(modelData)
 
                 spacing: 3
 
@@ -41,14 +41,14 @@ Flickable {
                     Layout.fillWidth: true
                     padding: 6
                     onClicked: {
-                        if (group.ports.length === 0 && Audio.selectDevice(group.modelData, null))
+                        if (group.ports.length === 0 && AudioService.selectDevice(group.modelData, null))
                             root.selected();
                     }
                     contentItem: RowLayout {
                         spacing: 6
                         Icon {
                             implicitSize: 16
-                            name: Audio.nodeIconName(group.modelData)
+                            name: AudioService.nodeIconName(group.modelData)
                             color: Theme.textSecondary
                         }
                         Text {
@@ -68,7 +68,7 @@ Flickable {
                         Icon {
                             implicitSize: 14
                             name: "object-select-symbolic"
-                            visible: group.ports.length === 0 && (group.modelData.type === PwNodeType.AudioSource ? Audio.source : Audio.sink) === group.modelData
+                            visible: group.ports.length === 0 && (group.modelData.type === PwNodeType.AudioSource ? AudioService.source : AudioService.sink) === group.modelData
                             color: Theme.accent
                         }
                     }
@@ -92,13 +92,13 @@ Flickable {
                             required property var modelData
 
                             Layout.fillWidth: true
-                            checked: group.modelData !== null && (group.modelData.type === PwNodeType.AudioSource ? Audio.source : Audio.sink) === group.modelData && Audio.activePort(group.modelData)?.name === modelData.name
+                            checked: group.modelData !== null && (group.modelData.type === PwNodeType.AudioSource ? AudioService.source : AudioService.sink) === group.modelData && AudioService.activePort(group.modelData)?.name === modelData.name
                             enabled: modelData.availability !== "not available"
                             text: modelData.description
                             tooltip.enabled: portName.truncated
                             tooltip.text: text
                             onClicked: {
-                                if (Audio.selectDevice(group.modelData, modelData))
+                                if (AudioService.selectDevice(group.modelData, modelData))
                                     root.selected();
                             }
 
@@ -107,7 +107,7 @@ Flickable {
                                 Icon {
                                     implicitSize: 16
                                     color: entry.checked ? Theme.textOnSelected : Theme.textPrimary
-                                    name: Audio.portIconName(entry.modelData, group.modelData)
+                                    name: AudioService.portIconName(entry.modelData, group.modelData)
                                 }
                                 Text {
                                     id: portName

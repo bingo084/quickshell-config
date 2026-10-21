@@ -1,11 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar
 import qs.config
 import qs.services
 
-Button {
+BarButton {
     id: root
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -14,10 +13,10 @@ Button {
             popup.toggle();
         } else if (mouse.button === Qt.RightButton) {
             popup.closeOthers();
-            Weather.refresh();
-        } else if (Weather.weatherUrl !== "") {
+            WeatherService.refresh();
+        } else if (WeatherService.weatherUrl !== "") {
             popup.closeAll();
-            Qt.openUrlExternally(Weather.weatherUrl);
+            Qt.openUrlExternally(WeatherService.weatherUrl);
         }
     }
 
@@ -53,9 +52,9 @@ Button {
 
         Icon {
             id: weatherIcon
-            readonly property string code: Weather.current?.condition?.code ?? "999"
+            readonly property string code: WeatherService.current?.condition?.code ?? "999"
             name: `qweather/${weatherIcon.code}`
-            color: Weather.error !== "" ? Theme.warning : Theme.textPrimary
+            color: WeatherService.error !== "" ? Theme.warning : Theme.textPrimary
             Icon {
                 anchors.fill: parent
                 visible: weatherIcon.status === Image.Error
@@ -67,9 +66,9 @@ Button {
         Text {
             color: Theme.textPrimary
             text: {
-                const current = Weather.current;
+                const current = WeatherService.current;
                 if (current === null)
-                    return Weather.refreshing ? "…" : "—";
+                    return WeatherService.refreshing ? "…" : "—";
                 const temperature = current.temperature;
                 return `${Math.round(temperature.value)}${temperature.unit}`;
             }
@@ -83,7 +82,7 @@ Button {
 
         ColumnLayout {
             id: details
-            readonly property var current: Weather.current
+            readonly property var current: WeatherService.current
 
             spacing: 12
             RowLayout {
@@ -96,7 +95,7 @@ Button {
                     elide: Text.ElideRight
                     visible: text !== ""
                     text: {
-                        const area = Weather.location?.ad_info;
+                        const area = WeatherService.location?.ad_info;
                         const city = area?.city || area?.province || area?.nation;
                         return [city, area?.district].filter(Boolean).join(" · ");
                     }
@@ -104,8 +103,8 @@ Button {
                 RefreshControl {
                     chinese: true
                     updatedAt: details.current?.fetchedAt
-                    refreshing: Weather.refreshing
-                    onRefreshRequested: Weather.refresh()
+                    refreshing: WeatherService.refreshing
+                    onRefreshRequested: WeatherService.refresh()
                 }
             }
             Text {
@@ -113,13 +112,13 @@ Button {
                 wrapMode: Text.Wrap
                 visible: text !== ""
                 color: Theme.warning
-                text: Weather.error
+                text: WeatherService.error
             }
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 visible: details.current === null
                 color: Theme.textSecondary
-                text: Weather.refreshing ? "正在更新…" : "暂无天气数据"
+                text: WeatherService.refreshing ? "正在更新…" : "暂无天气数据"
             }
 
             ColumnLayout {

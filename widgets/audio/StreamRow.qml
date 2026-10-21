@@ -26,7 +26,7 @@ ColumnLayout {
             Icon {
                 size: root.controlSize
                 color: "transparent"
-                name: Audio.nodeIconName(root.node)
+                name: AudioService.nodeIconName(root.node)
             }
             ColumnLayout {
                 spacing: 1

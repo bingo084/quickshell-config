@@ -4,11 +4,10 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.components
-import qs.components.bar
 import qs.services
 import qs.widgets.power
 
-Button {
+BarButton {
     id: root
     required property ShellScreen screen
     property var pendingAction: null
@@ -58,13 +57,13 @@ Button {
     onClicked: {
         popup.toggle();
         if (popup.visible) {
-            PowerCapabilities.refresh();
+            PowerCapabilityService.refresh();
         }
     }
 
     content: Icon {
         color: "transparent"
-        source: OsInfo.logo()
+        source: OsInfoService.logo()
     }
 
     function activate(action) {
@@ -107,7 +106,7 @@ Button {
                     readonly property Component actionButton: MenuItem {
                         iconName: loader.modelData.icon
                         text: loader.modelData.label
-                        enabled: PowerCapabilities.canExecute(loader.modelData.capability)
+                        enabled: PowerCapabilityService.canExecute(loader.modelData.capability)
                         onTriggered: root.activate(loader.modelData)
                     }
 

@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Networking as Net
+import Quickshell.Networking
 import qs.components
 import qs.config
 import qs.services
@@ -8,12 +8,12 @@ import qs.services
 // qmllint disable unresolved-type
 ColumnLayout {
     id: root
-    required property Net.WifiNetwork network
+    required property WifiNetwork network
     property bool hidden
     property bool busy
     property bool opened
     property string error
-    readonly property bool validPassword: hidden || Network.validPassword(network, passwordField.text)
+    readonly property bool validPassword: hidden || NetworkService.validPassword(network, passwordField.text)
     signal joinRequested(name: string, password: string)
     signal cancelRequested
 
@@ -42,7 +42,7 @@ ColumnLayout {
     Icon {
         Layout.alignment: Qt.AlignHCenter
         implicitSize: 32
-        name: root.network !== null ? Network.iconName(root.network) : "network-wireless-signal-excellent-symbolic"
+        name: root.network !== null ? NetworkService.iconName(root.network) : "network-wireless-signal-excellent-symbolic"
         color: Theme.textSecondary
         pulsing: root.busy
     }

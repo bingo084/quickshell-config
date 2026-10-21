@@ -112,7 +112,7 @@ Singleton {
     }
 
     Connections {
-        target: Sleep
+        target: SleepService
 
         function onResumed() {
             root.refresh();
@@ -120,7 +120,7 @@ Singleton {
     }
 
     Connections {
-        target: Network
+        target: NetworkService
 
         function onReady() {
             root.refresh();

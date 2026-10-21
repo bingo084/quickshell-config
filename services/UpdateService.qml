@@ -83,7 +83,7 @@ Singleton {
 
     function refreshSource(source: string, command: list<string>, emptyExitCode: int): var {
         const key = source.toLowerCase();
-        return Command.run(command).then(result => {
+        return CommandService.run(command).then(result => {
             const text = result.stdout.trim();
             const stderr = result.stderr.trim();
             const noUpdates = result.exitCode === emptyExitCode && text === "" && stderr === "";
@@ -129,7 +129,7 @@ Singleton {
             root.websites = {};
             return Promise.resolve();
         }
-        return Command.run(["env", "LC_ALL=C", "pacman", "-Qi"].concat(names)).then(result => {
+        return CommandService.run(["env", "LC_ALL=C", "pacman", "-Qi"].concat(names)).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("Package URL query failed: " + result.stderr.trim());
             const websites = {};
@@ -156,7 +156,7 @@ Singleton {
     }
 
     function readBuildDate() {
-        return Command.run(["sh", "-c", "awk '/^%BUILDDATE%$/ { getline; if ($0 > latest) latest = $0 } END { printf \"%.0f\\n\", latest }' /var/lib/pacman/local/*/desc"]).then(result => {
+        return CommandService.run(["sh", "-c", "awk '/^%BUILDDATE%$/ { getline; if ($0 > latest) latest = $0 } END { printf \"%.0f\\n\", latest }' /var/lib/pacman/local/*/desc"]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("Arch news package query failed: " + result.stderr.trim());
             return Number(result.stdout.trim()) * 1000;
@@ -218,7 +218,7 @@ Singleton {
     }
 
     Connections {
-        target: Sleep
+        target: SleepService
 
         function onResumed() {
             root.refresh();
@@ -226,7 +226,7 @@ Singleton {
     }
 
     Connections {
-        target: Network
+        target: NetworkService
 
         function onReady() {
             root.refresh();

@@ -102,7 +102,7 @@ Singleton {
             return true;
         }
         switching = true;
-        Command.run(["pactl", node.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node.name, port.name]).then(result => {
+        CommandService.run(["pactl", node.type === PwNodeType.AudioSource ? "set-source-port" : "set-sink-port", node.name, port.name]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
             root.setDevice(node);

@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Bluetooth
 import qs.components
@@ -26,7 +26,7 @@ ColumnLayout {
         clip: true
         spacing: 4
         model: root.devices
-        Controls.ScrollBar.vertical: Controls.ScrollBar {}
+        ScrollBar.vertical: ScrollBar {}
 
         delegate: Button {
             id: entry

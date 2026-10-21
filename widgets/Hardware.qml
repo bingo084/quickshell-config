@@ -1,11 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar
 import qs.services
 import qs.widgets.hardware
 
-Button {
+BarButton {
     id: root
 
     onClicked: popup.toggle()
@@ -22,24 +21,24 @@ Button {
             Repeater {
                 model: [
                     {
-                        value: Hardware.cpu.usage,
-                        valid: Hardware.cpu.valid,
-                        level: Hardware.cpu.level
+                        value: HardwareService.cpu.usage,
+                        valid: HardwareService.cpu.valid,
+                        level: HardwareService.cpu.level
                     },
                     {
-                        value: Hardware.memory.usage,
-                        valid: Hardware.memory.valid,
-                        level: Hardware.memory.level
+                        value: HardwareService.memory.usage,
+                        valid: HardwareService.memory.valid,
+                        level: HardwareService.memory.level
                     },
                     {
-                        value: Hardware.cpu.temperature / 100,
-                        valid: Hardware.cpu.temperatureValid,
-                        level: Hardware.cpu.temperatureLevel
+                        value: HardwareService.cpu.temperature / 100,
+                        valid: HardwareService.cpu.temperatureValid,
+                        level: HardwareService.cpu.temperatureLevel
                     },
                     {
-                        value: Hardware.filesystem.usage,
-                        valid: Hardware.filesystem.valid,
-                        level: Hardware.filesystem.level
+                        value: HardwareService.filesystem.usage,
+                        valid: HardwareService.filesystem.valid,
+                        level: HardwareService.filesystem.level
                     }
                 ]
 

@@ -23,12 +23,12 @@ WrapperItem {
         Button {
             id: muteButton
             size: root.controlSize
-            iconName: Audio.volumeIconName(root.node)
+            iconName: AudioService.volumeIconName(root.node)
             icon.width: 18
             icon.height: 18
             enabled: root.ready
             checked: root.node?.audio?.muted ?? false
-            onClicked: Audio.toggleMuted(root.node)
+            onClicked: AudioService.toggleMuted(root.node)
         }
         Slider {
             id: slider
@@ -38,7 +38,7 @@ WrapperItem {
             value: root.ready ? root.node.audio.volume : 0
             stepSize: 0.01
             palette.highlight: root.ready && root.node.audio.muted ? Theme.textSecondary : Theme.accent
-            onMoved: Audio.setVolume(value, root.node)
+            onMoved: AudioService.setVolume(value, root.node)
 
             WheelHandler {
                 enabled: root.wheelArea !== null

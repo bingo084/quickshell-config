@@ -61,7 +61,7 @@ Singleton {
     }
 
     Connections {
-        target: Sleep
+        target: SleepService
         function onResumed() {
             uptimeFile.reload();
             root.cpu.resume();
@@ -87,7 +87,7 @@ Singleton {
 
         Component.onCompleted: {
             readInfo();
-            Command.run(["sh", "-c", `
+            CommandService.run(["sh", "-c", `
                 for sensor in /sys/class/hwmon/hwmon*; do
                     [ -r "$sensor/name" ] || continue
                     read -r name < "$sensor/name" || continue
@@ -110,7 +110,7 @@ Singleton {
         }
 
         function readInfo() {
-            Command.run(["env", "LC_ALL=C", "lscpu", "--json", "--extended=MODELNAME,CORE,SOCKET"]).then(result => {
+            CommandService.run(["env", "LC_ALL=C", "lscpu", "--json", "--extended=MODELNAME,CORE,SOCKET"]).then(result => {
                 if (result.exitCode !== 0)
                     throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
                 const cpus = JSON.parse(result.stdout).cpus;
@@ -325,7 +325,7 @@ Singleton {
         Component.onCompleted: readInfo()
 
         function readInfo() {
-            Command.run(["udevadm", "info", "--query=all", "--path=/sys/devices/virtual/dmi/id", "--json=short"]).then(result => {
+            CommandService.run(["udevadm", "info", "--query=all", "--path=/sys/devices/virtual/dmi/id", "--json=short"]).then(result => {
                 if (result.exitCode !== 0)
                     throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
                 const properties = JSON.parse(result.stdout);
@@ -453,7 +453,7 @@ Singleton {
         }
 
         function readInfo() {
-            Command.run(["lsblk", "--json", "--list", "--output", "NAME,PKNAME,PATH,MODEL,TRAN,FSTYPE,MOUNTPOINTS"]).then(result => {
+            CommandService.run(["lsblk", "--json", "--list", "--output", "NAME,PKNAME,PATH,MODEL,TRAN,FSTYPE,MOUNTPOINTS"]).then(result => {
                 if (result.exitCode !== 0)
                     throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
                 const devices = JSON.parse(result.stdout).blockdevices;
@@ -465,7 +465,7 @@ Singleton {
         }
 
         function discover() {
-            Command.run(["sh", "-c", `
+            CommandService.run(["sh", "-c", `
                 for device in /sys/block/*; do
                     [ -e "$device/device" ] || continue
                     [ -r "$device/stat" ] || continue

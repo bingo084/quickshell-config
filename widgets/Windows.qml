@@ -5,7 +5,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.components
-import qs.components.bar
 import qs.config
 import qs.services
 
@@ -16,7 +15,7 @@ RowLayout {
     spacing: 0
 
     Repeater {
-        model: Niri.workspaces
+        model: NiriService.workspaces
 
         RowLayout {
             id: workspace
@@ -26,7 +25,7 @@ RowLayout {
             visible: workspace.model.isActive && workspace.model.output === root.screen?.name
 
             Repeater {
-                model: workspace.visible ? Niri.sortedWindows : 0
+                model: workspace.visible ? NiriService.sortedWindows : 0
 
                 WrapperMouseArea {
                     id: area
@@ -42,12 +41,12 @@ RowLayout {
                         const sameAnchor = popup.visible && popup.anchorItem === area;
                         popup.closeAll();
                         if (mouse.button === Qt.LeftButton)
-                            Niri.focusWindow(model.id);
+                            NiriService.focusWindow(model.id);
                         else if (mouse.button === Qt.RightButton && !sameAnchor) {
                             popup.anchorItem = area;
                             popup.open();
                         } else if (mouse.button === Qt.MiddleButton)
-                            Niri.closeWindow(model.id);
+                            NiriService.closeWindow(model.id);
                     }
 
                     Tooltip {
@@ -109,7 +108,7 @@ RowLayout {
                 text: "Full Width"
                 onTriggered: {
                     popup.close();
-                    Niri.maximizeColumn(popup.targetItem.model.id);
+                    NiriService.maximizeColumn(popup.targetItem.model.id);
                 }
             }
             MenuItem {
@@ -117,7 +116,7 @@ RowLayout {
                 text: "Maximize"
                 onTriggered: {
                     popup.close();
-                    Niri.maximizeWindowToEdges(popup.targetItem.model.id);
+                    NiriService.maximizeWindowToEdges(popup.targetItem.model.id);
                 }
             }
             MenuItem {
@@ -125,7 +124,7 @@ RowLayout {
                 text: "Fullscreen"
                 onTriggered: {
                     popup.close();
-                    Niri.toggleFullscreen(popup.targetItem.model.id);
+                    NiriService.toggleFullscreen(popup.targetItem.model.id);
                 }
             }
             MenuItem {
@@ -134,7 +133,7 @@ RowLayout {
                 checked: popup.targetItem?.model?.isFloating ?? false
                 onTriggered: {
                     popup.close();
-                    Niri.toggleFloating(popup.targetItem.model.id);
+                    NiriService.toggleFloating(popup.targetItem.model.id);
                 }
             }
             Separator {
@@ -146,7 +145,7 @@ RowLayout {
                 text: "Close"
                 onTriggered: {
                     popup.close();
-                    Niri.closeWindow(popup.targetItem.model.id);
+                    NiriService.closeWindow(popup.targetItem.model.id);
                 }
             }
         }

@@ -6,13 +6,13 @@ import qs.services
 
 RowLayout {
     id: root
-    readonly property real displayBps: Math.max(Traffic.rxBps, Traffic.txBps)
+    readonly property real displayBps: Math.max(TrafficService.rxBps, TrafficService.txBps)
 
     spacing: 4
-    visible: Traffic.valid && root.displayBps > 102400
+    visible: TrafficService.valid && root.displayBps > 102400
 
     Icon {
-        readonly property string direction: Traffic.rxBps === Traffic.txBps ? "transmit-receive" : Traffic.rxBps > Traffic.txBps ? "receive" : "transmit"
+        readonly property string direction: TrafficService.rxBps === TrafficService.txBps ? "transmit-receive" : TrafficService.rxBps > TrafficService.txBps ? "receive" : "transmit"
 
         name: `network-${direction}-symbolic`
     }

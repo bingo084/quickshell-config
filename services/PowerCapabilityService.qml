@@ -30,7 +30,7 @@ Singleton {
     }
 
     function query(methodName: string): var {
-        return Command.run(["busctl", "--json=short", "call", "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", methodName]).then(result => {
+        return CommandService.run(["busctl", "--json=short", "call", "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", methodName]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("exit " + result.exitCode + ": " + result.stderr.trim());
             const response = JSON.parse(result.stdout);

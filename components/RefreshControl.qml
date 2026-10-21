@@ -19,8 +19,8 @@ RowLayout {
         text: {
             if (root.updatedAt == null)
                 return "";
-            const today = root.updatedAt.toDateString() === Clock.date.toDateString();
-            return (root.chinese ? "刷新于  " : "Refreshed  ") + Qt.formatDateTime(root.updatedAt, today ? Clock.timeFormat : Clock.dateTimeFormat);
+            const today = root.updatedAt.toDateString() === ClockService.date.toDateString();
+            return (root.chinese ? "刷新于  " : "Refreshed  ") + Qt.formatDateTime(root.updatedAt, today ? ClockService.timeFormat : ClockService.dateTimeFormat);
         }
     }
 
@@ -41,6 +41,6 @@ RowLayout {
 
     Tooltip {
         anchorItem: updatedLabel
-        text: root.updatedAt == null ? "" : (root.chinese ? "上次刷新：" : "Last refreshed: ") + Qt.formatDateTime(root.updatedAt, Clock.fullDateTimeFormat)
+        text: root.updatedAt == null ? "" : (root.chinese ? "上次刷新：" : "Last refreshed: ") + Qt.formatDateTime(root.updatedAt, ClockService.fullDateTimeFormat)
     }
 }

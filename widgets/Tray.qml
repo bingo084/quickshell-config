@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.SystemTray
 import qs.components
-import qs.components.bar
 import qs.widgets.tray
 
 RowLayout {
@@ -11,7 +10,7 @@ RowLayout {
     Repeater {
         model: SystemTray.items
 
-        Button {
+        BarButton {
             id: trayButton
             required property SystemTrayItem modelData
 

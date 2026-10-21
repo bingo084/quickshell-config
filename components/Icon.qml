@@ -25,7 +25,7 @@ Item {
 
     IconImage {
         id: image
-        readonly property var resolved: Icons.resolve(root.name, root.source, root.theme)
+        readonly property var resolved: IconService.resolve(root.name, root.source, root.theme)
         anchors.fill: parent
         anchors.margins: root.padding
         name: resolved.name

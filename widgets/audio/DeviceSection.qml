@@ -22,7 +22,7 @@ ColumnLayout {
     }
     Button {
         id: deviceControl
-        readonly property var port: Audio.activePort(root.node)
+        readonly property var port: AudioService.activePort(root.node)
         readonly property string deviceName: root.node?.description || root.node?.nickname || root.node?.name || "No device"
 
         Layout.fillWidth: true
@@ -38,7 +38,7 @@ ColumnLayout {
             Icon {
                 implicitSize: 16
                 size: root.controlSize
-                name: Audio.portIconName(deviceControl.port, root.node)
+                name: AudioService.portIconName(deviceControl.port, root.node)
                 color: Theme.textSecondary
             }
             ColumnLayout {

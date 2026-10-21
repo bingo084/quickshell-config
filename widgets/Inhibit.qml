@@ -4,15 +4,14 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar
 import qs.config
 import qs.services
 
-Button {
+BarButton {
     id: root
     property int range: 120
 
-    Component.onCompleted: range = Inhibit.duration > 240 ? 480 : Inhibit.duration > 120 ? 240 : 120
+    Component.onCompleted: range = InhibitService.duration > 240 ? 480 : InhibitService.duration > 120 ? 240 : 120
 
     function formatDuration(minutes: real): string {
         const total = Math.ceil(minutes);
@@ -27,7 +26,7 @@ Button {
             popup.toggle();
         } else {
             popup.closeOthers();
-            Inhibit.cycle();
+            InhibitService.cycle();
         }
     }
 
@@ -45,8 +44,8 @@ Button {
             width: 9 * unit
             height: width
             radius: width / 2
-            visible: Inhibit.mode !== "off"
-            color: Inhibit.mode === "awake" ? Theme.warning : Theme.critical
+            visible: InhibitService.mode !== "off"
+            color: InhibitService.mode === "awake" ? Theme.warning : Theme.critical
             border.color: Theme.barBackground
             border.width: unit
 
@@ -69,13 +68,13 @@ Button {
             spacing: 10
 
             SegmentedControl {
-                readonly property color modeColor: Inhibit.mode === "off" ? Theme.textPrimary : Inhibit.mode === "awake" ? Theme.warning : Theme.critical
+                readonly property color modeColor: InhibitService.mode === "off" ? Theme.textPrimary : InhibitService.mode === "awake" ? Theme.warning : Theme.critical
 
                 animated: popup.visible
-                currentIndex: model.findIndex(mode => mode.value === Inhibit.mode)
-                onActivated: index => Inhibit.setMode(model[index].value)
-                palette.highlight: Inhibit.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
-                palette.mid: Inhibit.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
+                currentIndex: model.findIndex(mode => mode.value === InhibitService.mode)
+                onActivated: index => InhibitService.setMode(model[index].value)
+                palette.highlight: InhibitService.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
+                palette.mid: InhibitService.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
                 palette.highlightedText: modeColor
                 model: [
                     {
@@ -96,7 +95,7 @@ Button {
             Separator {}
 
             ColumnLayout {
-                enabled: Inhibit.mode !== "off"
+                enabled: InhibitService.mode !== "off"
                 opacity: enabled ? 1 : 0.5
                 spacing: 8
 
@@ -113,10 +112,10 @@ Button {
                         id: unlimitedButton
                         implicitHeight: 28
                         text: "Unlimited"
-                        highlighted: Inhibit.duration === 0
+                        highlighted: InhibitService.duration === 0
                         onClicked: {
                             root.range = 120;
-                            Inhibit.setDuration(0);
+                            InhibitService.setDuration(0);
                         }
                     }
                 }
@@ -132,17 +131,17 @@ Button {
                             Layout.fillWidth: true
                             implicitWidth: 50
                             text: root.formatDuration(modelData)
-                            highlighted: Inhibit.duration === modelData
+                            highlighted: InhibitService.duration === modelData
                             onClicked: {
                                 root.range = Math.max(120, modelData);
-                                Inhibit.setDuration(modelData);
+                                InhibitService.setDuration(modelData);
                             }
                         }
                     }
                 }
 
                 ColumnLayout {
-                    visible: Inhibit.expiresAt > 0
+                    visible: InhibitService.expiresAt > 0
                     spacing: 0
 
                     RowLayout {
@@ -153,7 +152,7 @@ Button {
                             color: Theme.textPrimary
                         }
                         Text {
-                            readonly property double deadline: countdown.pressed ? Inhibit.now + countdown.minutes * 60000 : Inhibit.expiresAt
+                            readonly property double deadline: countdown.pressed ? InhibitService.now + countdown.minutes * 60000 : InhibitService.expiresAt
 
                             text: "Until " + Qt.formatDateTime(new Date(deadline), "hh:mm")
                             font.pixelSize: 12
@@ -163,29 +162,29 @@ Button {
 
                     Slider {
                         id: countdown
-                        readonly property real minutes: pressed ? valueAt(position) : Inhibit.remaining
+                        readonly property real minutes: pressed ? valueAt(position) : InhibitService.remaining
 
                         Layout.fillWidth: true
                         leftPadding: minimumLabel.implicitWidth + 6
                         rightPadding: maximumLabel.implicitWidth + 6
                         from: 1
                         to: root.range
-                        value: Inhibit.remaining
+                        value: InhibitService.remaining
                         stepSize: 1
                         snapMode: Controls.Slider.SnapAlways
                         live: false
                         wheelEnabled: !pressed
                         onPressedChanged: {
                             if (pressed) {
-                                value = Inhibit.remaining;
+                                value = InhibitService.remaining;
                                 return;
                             }
-                            Inhibit.setDuration(value);
-                            value = Qt.binding(() => Inhibit.remaining);
+                            InhibitService.setDuration(value);
+                            value = Qt.binding(() => InhibitService.remaining);
                         }
                         onMoved: {
                             if (!pressed)
-                                Inhibit.setDuration(Math.ceil(value));
+                                InhibitService.setDuration(Math.ceil(value));
                         }
                         Text {
                             id: minimumLabel

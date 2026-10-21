@@ -14,70 +14,70 @@ ColumnLayout {
     readonly property var metrics: [
         {
             title: "CPU",
-            level: Hardware.cpu.level,
-            value: Hardware.cpu.valid ? Math.round(Hardware.cpu.usage * 100) + "%" : "—",
+            level: HardwareService.cpu.level,
+            value: HardwareService.cpu.valid ? Math.round(HardwareService.cpu.usage * 100) + "%" : "—",
             readings: [],
-            series: [Hardware.cpu.history],
+            series: [HardwareService.cpu.history],
             maximum: 100,
-            statistics: [["Average", Hardware.cpu.stats ? Math.round(Hardware.cpu.stats.average) + "%" : "—"], ["Peak", Hardware.cpu.stats ? Math.round(Hardware.cpu.stats.peak) + "%" : "—"]],
-            details: [["Model", Hardware.cpu.info?.model || "—"], ["Cores / threads", Hardware.cpu.info ? `${Hardware.cpu.info.cores ?? "—"} / ${Hardware.cpu.info.threads}` : "—"], ["Average clock", Hardware.cpu.clock >= 0 ? (Hardware.cpu.clock / 1000).toFixed(2) + " GHz" : "—"], ["Load (1 / 5 / 15m)", Hardware.cpu.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
+            statistics: [["Average", HardwareService.cpu.stats ? Math.round(HardwareService.cpu.stats.average) + "%" : "—"], ["Peak", HardwareService.cpu.stats ? Math.round(HardwareService.cpu.stats.peak) + "%" : "—"]],
+            details: [["Model", HardwareService.cpu.info?.model || "—"], ["Cores / threads", HardwareService.cpu.info ? `${HardwareService.cpu.info.cores ?? "—"} / ${HardwareService.cpu.info.threads}` : "—"], ["Average clock", HardwareService.cpu.clock >= 0 ? (HardwareService.cpu.clock / 1000).toFixed(2) + " GHz" : "—"], ["Load (1 / 5 / 15m)", HardwareService.cpu.loadAverage.map(value => value.toFixed(2)).join(" / ") || "—"]]
         },
         {
             title: "GPU",
-            level: Hardware.gpu.level,
-            value: Hardware.gpu.valid ? Math.round(Hardware.gpu.usage * 100) + "%" : "—",
+            level: HardwareService.gpu.level,
+            value: HardwareService.gpu.valid ? Math.round(HardwareService.gpu.usage * 100) + "%" : "—",
             readings: [],
-            series: [Hardware.gpu.history],
-            statistics: [["Average", Hardware.gpu.stats ? Math.round(Hardware.gpu.stats.average) + "%" : "—"], ["Peak", Hardware.gpu.stats ? Math.round(Hardware.gpu.stats.peak) + "%" : "—"]],
-            details: [["Model", Hardware.gpu.model || "—"], ["VRAM", Hardware.gpu.sample?.memoryUsed != null && Hardware.gpu.sample?.memoryTotal != null ? root.capacity(true, Hardware.gpu.sample.memoryUsed, Hardware.gpu.sample.memoryTotal) : "—"], ["Clock speed", Hardware.gpu.sample?.clock != null ? Math.round(Hardware.gpu.sample.clock) + " MHz" : "—"]]
+            series: [HardwareService.gpu.history],
+            statistics: [["Average", HardwareService.gpu.stats ? Math.round(HardwareService.gpu.stats.average) + "%" : "—"], ["Peak", HardwareService.gpu.stats ? Math.round(HardwareService.gpu.stats.peak) + "%" : "—"]],
+            details: [["Model", HardwareService.gpu.model || "—"], ["VRAM", HardwareService.gpu.sample?.memoryUsed != null && HardwareService.gpu.sample?.memoryTotal != null ? root.capacity(true, HardwareService.gpu.sample.memoryUsed, HardwareService.gpu.sample.memoryTotal) : "—"], ["Clock speed", HardwareService.gpu.sample?.clock != null ? Math.round(HardwareService.gpu.sample.clock) + " MHz" : "—"]]
         },
         {
             title: "Disk I/O",
             level: 0,
             value: "",
-            readings: ["Read " + root.speed(Hardware.diskIo.valid, Hardware.diskIo.readBps), "Write " + root.speed(Hardware.diskIo.valid, Hardware.diskIo.writeBps)],
-            series: [Hardware.diskIo.history.map(point => ({
+            readings: ["Read " + root.speed(HardwareService.diskIo.valid, HardwareService.diskIo.readBps), "Write " + root.speed(HardwareService.diskIo.valid, HardwareService.diskIo.writeBps)],
+            series: [HardwareService.diskIo.history.map(point => ({
                             time: point.time,
                             value: point.read
-                        })), Hardware.diskIo.history.map(point => ({
+                        })), HardwareService.diskIo.history.map(point => ({
                             time: point.time,
                             value: point.write
                         }))],
-            maximum: Math.max(1000, Hardware.diskIo.peak),
-            details: [["Device", Hardware.diskIo.devices.join(", ") || "—"], ["Model", root.diskDetail("model")], ["Interface", root.diskDetail("tran").toUpperCase()]]
+            maximum: Math.max(1000, HardwareService.diskIo.peak),
+            details: [["Device", HardwareService.diskIo.devices.join(", ") || "—"], ["Model", root.diskDetail("model")], ["Interface", root.diskDetail("tran").toUpperCase()]]
         },
         {
             title: "Network",
             level: 0,
             value: "",
-            readings: ["↓ " + root.speed(Traffic.valid, Traffic.rxBps), "↑ " + root.speed(Traffic.valid, Traffic.txBps)],
-            series: [Traffic.history.map(point => ({
+            readings: ["↓ " + root.speed(TrafficService.valid, TrafficService.rxBps), "↑ " + root.speed(TrafficService.valid, TrafficService.txBps)],
+            series: [TrafficService.history.map(point => ({
                             time: point.time,
                             value: point.rx
-                        })), Traffic.history.map(point => ({
+                        })), TrafficService.history.map(point => ({
                             time: point.time,
                             value: point.tx
                         }))],
-            maximum: Math.max(1000, Traffic.peak),
-            details: [["Interfaces", Traffic.interfaces.join(", ") || "—"], ["Wired link", Network.wired?.linkSpeed > 0 ? Network.wired.linkSpeed + " Mbps" : "—"], ["Wi-Fi link", Network.wifiLink?.speed > 0 ? Network.wifiLink.speed + " Mbps" : "—"], ["Wi-Fi signal", Network.wifiNetwork ? Math.round(Network.wifiNetwork.signalStrength * 100) + "%" : "—"]]
+            maximum: Math.max(1000, TrafficService.peak),
+            details: [["Interfaces", TrafficService.interfaces.join(", ") || "—"], ["Wired link", NetworkService.wired?.linkSpeed > 0 ? NetworkService.wired.linkSpeed + " Mbps" : "—"], ["Wi-Fi link", NetworkService.wifiLink?.speed > 0 ? NetworkService.wifiLink.speed + " Mbps" : "—"], ["Wi-Fi signal", NetworkService.wifiNetwork ? Math.round(NetworkService.wifiNetwork.signalStrength * 100) + "%" : "—"]]
         },
         {
             title: "Memory",
-            level: Hardware.memory.level,
-            valid: Hardware.memory.valid,
-            fraction: Hardware.memory.usage,
-            value: root.capacity(Hardware.memory.valid, Hardware.memory.used, Hardware.memory.total),
-            available: Hardware.memory.valid ? root.gib(Hardware.memory.total - Hardware.memory.used) + " GiB available" : "—",
-            details: [["Type", Hardware.memory.info?.types.join(" / ") || "—"], ["Speed", Hardware.memory.info?.speeds.length > 0 ? Hardware.memory.info.speeds.join(" / ") + " MT/s" : "—"], ["Swap", Hardware.memory.swap ? (Hardware.memory.swap.total === 0 ? "None" : root.capacity(true, Hardware.memory.swap.used, Hardware.memory.swap.total)) : "—"]]
+            level: HardwareService.memory.level,
+            valid: HardwareService.memory.valid,
+            fraction: HardwareService.memory.usage,
+            value: root.capacity(HardwareService.memory.valid, HardwareService.memory.used, HardwareService.memory.total),
+            available: HardwareService.memory.valid ? root.gib(HardwareService.memory.total - HardwareService.memory.used) + " GiB available" : "—",
+            details: [["Type", HardwareService.memory.info?.types.join(" / ") || "—"], ["Speed", HardwareService.memory.info?.speeds.length > 0 ? HardwareService.memory.info.speeds.join(" / ") + " MT/s" : "—"], ["Swap", HardwareService.memory.swap ? (HardwareService.memory.swap.total === 0 ? "None" : root.capacity(true, HardwareService.memory.swap.used, HardwareService.memory.swap.total)) : "—"]]
         },
         {
             title: "Disk /",
-            level: Hardware.filesystem.level,
-            valid: Hardware.filesystem.valid,
-            fraction: Hardware.filesystem.usage,
-            value: root.capacity(Hardware.filesystem.valid, Hardware.filesystem.used, Hardware.filesystem.total),
-            available: Hardware.filesystem.valid ? root.gib(Hardware.filesystem.available) + " GiB available" : "—",
-            details: [["Device", Hardware.filesystem.info?.device || "—"], ["Model", Hardware.filesystem.info?.model || "—"], ["Filesystem", Hardware.filesystem.info?.fstype || "—"]]
+            level: HardwareService.filesystem.level,
+            valid: HardwareService.filesystem.valid,
+            fraction: HardwareService.filesystem.usage,
+            value: root.capacity(HardwareService.filesystem.valid, HardwareService.filesystem.used, HardwareService.filesystem.total),
+            available: HardwareService.filesystem.valid ? root.gib(HardwareService.filesystem.available) + " GiB available" : "—",
+            details: [["Device", HardwareService.filesystem.info?.device || "—"], ["Model", HardwareService.filesystem.info?.model || "—"], ["Filesystem", HardwareService.filesystem.info?.fstype || "—"]]
         }
     ]
 
@@ -85,11 +85,11 @@ ColumnLayout {
 
     onSelectedChanged: {
         if (selected === 3)
-            Network.refreshWifiLink();
+            NetworkService.refreshWifiLink();
     }
 
     function diskDetail(field: string): string {
-        const values = Hardware.diskIo.info.filter(device => Hardware.diskIo.devices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);
+        const values = HardwareService.diskIo.info.filter(device => HardwareService.diskIo.devices.includes(device.name)).map(device => device[field]?.trim()).filter(Boolean);
         return [...new Set(values)].join(", ") || "—";
     }
 
@@ -138,7 +138,7 @@ ColumnLayout {
             visible: root.selected < 0
             color: Theme.textSecondary
             font.pixelSize: 11
-            text: "Up  " + root.uptime(Hardware.uptime)
+            text: "Up  " + root.uptime(HardwareService.uptime)
         }
     }
 
@@ -172,15 +172,15 @@ ColumnLayout {
             model: [
                 {
                     title: "CPU temperature",
-                    level: Hardware.cpu.temperatureLevel,
-                    value: Hardware.cpu.temperature,
-                    valid: Hardware.cpu.temperatureValid
+                    level: HardwareService.cpu.temperatureLevel,
+                    value: HardwareService.cpu.temperature,
+                    valid: HardwareService.cpu.temperatureValid
                 },
                 {
                     title: "GPU temperature",
-                    level: Hardware.gpu.temperatureLevel,
-                    value: Hardware.gpu.temperature,
-                    valid: Hardware.gpu.temperatureValid
+                    level: HardwareService.gpu.temperatureLevel,
+                    value: HardwareService.gpu.temperature,
+                    valid: HardwareService.gpu.temperatureValid
                 }
             ]
             WrapperRectangle {

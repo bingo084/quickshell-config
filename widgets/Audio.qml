@@ -1,12 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 import qs.services
 import qs.widgets.audio
 
-Bar.Button {
+BarButton {
     id: root
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -15,23 +14,23 @@ Bar.Button {
             popup.toggle();
         } else {
             popup.closeAll();
-            Audio.toggleMuted();
+            AudioService.toggleMuted();
         }
     }
     onWheel: wheel => {
-        Audio.adjustVolume(wheel.angleDelta.y > 0 ? 0.01 : -0.01);
+        AudioService.adjustVolume(wheel.angleDelta.y > 0 ? 0.01 : -0.01);
         wheel.accepted = true;
     }
 
     content: RowLayout {
         spacing: 4
         Icon {
-            color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
-            name: Audio.volumeIconName(Audio.sink)
+            color: AudioService.muted ? Theme.textSecondary : Theme.textPrimary
+            name: AudioService.volumeIconName(AudioService.sink)
         }
         Text {
-            color: Audio.muted ? Theme.textSecondary : Theme.textPrimary
-            text: Audio.ready ? Audio.percent + "%" : "--%"
+            color: AudioService.muted ? Theme.textSecondary : Theme.textPrimary
+            text: AudioService.ready ? AudioService.percent + "%" : "--%"
         }
     }
 

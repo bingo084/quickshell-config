@@ -1,14 +1,13 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 import qs.services
 
-Bar.Button {
+BarButton {
     id: root
     property bool showSeconds
 
@@ -24,17 +23,17 @@ Bar.Button {
 
     content: Text {
         color: Theme.textPrimary
-        text: Qt.formatDateTime(Clock.date, `ddd ${Clock.dateTimeFormat}${root.showSeconds ? ":ss" : ""}`)
+        text: Qt.formatDateTime(ClockService.date, `ddd ${ClockService.dateTimeFormat}${root.showSeconds ? ":ss" : ""}`)
     }
 
-    Bar.Popup {
+    Popup {
         id: popup
-        property date displayedDate: Clock.date
-        property date selectedDate: Clock.date
+        property date displayedDate: ClockService.date
+        property date selectedDate: ClockService.date
         property bool choosingMonth
         readonly property int controlSize: 32
         readonly property var locale: Qt.locale("en_GB")
-        readonly property bool showingCurrentMonth: displayedDate.getFullYear() === Clock.date.getFullYear() && displayedDate.getMonth() === Clock.date.getMonth()
+        readonly property bool showingCurrentMonth: displayedDate.getFullYear() === ClockService.date.getFullYear() && displayedDate.getMonth() === ClockService.date.getMonth()
 
         anchorItem: root
         contentWidth: 294
@@ -50,8 +49,8 @@ Bar.Button {
             choosingMonth = false;
         }
         function reset() {
-            selectedDate = Clock.date;
-            displayedDate = Clock.date;
+            selectedDate = ClockService.date;
+            displayedDate = ClockService.date;
             choosingMonth = false;
         }
 
@@ -80,7 +79,7 @@ Bar.Button {
                     size: popup.controlSize
                     radius: height / 2
                     iconName: "calendar-today-symbolic"
-                    enabled: popup.choosingMonth || !popup.showingCurrentMonth || popup.selectedDate.toDateString() !== Clock.date.toDateString()
+                    enabled: popup.choosingMonth || !popup.showingCurrentMonth || popup.selectedDate.toDateString() !== ClockService.date.toDateString()
                     onClicked: popup.reset()
                     tooltip.text: "Today"
                 }
@@ -110,7 +109,7 @@ Bar.Button {
                     anchors.fill: parent
                     spacing: 4
                     visible: !popup.choosingMonth
-                    Controls.DayOfWeekRow {
+                    DayOfWeekRow {
                         Layout.fillWidth: true
                         locale: popup.locale
                         spacing: 2
@@ -122,7 +121,7 @@ Bar.Button {
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
-                    Controls.MonthGrid {
+                    MonthGrid {
                         id: calendar
                         Layout.fillWidth: true
                         Layout.fillHeight: true

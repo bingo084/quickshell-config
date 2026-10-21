@@ -29,7 +29,7 @@ Singleton {
     }
 
     function queryDetails(device: NetworkDevice): var {
-        return Command.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "GENERAL.CON-UUID,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS,AP.IN-USE,AP.SECURITY", "device", "show", device.name]).then(result => {
+        return CommandService.run(["env", "LC_ALL=C", "nmcli", "--terse", "--escape", "no", "--fields", "GENERAL.CON-UUID,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS,AP.IN-USE,AP.SECURITY", "device", "show", device.name]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error(result.stderr.trim());
             const details = parseDetails(result.stdout);
@@ -44,7 +44,7 @@ Singleton {
         const command = ["nmcli", "device", "wifi", "rescan", "ifname", adapter.name];
         if (ssid !== "")
             command.push("ssid", ssid);
-        return Command.run(command).then(result => {
+        return CommandService.run(command).then(result => {
             if (result.exitCode !== 0)
                 throw new Error(result.stderr.trim());
         });
@@ -54,7 +54,7 @@ Singleton {
         const name = network.name;
         const secured = usesPassword(network);
         const hidden = profile?.read()?.["802-11-wireless"]?.hidden ?? false;
-        const password = secured ? Command.run(["nmcli", "--show-secrets", "--escape", "no", "--get-values", "802-11-wireless-security.psk", "connection", "show", "uuid", profile.uuid]).then(result => {
+        const password = secured ? CommandService.run(["nmcli", "--show-secrets", "--escape", "no", "--get-values", "802-11-wireless-security.psk", "connection", "show", "uuid", profile.uuid]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("Could not read the saved Wi-Fi password.");
             const password = result.stdout.replace(/\n$/, "");
@@ -65,7 +65,7 @@ Singleton {
         return password.then(password => {
             const escape = value => /^[0-9a-f]+$/i.test(value) ? '"' + value + '"' : value.replace(/[\\;,:\"]/g, "\\$&");
             const content = `WIFI:T:${secured ? "WPA" : "nopass"};S:${escape(name)};P:${escape(password)};H:${hidden};;`;
-            return Command.run(["qrencode", "--type", "SVG", "--level", "M", "--output", "-", content]).then(result => {
+            return CommandService.run(["qrencode", "--type", "SVG", "--level", "M", "--output", "-", content]).then(result => {
                 if (result.exitCode !== 0)
                     throw new Error("Could not generate the Wi-Fi QR code.");
                 return {
@@ -114,7 +114,7 @@ Singleton {
             root.wifiLink = null;
             return;
         }
-        const request = Command.run(["iw", "dev", root.wifi.name, "link"]);
+        const request = CommandService.run(["iw", "dev", root.wifi.name, "link"]);
         root.wifiRequest = request;
         return request.then(result => {
             if (root.wifiRequest !== request)

@@ -1,11 +1,10 @@
 import QtQuick
 import Quickshell
 import qs.components
-import qs.components.bar
 import qs.services
 import qs.widgets.network
 
-Button {
+BarButton {
     id: root
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     onClicked: mouse => {
@@ -18,6 +17,6 @@ Button {
     }
 
     content: Icon {
-        name: Network.iconName()
+        name: NetworkService.iconName()
     }
 }

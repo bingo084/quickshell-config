@@ -5,22 +5,21 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 import qs.services
 
-Bar.Popup {
+Popup {
     id: root
     readonly property int controlSize: 32
     property string page: ""
-    readonly property PwNode selectedNode: page === "input" ? Audio.source : Audio.sink
+    readonly property PwNode selectedNode: page === "input" ? AudioService.source : AudioService.sink
 
     contentWidth: 316
     contentMargin: 13
     onVisibleChanged: {
         if (visible) {
             page = "";
-            Audio.refreshPorts();
+            AudioService.refreshPorts();
         }
     }
 
@@ -69,9 +68,9 @@ Bar.Popup {
 
                     DeviceSection {
                         id: outputSection
-                        node: Audio.sink
+                        node: AudioService.sink
                         controlSize: root.controlSize
-                        devices: Audio.sinks
+                        devices: AudioService.sinks
                         title: "Output"
                         wheelArea: mainViewport
                         onChooseDevice: root.openPicker("output")
@@ -81,9 +80,9 @@ Bar.Popup {
                     }
                     DeviceSection {
                         id: inputSection
-                        node: Audio.source
+                        node: AudioService.source
                         controlSize: root.controlSize
-                        devices: Audio.sources
+                        devices: AudioService.sources
                         title: "Input"
                         wheelArea: mainViewport
                         onChooseDevice: root.openPicker("input")
@@ -94,13 +93,13 @@ Bar.Popup {
                     ColumnLayout {
                         id: appsSection
                         spacing: 10
-                        visible: Audio.streams.length > 0
+                        visible: AudioService.streams.length > 0
 
                         SectionLabel {
                             text: "Apps"
                         }
                         Repeater {
-                            model: Audio.streams
+                            model: AudioService.streams
                             StreamRow {
                                 required property PwNode modelData
                                 node: modelData
@@ -143,7 +142,7 @@ Bar.Popup {
                 Layout.fillWidth: true
                 Layout.leftMargin: selectedVolume.leftMargin
                 Layout.rightMargin: selectedVolume.rightMargin
-                readonly property var port: Audio.activePort(root.selectedNode)
+                readonly property var port: AudioService.activePort(root.selectedNode)
                 text: port?.description || root.selectedNode?.description || root.selectedNode?.nickname || root.selectedNode?.name || "No device"
                 color: Theme.textSecondary
                 font.pixelSize: 12
@@ -157,7 +156,7 @@ Bar.Popup {
             Separator {}
             DevicePicker {
                 id: picker
-                devices: root.page === "input" ? Audio.sources : Audio.sinks
+                devices: root.page === "input" ? AudioService.sources : AudioService.sinks
                 onSelected: root.page = ""
             }
         }

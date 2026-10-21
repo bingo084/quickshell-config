@@ -16,7 +16,7 @@ Singleton {
     property string output
 
     Component.onCompleted: {
-        Command.run(["brightnessctl", "-c", "backlight", "-m"]).then(result => {
+        CommandService.run(["brightnessctl", "-c", "backlight", "-m"]).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("brightnessctl query failed (exit " + result.exitCode + "): " + result.stderr.trim());
             const text = result.stdout.trim();
@@ -24,7 +24,7 @@ Singleton {
             if (fields.length < 5 || fields[0] === "")
                 throw new Error("Unexpected brightnessctl output: " + text);
             root.device = fields[0];
-            return Command.run(["readlink", "-f", `/sys/class/backlight/${root.device}`]);
+            return CommandService.run(["readlink", "-f", `/sys/class/backlight/${root.device}`]);
         }).then(result => {
             if (result.exitCode !== 0)
                 throw new Error("backlight path query failed (exit " + result.exitCode + "): " + result.stderr.trim());

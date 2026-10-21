@@ -29,7 +29,7 @@ Singleton {
     }
 
     Component.onCompleted: {
-        Command.run(["find", Quickshell.shellPath("assets"), "-type", "f", "-name", "*.svg"]).then(result => {
+        CommandService.run(["find", Quickshell.shellPath("assets"), "-type", "f", "-name", "*.svg"]).then(result => {
             if (result.exitCode !== 0)
                 console.warn("Icon scan failed (exit " + result.exitCode + "):", result.stderr.trim());
             const files = {};

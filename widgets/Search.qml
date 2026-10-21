@@ -1,11 +1,10 @@
 import qs.components
-import qs.components.bar
 import qs.services
 
-Button {
+BarButton {
     onClicked: {
         PopupHost.close();
-        Launcher.toggle();
+        LauncherService.toggle();
     }
 
     content: Icon {

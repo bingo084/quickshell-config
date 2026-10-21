@@ -2,12 +2,11 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Networking as Net
+import Quickshell.Networking
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 import qs.services
 
@@ -15,34 +14,34 @@ import qs.services
 Singleton {
     id: root
     property string page: "list"
-    property Net.Network selected: null
-    property Net.WifiNetwork pending: null
+    property Network selected: null
+    property WifiNetwork pending: null
     property string error
     property bool findingHidden
     property string hiddenName
     property string hiddenPassword
     property var scanRequest: null
     readonly property bool busy: pending !== null || findingHidden
-    readonly property list<Net.WifiNetwork> networks: Network.networks.filter(network => !network.connected).sort((a, b) => Number(b.known) - Number(a.known) || b.signalStrength - a.signalStrength)
-    readonly property Net.WifiNetwork hiddenNetwork: findingHidden ? Network.networks.find(network => network.name === hiddenName) ?? null : null
+    readonly property list<WifiNetwork> networks: NetworkService.networks.filter(network => !network.connected).sort((a, b) => Number(b.known) - Number(a.known) || b.signalStrength - a.signalStrength)
+    readonly property WifiNetwork hiddenNetwork: findingHidden ? NetworkService.networks.find(network => network.name === hiddenName) ?? null : null
 
     function toggle(anchorItem: Item) {
         popup.toggle(anchorItem);
     }
 
-    function choose(network: Net.WifiNetwork) {
+    function choose(network: WifiNetwork) {
         selected = network;
         error = "";
-        if (!network.known && Network.usesPassword(network))
+        if (!network.known && NetworkService.usesPassword(network))
             page = "password";
-        else if (!network.known && ![Net.WifiSecurityType.Open, Net.WifiSecurityType.Owe].includes(network.security))
+        else if (!network.known && ![WifiSecurityType.Open, WifiSecurityType.Owe].includes(network.security))
             error = "Configure this network's authentication in your network settings first.";
         else
             join();
     }
 
     function join(password = "") {
-        const network = selected as Net.WifiNetwork;
+        const network = selected as WifiNetwork;
         if (network === null)
             return;
         error = "";
@@ -85,7 +84,7 @@ Singleton {
     }
 
     function refresh(ssid = "") {
-        const request = Network.scan(ssid);
+        const request = NetworkService.scan(ssid);
         scanRequest = request;
         error = "";
         return request.catch(error => {
@@ -113,15 +112,15 @@ Singleton {
         hiddenPassword = "";
         findingHidden = false;
         selected = network;
-        if (password !== "" && !Network.usesPassword(network)) {
+        if (password !== "" && !NetworkService.usesPassword(network)) {
             fail("This network does not use a personal Wi-Fi password.");
             return;
         }
-        if (password === "" && Network.usesPassword(network)) {
+        if (password === "" && NetworkService.usesPassword(network)) {
             fail("Enter the network's password.", true);
             return;
         }
-        if (Network.usesPassword(network) && !Network.validPassword(network, password)) {
+        if (NetworkService.usesPassword(network) && !NetworkService.validPassword(network, password)) {
             fail("Use 8–63 characters, or a 64-digit hexadecimal key.", true);
             return;
         }
@@ -136,10 +135,10 @@ Singleton {
         timeout.stop()
 
     Binding {
-        target: Network.adapter
+        target: NetworkService.adapter
         property: "scannerEnabled"
         value: true
-        when: Network.adapter !== null && Net.Networking.wifiEnabled && (popup.visible || root.busy)
+        when: NetworkService.adapter !== null && Networking.wifiEnabled && (popup.visible || root.busy)
     }
 
     Connections {
@@ -148,7 +147,7 @@ Singleton {
         function onConnectedChanged() {
             if (root.pending?.connected) {
                 if (root.pending.name === root.hiddenName)
-                    Network.markHidden(root.pending);
+                    NetworkService.markHidden(root.pending);
                 root.hiddenName = "";
                 root.pending = null;
                 if (root.page !== "details") {
@@ -161,7 +160,7 @@ Singleton {
 
         function onStateChanged() {
             const network = root.pending;
-            if (network?.state === Net.ConnectionState.Disconnected)
+            if (network?.state === ConnectionState.Disconnected)
                 Qt.callLater(() => {
                     if (root.pending === network)
                         root.fail("Could not connect. Please try again.");
@@ -169,15 +168,15 @@ Singleton {
         }
 
         function onConnectionFailed(reason: int) {
-            const password = Network.usesPassword(root.pending);
+            const password = NetworkService.usesPassword(root.pending);
             switch (reason) {
-            case Net.ConnectionFailReason.NoSecrets:
+            case ConnectionFailReason.NoSecrets:
                 root.fail(password ? "A password is required, or the saved password was rejected." : "This network requires additional authentication.", password);
                 break;
-            case Net.ConnectionFailReason.WifiAuthTimeout:
+            case ConnectionFailReason.WifiAuthTimeout:
                 root.fail("Authentication timed out. Check the password and try again.", password);
                 break;
-            case Net.ConnectionFailReason.WifiNetworkLost:
+            case ConnectionFailReason.WifiNetworkLost:
                 root.fail("The network is no longer in range.");
                 break;
             default:
@@ -187,16 +186,16 @@ Singleton {
     }
 
     Connections {
-        target: Network
+        target: NetworkService
         function onAdapterChanged() {
             root.cancel();
         }
     }
 
     Connections {
-        target: Net.Networking
+        target: Networking
         function onWifiEnabledChanged() {
-            if (!Net.Networking.wifiEnabled)
+            if (!Networking.wifiEnabled)
                 root.cancel();
         }
     }
@@ -212,7 +211,7 @@ Singleton {
         }
     }
 
-    Bar.Popup {
+    Popup {
         id: popup
         readonly property int controlSize: 32
         anchorItem: null
@@ -253,9 +252,9 @@ Singleton {
 
                 Switch {
                     visible: root.page === "list"
-                    checked: Net.Networking.wifiEnabled
-                    enabled: Network.adapter !== null && Net.Networking.wifiHardwareEnabled
-                    onToggled: Net.Networking.wifiEnabled = checked
+                    checked: Networking.wifiEnabled
+                    enabled: NetworkService.adapter !== null && Networking.wifiHardwareEnabled
+                    onToggled: Networking.wifiEnabled = checked
                 }
             }
 
@@ -265,9 +264,9 @@ Singleton {
 
                 Button {
                     Layout.fillWidth: true
-                    visible: Network.wired !== null
+                    visible: NetworkService.wired !== null
                     onClicked: {
-                        root.selected = Network.wired.network;
+                        root.selected = NetworkService.wired.network;
                         root.page = "details";
                     }
 
@@ -303,8 +302,8 @@ Singleton {
                 Text {
                     Layout.fillWidth: true
                     Layout.margins: 8
-                    visible: Network.adapter === null || !Net.Networking.wifiEnabled || !Net.Networking.wifiHardwareEnabled
-                    text: Network.adapter === null ? "No Wi-Fi adapter" : !Net.Networking.wifiHardwareEnabled ? "Wi-Fi is blocked" : "Wi-Fi is off"
+                    visible: NetworkService.adapter === null || !Networking.wifiEnabled || !Networking.wifiHardwareEnabled
+                    text: NetworkService.adapter === null ? "No Wi-Fi adapter" : !Networking.wifiHardwareEnabled ? "Wi-Fi is blocked" : "Wi-Fi is off"
                     color: Theme.textSecondary
                     font.pixelSize: 12
                 }
@@ -312,7 +311,7 @@ Singleton {
                 NetworkRow {
                     Layout.fillWidth: true
                     visible: network !== null
-                    network: Network.wifiNetwork
+                    network: NetworkService.wifiNetwork
                     controlSize: popup.controlSize
                     enabled: !root.busy
                     onDetailsRequested: {
@@ -322,13 +321,13 @@ Singleton {
                 }
 
                 Separator {
-                    visible: Network.wifiNetwork !== null || Network.wired !== null
+                    visible: NetworkService.wifiNetwork !== null || NetworkService.wired !== null
                     Layout.topMargin: 4
                     Layout.bottomMargin: 4
                 }
 
                 RowLayout {
-                    visible: Network.adapter !== null && Net.Networking.wifiEnabled && Net.Networking.wifiHardwareEnabled
+                    visible: NetworkService.adapter !== null && Networking.wifiEnabled && Networking.wifiHardwareEnabled
                     Layout.leftMargin: 8
 
                     Text {
@@ -360,15 +359,15 @@ Singleton {
                 ListView {
                     id: networkList
                     Layout.fillWidth: true
-                    visible: Network.adapter !== null && Net.Networking.wifiEnabled && Net.Networking.wifiHardwareEnabled
+                    visible: NetworkService.adapter !== null && Networking.wifiEnabled && Networking.wifiHardwareEnabled
                     implicitHeight: Math.min(contentHeight, 310)
                     clip: true
                     spacing: 4
                     model: root.networks
-                    Controls.ScrollBar.vertical: Controls.ScrollBar {}
+                    ScrollBar.vertical: ScrollBar {}
 
                     delegate: NetworkRow {
-                        required property Net.WifiNetwork modelData
+                        required property WifiNetwork modelData
                         width: networkList.width
                         network: modelData
                         controlSize: popup.controlSize
@@ -420,7 +419,7 @@ Singleton {
                 active: root.page === "password" || root.page === "hidden"
                 visible: active
                 sourceComponent: NetworkJoin {
-                    network: root.selected as Net.WifiNetwork
+                    network: root.selected as WifiNetwork
                     hidden: root.page === "hidden"
                     busy: root.busy
                     opened: popup.visible
@@ -436,7 +435,7 @@ Singleton {
                 implicitHeight: Math.min(details.implicitHeight, 460)
                 contentHeight: details.implicitHeight
                 clip: true
-                Controls.ScrollBar.vertical: Controls.ScrollBar {}
+                ScrollBar.vertical: ScrollBar {}
 
                 NetworkDetails {
                     id: details
@@ -462,7 +461,7 @@ Singleton {
                 active: popup.visible && root.page === "share"
                 visible: active
                 sourceComponent: NetworkShare {
-                    network: root.selected as Net.WifiNetwork
+                    network: root.selected as WifiNetwork
                     profile: details.profile
                 }
             }

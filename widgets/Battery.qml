@@ -1,11 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.UPower
-import qs.components.bar
+import qs.components
 import qs.config
 import qs.widgets.battery
 
-Button {
+BarButton {
     id: root
     onClicked: popup.toggle()
 

@@ -110,7 +110,7 @@ Singleton {
     }
 
     Connections {
-        target: Sleep
+        target: SleepService
         function onResumed() {
             root.previous = null;
             root.history = [];

@@ -4,11 +4,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 import qs.services
 
-Bar.Button {
+BarButton {
     id: root
 
     function versionDiff(version: string, otherVersion: string, bold = false): string {
@@ -45,14 +44,14 @@ Bar.Button {
     }
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-    visible: Updates.news.length > 0 || Updates.checking || Updates.installerOpen || Updates.error !== "" || Updates.count > 0
+    visible: UpdateService.news.length > 0 || UpdateService.checking || UpdateService.installerOpen || UpdateService.error !== "" || UpdateService.count > 0
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton) {
             popup.closeOthers();
-            Updates.refresh();
+            UpdateService.refresh();
         } else if (mouse.button === Qt.MiddleButton) {
             popup.closeAll();
-            Updates.install();
+            UpdateService.install();
         } else {
             popup.toggle();
         }
@@ -63,18 +62,18 @@ Bar.Button {
 
         Icon {
             name: "emblem-synchronizing-symbolic"
-            color: Updates.error !== "" ? Theme.warning : Theme.textPrimary
-            spinning: Updates.checking
-            showBadge: Updates.news.length > 0
+            color: UpdateService.error !== "" ? Theme.warning : Theme.textPrimary
+            spinning: UpdateService.checking
+            showBadge: UpdateService.news.length > 0
         }
 
         Text {
-            color: Updates.count >= 100 ? Theme.critical : Updates.count >= 50 ? Theme.warning : Theme.textPrimary
-            text: Updates.count
+            color: UpdateService.count >= 100 ? Theme.critical : UpdateService.count >= 50 ? Theme.warning : Theme.textPrimary
+            text: UpdateService.count
         }
     }
 
-    Bar.Popup {
+    Popup {
         id: popup
         anchorItem: root
 
@@ -90,17 +89,17 @@ Bar.Button {
                     color: Theme.textPrimary
                 }
                 RefreshControl {
-                    updatedAt: Updates.updatedAt
-                    refreshing: Updates.checking
-                    onRefreshRequested: Updates.refresh()
+                    updatedAt: UpdateService.updatedAt
+                    refreshing: UpdateService.checking
+                    onRefreshRequested: UpdateService.refresh()
                 }
                 Button {
-                    visible: Updates.count > 0
+                    visible: UpdateService.count > 0
                     text: "Install updates"
-                    enabled: !Updates.checking && !Updates.installerOpen
+                    enabled: !UpdateService.checking && !UpdateService.installerOpen
                     onClicked: {
                         popup.closeAll();
-                        Updates.install();
+                        UpdateService.install();
                     }
 
                     iconName: "system-software-install-symbolic"
@@ -114,7 +113,7 @@ Bar.Button {
             }
 
             ColumnLayout {
-                visible: Updates.news.length > 0
+                visible: UpdateService.news.length > 0
                 spacing: 8
 
                 Text {
@@ -124,7 +123,7 @@ Bar.Button {
                     color: Theme.textSecondary
                 }
                 Repeater {
-                    model: Updates.news
+                    model: UpdateService.news
                     delegate: RowLayout {
                         id: article
                         required property var modelData
@@ -140,46 +139,46 @@ Bar.Button {
                         Text {
                             id: newsDate
                             Layout.alignment: Qt.AlignTop
-                            text: Qt.formatDateTime(article.modelData.date, Clock.dateFormat)
+                            text: Qt.formatDateTime(article.modelData.date, ClockService.dateFormat)
                             font.pixelSize: 11
                             color: Theme.textTertiary
 
                             Tooltip {
                                 anchorItem: newsDate
-                                text: Qt.formatDateTime(article.modelData.date, Clock.fullDateTimeFormat)
+                                text: Qt.formatDateTime(article.modelData.date, ClockService.fullDateTimeFormat)
                             }
                         }
                     }
                 }
                 Separator {
-                    visible: Updates.count > 0
+                    visible: UpdateService.count > 0
                 }
             }
 
             Text {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                visible: Updates.error !== ""
-                text: Updates.error
+                visible: UpdateService.error !== ""
+                text: UpdateService.error
                 color: Theme.warning
                 wrapMode: Text.Wrap
             }
             Text {
-                visible: Updates.count === 0 && Updates.error === ""
+                visible: UpdateService.count === 0 && UpdateService.error === ""
                 text: "No updates"
                 color: Theme.textSecondary
             }
 
             ListView {
                 id: packageList
-                readonly property int oldVersionWidth: Math.min(100, Math.ceil(Updates.packages.reduce((width, pkg) => Math.max(width, versionMetrics.advanceWidth(pkg.oldVersion)), 0)))
-                readonly property int newVersionWidth: Math.min(100, Math.ceil(Updates.packages.reduce((width, pkg) => Math.max(width, newVersionMetrics.advanceWidth(pkg.newVersion)), 0)))
+                readonly property int oldVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, versionMetrics.advanceWidth(pkg.oldVersion)), 0)))
+                readonly property int newVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, newVersionMetrics.advanceWidth(pkg.newVersion)), 0)))
 
                 implicitWidth: 400
                 implicitHeight: Math.min(contentHeight, 320)
                 clip: true
                 spacing: 4
-                model: Updates.packages
+                model: UpdateService.packages
                 section.property: "source"
                 section.criteria: ViewSection.FullString
                 ScrollBar.vertical: ScrollBar {}
@@ -202,13 +201,13 @@ Bar.Button {
                     font.pixelSize: 13
                     font.bold: true
                     color: Theme.textSecondary
-                    text: section + " · " + Updates.packages.filter(pkg => pkg.source === section).length
+                    text: section + " · " + UpdateService.packages.filter(pkg => pkg.source === section).length
                 }
 
                 delegate: RowLayout {
                     id: packageRow
                     required property var modelData
-                    readonly property string updateLevel: Updates.updateLevel(modelData.oldVersion, modelData.newVersion)
+                    readonly property string updateLevel: UpdateService.updateLevel(modelData.oldVersion, modelData.newVersion)
 
                     width: packageList.width
                     height: 24
@@ -223,7 +222,7 @@ Bar.Button {
                         font.bold: packageRow.updateLevel !== "normal"
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
                         text: packageRow.modelData.name
-                        url: Updates.link(packageRow.modelData.name)
+                        url: UpdateService.link(packageRow.modelData.name)
                         tooltip.atCursor: true
 
                         Text {
@@ -231,7 +230,7 @@ Bar.Button {
                             x: Math.min(Math.ceil(packageName.contentWidth) + packageRow.spacing, packageName.width - width)
                             anchors.verticalCenter: parent.verticalCenter
                             width: Math.ceil(implicitWidth)
-                            visible: Updates.importantPackages.includes(packageRow.modelData.name)
+                            visible: UpdateService.importantPackages.includes(packageRow.modelData.name)
                             text: "★"
                             color: Theme.textSecondary
                         }

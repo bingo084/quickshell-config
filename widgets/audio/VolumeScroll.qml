@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 
 Flickable {
     id: root
@@ -11,7 +11,7 @@ Flickable {
     contentWidth: width
     clip: true
     boundsBehavior: Flickable.StopAtBounds
-    Controls.ScrollBar.vertical: Controls.ScrollBar {
+    ScrollBar.vertical: ScrollBar {
         id: scrollbar
     }
 

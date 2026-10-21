@@ -3,20 +3,19 @@ import QtQuick.Layouts
 import Quickshell
 import qs.config
 import qs.components
-import qs.components.bar
 import qs.services
 
-Button {
+BarButton {
     id: root
     required property ShellScreen screen
 
-    visible: Brightness.available && root.screen?.name === Brightness.output
+    visible: BrightnessService.available && root.screen?.name === BrightnessService.output
     onClicked: popup.toggle()
     onWheel: event => {
         if (event.angleDelta.y > 0) {
-            Brightness.change(1);
+            BrightnessService.change(1);
         } else if (event.angleDelta.y < 0) {
-            Brightness.change(-1);
+            BrightnessService.change(-1);
         }
     }
 
@@ -24,12 +23,12 @@ Button {
         spacing: 4
         Icon {
             id: brightnessIcon
-            readonly property string strength: Brightness.level < 1 / 3 ? "low" : Brightness.level < 2 / 3 ? "medium" : "high"
+            readonly property string strength: BrightnessService.level < 1 / 3 ? "low" : BrightnessService.level < 2 / 3 ? "medium" : "high"
             name: `display-brightness-${strength}-symbolic`
         }
         Text {
             color: Theme.textPrimary
-            text: Math.round(Brightness.level * 100) + "%"
+            text: Math.round(BrightnessService.level * 100) + "%"
         }
     }
 
@@ -61,9 +60,9 @@ Button {
 
                 Slider {
                     Layout.fillWidth: true
-                    from: Brightness.minimumLevel
-                    value: Brightness.level
-                    onMoved: Brightness.setLevel(value)
+                    from: BrightnessService.minimumLevel
+                    value: BrightnessService.level
+                    onMoved: BrightnessService.setLevel(value)
                 }
 
                 Text {
@@ -71,7 +70,7 @@ Button {
                     Layout.leftMargin: 6
                     Layout.preferredWidth: Math.ceil(metrics.advanceWidth)
                     horizontalAlignment: Text.AlignRight
-                    text: Math.round(Brightness.level * 100) + "%"
+                    text: Math.round(BrightnessService.level * 100) + "%"
                     color: Theme.textPrimary
                     font.pixelSize: 13
 

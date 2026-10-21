@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Networking as Net
+import Quickshell.Networking
 import Quickshell.Widgets
 import qs.components
 import qs.config
@@ -11,7 +11,7 @@ import qs.services
 // qmllint disable unresolved-type
 ColumnLayout {
     id: root
-    required property Net.Network network
+    required property Network network
     required property int controlSize
     property bool opened
     property var values: null
@@ -20,9 +20,9 @@ ColumnLayout {
     property string connectionError
     property bool confirming
     property var settings: null
-    readonly property Net.WifiNetwork wifi: network as Net.WifiNetwork
-    readonly property Net.WiredDevice wired: network?.device as Net.WiredDevice
-    readonly property var link: wifi?.connected ? Network.wifiLink : null
+    readonly property WifiNetwork wifi: network as WifiNetwork
+    readonly property WiredDevice wired: network?.device as WiredDevice
+    readonly property var link: wifi?.connected ? NetworkService.wifiLink : null
     readonly property var profile: network?.nmSettings.find(profile => profile.uuid === values?.["GENERAL.CON-UUID"]?.[0]) ?? network?.nmSettings[0] ?? null // qmllint disable missing-property
     signal joinRequested
     signal shareRequested
@@ -43,7 +43,7 @@ ColumnLayout {
         pending = null;
         if (!opened || !network?.connected)
             return;
-        const request = Network.queryDetails(network.device);
+        const request = NetworkService.queryDetails(network.device);
         pending = request;
         request.then(values => {
             if (root.pending !== request)
@@ -58,7 +58,7 @@ ColumnLayout {
             console.warn("Network details:", error.message);
         });
         if (wifi !== null)
-            Network.refreshWifiLink();
+            NetworkService.refreshWifiLink();
     }
 
     Connections {
@@ -78,7 +78,7 @@ ColumnLayout {
     Icon {
         Layout.alignment: Qt.AlignHCenter
         implicitSize: root.controlSize
-        name: Network.iconName(root.network)
+        name: NetworkService.iconName(root.network)
         color: Theme.textSecondary
         pulsing: root.network?.stateChanging ?? false
     }
@@ -103,14 +103,14 @@ ColumnLayout {
             iconName: root.network?.connected ? "entries-unlinked-symbolic" : "entries-linked-symbolic"
             enabled: root.network !== null && !root.network.stateChanging
             onClicked: root.network.connected ? root.network.disconnect() : root.joinRequested()
-            tooltip.text: root.network?.stateChanging ? Net.ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Disconnect" : "Connect"
+            tooltip.text: root.network?.stateChanging ? ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Disconnect" : "Connect"
         }
 
         Button {
             size: root.controlSize
             variant: Button.Filled
-            visible: root.wifi !== null && (Network.usesPassword(root.wifi) || root.wifi.security === Net.WifiSecurityType.Open)
-            enabled: root.wifi !== null && !root.wifi.stateChanging && (root.wifi.security === Net.WifiSecurityType.Open || root.profile !== null && (!root.wifi.connected || root.values !== null))
+            visible: root.wifi !== null && (NetworkService.usesPassword(root.wifi) || root.wifi.security === WifiSecurityType.Open)
+            enabled: root.wifi !== null && !root.wifi.stateChanging && (root.wifi.security === WifiSecurityType.Open || root.profile !== null && (!root.wifi.connected || root.values !== null))
             iconName: "qr-code"
             onClicked: root.shareRequested()
             tooltip.text: "Share network"
@@ -183,7 +183,7 @@ ColumnLayout {
         }
 
         Repeater {
-            model: [["Type", root.wifi ? [root.link?.standard, root.values?.["WIFI.SECURITY"]?.[0] ?? Net.WifiSecurityType.toString(root.wifi.security)].filter(Boolean).join(" · ") : "", root.wifi !== null], ["Link", root.wifi ? [root.link?.band, root.link?.speed > 0 ? root.link.speed + " Mbps" : ""].filter(Boolean).join(" · ") || "—" : root.wired?.linkSpeed > 0 ? root.wired.linkSpeed + " Mbps" : "—"], ["Device", [root.network?.device.name, root.wifi ? Math.round(root.wifi.signalStrength * 100) + "%" : ""].filter(Boolean).join(" · ") || "—"], ["IPv4", root.values?.["IP4.ADDRESS"]?.join(", ") ?? "—"], ["Gateway", root.values?.["IP4.GATEWAY"]?.join(", ") ?? "—"], ["DNS", root.values?.["IP4.DNS"]?.join(", ") ?? "—"], ["IPv6", root.values?.["IP6.ADDRESS"]?.join(", ") ?? "—"], ["MAC", root.network?.device.address ?? "—"]]
+            model: [["Type", root.wifi ? [root.link?.standard, root.values?.["WIFI.SECURITY"]?.[0] ?? WifiSecurityType.toString(root.wifi.security)].filter(Boolean).join(" · ") : "", root.wifi !== null], ["Link", root.wifi ? [root.link?.band, root.link?.speed > 0 ? root.link.speed + " Mbps" : ""].filter(Boolean).join(" · ") || "—" : root.wired?.linkSpeed > 0 ? root.wired.linkSpeed + " Mbps" : "—"], ["Device", [root.network?.device.name, root.wifi ? Math.round(root.wifi.signalStrength * 100) + "%" : ""].filter(Boolean).join(" · ") || "—"], ["IPv4", root.values?.["IP4.ADDRESS"]?.join(", ") ?? "—"], ["Gateway", root.values?.["IP4.GATEWAY"]?.join(", ") ?? "—"], ["DNS", root.values?.["IP4.DNS"]?.join(", ") ?? "—"], ["IPv6", root.values?.["IP6.ADDRESS"]?.join(", ") ?? "—"], ["MAC", root.network?.device.address ?? "—"]]
 
             delegate: ColumnLayout {
                 id: row

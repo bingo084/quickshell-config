@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Networking as Net
+import Quickshell.Networking
 import Quickshell.Widgets
 import qs.components
 import qs.config
@@ -11,7 +11,7 @@ import qs.services
 // qmllint disable unresolved-type
 WrapperRectangle {
     id: root
-    required property Net.WifiNetwork network
+    required property WifiNetwork network
     required property int controlSize
     property bool joining
     signal chosen
@@ -45,7 +45,7 @@ WrapperRectangle {
 
                 Icon {
                     size: root.controlSize
-                    name: Network.iconName(root.network)
+                    name: NetworkService.iconName(root.network)
                     pulsing: root.joining || (root.network?.stateChanging ?? false)
                     color: Theme.textSecondary
                 }
@@ -71,14 +71,14 @@ WrapperRectangle {
                     Text {
                         Layout.fillWidth: true
                         visible: text !== ""
-                        text: root.joining ? "Connecting…" : root.network?.stateChanging ? Net.ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Connected" : root.network?.known ? "Saved" : ""
+                        text: root.joining ? "Connecting…" : root.network?.stateChanging ? ConnectionState.toString(root.network.state) + "…" : root.network?.connected ? "Connected" : root.network?.known ? "Saved" : ""
                         color: Theme.textSecondary
                         font.pixelSize: 11
                     }
                 }
 
                 Icon {
-                    visible: root.network !== null && !root.network.connected && !root.joining && ![Net.WifiSecurityType.Open, Net.WifiSecurityType.Owe].includes(root.network.security)
+                    visible: root.network !== null && !root.network.connected && !root.joining && ![WifiSecurityType.Open, WifiSecurityType.Owe].includes(root.network.security)
                     name: "system-lock-screen-symbolic"
                     implicitSize: 16
                     size: root.controlSize

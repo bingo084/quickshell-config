@@ -4,10 +4,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Bluetooth
 import qs.components
-import qs.components.bar
 import qs.widgets.bluetooth
 
-Button {
+BarButton {
     id: root
     visible: BluetoothPopup.adapter !== null
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton

@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import qs.components.bar
+import qs.components
 import qs.config
 import qs.services
 
@@ -14,7 +14,7 @@ RowLayout {
     spacing: 0
 
     Repeater {
-        model: Niri.workspaces
+        model: NiriService.workspaces
 
         Rectangle {
             id: workspace
@@ -43,13 +43,13 @@ RowLayout {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     PopupHost.close();
-                    Niri.focusWorkspaceById(workspace._id);
+                    NiriService.focusWorkspaceById(workspace._id);
                 }
                 onWheel: wheel => {
                     const delta = wheel.angleDelta.y;
                     if (delta === 0)
                         return;
-                    const workspaces = Niri.workspaces;
+                    const workspaces = NiriService.workspaces;
                     let active = null;
                     for (let row = 0; row < workspaces.count; row++) {
                         const ws = workspaces.get(row);
@@ -64,7 +64,7 @@ RowLayout {
                     for (let row = 0; row < workspaces.count; row++) {
                         const ws = workspaces.get(row);
                         if (ws.output === root.screen?.name && ws.index === targetIndex) {
-                            Niri.focusWorkspaceById(ws.id);
+                            NiriService.focusWorkspaceById(ws.id);
                             break;
                         }
                     }

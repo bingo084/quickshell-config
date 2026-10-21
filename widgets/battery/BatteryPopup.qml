@@ -1,11 +1,10 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Services.UPower
 import qs.components
-import qs.components.bar
 import qs.config
 
 Popup {
@@ -53,7 +52,7 @@ Popup {
         contentHeight: panel.implicitHeight
         clip: true
 
-        Controls.ScrollBar.vertical: Controls.ScrollBar {
+        ScrollBar.vertical: ScrollBar {
             id: scrollBar
         }
 

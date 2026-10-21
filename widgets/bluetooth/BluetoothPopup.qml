@@ -2,12 +2,11 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
 import qs.components
-import qs.components.bar as Bar
 import qs.config
 
 // qmllint disable unresolved-type
@@ -88,7 +87,7 @@ Singleton {
         }
     }
 
-    Bar.Popup {
+    Popup {
         id: popup
         readonly property int controlSize: 32
 
@@ -184,7 +183,7 @@ Singleton {
                 clip: true
                 spacing: 4
                 model: root.devices
-                Controls.ScrollBar.vertical: Controls.ScrollBar {}
+                ScrollBar.vertical: ScrollBar {}
 
                 delegate: DeviceRow {
                     required property BluetoothDevice modelData
@@ -257,7 +256,7 @@ Singleton {
                 implicitHeight: Math.min(details.implicitHeight, 460)
                 contentHeight: details.implicitHeight
                 clip: true
-                Controls.ScrollBar.vertical: Controls.ScrollBar {}
+                ScrollBar.vertical: ScrollBar {}
 
                 Loader {
                     id: details

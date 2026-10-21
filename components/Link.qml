@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import qs.components.bar
+import qs.components
 import qs.config
 
 Text {

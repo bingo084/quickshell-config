@@ -4,15 +4,14 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Widgets
 import qs.components
-import qs.components.bar
 import qs.config
 import qs.services
 
-Button {
+BarButton {
     id: root
     property date now: new Date()
-    readonly property var windows: [Codex.rateLimits?.primary, Codex.rateLimits?.secondary]
-    readonly property bool waiting: Codex.waiting.length > 0
+    readonly property var windows: [CodexService.rateLimits?.primary, CodexService.rateLimits?.secondary]
+    readonly property bool waiting: CodexService.waiting.length > 0
     readonly property int expiryLevel: Math.max(0, ...resetSection.credits.map(credit => root.creditLevel(credit)))
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -22,7 +21,7 @@ Button {
             Qt.openUrlExternally("https://chatgpt.com/settings/usage");
         } else if (mouse.button === Qt.RightButton) {
             popup.closeOthers();
-            Codex.refresh(true);
+            CodexService.refresh(true);
         } else {
             popup.toggle();
         }
@@ -68,7 +67,7 @@ Button {
         if (window.resetsAt == null)
             return "Resets: --";
         const resetAt = new Date(window.resetsAt * 1000);
-        const time = Qt.formatDateTime(resetAt, resetAt.toDateString() === root.now.toDateString() ? Clock.timeFormat : Clock.dateTimeFormat);
+        const time = Qt.formatDateTime(resetAt, resetAt.toDateString() === root.now.toDateString() ? ClockService.timeFormat : ClockService.dateTimeFormat);
         const totalMinutes = Math.ceil((resetAt.getTime() - root.now.getTime()) / 60000);
         if (totalMinutes <= 0)
             return `Reset pending · ${time}`;
@@ -98,7 +97,7 @@ Button {
         Icon {
             id: codexIcon
             name: "openai"
-            spinning: Codex.busy && !root.waiting
+            spinning: CodexService.busy && !root.waiting
             pulsing: root.waiting
             showBadge: root.waiting || root.expiryLevel > 0
             badgeColor: root.waiting ? Theme.warning : root.expiryColor(root.expiryLevel)
@@ -107,7 +106,7 @@ Button {
                     return Theme.warning;
                 if (root.windows.some(window => window?.usedPercent >= 100))
                     return Theme.critical;
-                return Codex.error !== "" ? Theme.warning : Theme.textPrimary;
+                return CodexService.error !== "" ? Theme.warning : Theme.textPrimary;
             }
             Tooltip {
                 anchorItem: codexIcon
@@ -143,7 +142,7 @@ Button {
         onVisibleChanged: {
             if (visible) {
                 root.now = new Date();
-                Codex.refresh();
+                CodexService.refresh();
             }
         }
 
@@ -156,15 +155,15 @@ Button {
                         chatgpt: "ChatGPT",
                         apiKey: "API key",
                         amazonBedrock: "Amazon Bedrock"
-                    })[Codex.account?.type] ?? ""
-                visible: Codex.account != null || Codex.provider != null
+                    })[CodexService.account?.type] ?? ""
+                visible: CodexService.account != null || CodexService.provider != null
                 spacing: 4
 
                 RowLayout {
                     Text {
                         id: accountHeading
                         Layout.fillWidth: true
-                        text: Codex.account?.email ?? Codex.provider?.name ?? accountMode.text
+                        text: CodexService.account?.email ?? CodexService.provider?.name ?? accountMode.text
                         elide: Text.ElideRight
                         font.pixelSize: 12
                         color: Theme.textPrimary
@@ -179,7 +178,7 @@ Button {
                         rightMargin: 6
                         Text {
                             id: plan
-                            text: (Codex.account?.planType ?? "").replace(/_/g, " ")
+                            text: (CodexService.account?.planType ?? "").replace(/_/g, " ")
                             font.capitalization: Font.Capitalize
                             font.pixelSize: 12
                             color: Theme.textOnSelected
@@ -189,15 +188,15 @@ Button {
 
                 Text {
                     id: accountMode
-                    visible: text !== "" && text !== accountHeading.text && (Codex.account?.type !== "chatgpt" || Codex.provider != null)
-                    text: Codex.account?.email && Codex.provider ? Codex.provider.name : accountInfo.type
+                    visible: text !== "" && text !== accountHeading.text && (CodexService.account?.type !== "chatgpt" || CodexService.provider != null)
+                    text: CodexService.account?.email && CodexService.provider ? CodexService.provider.name : accountInfo.type
                     font.pixelSize: 12
                     color: Theme.textSecondary
                 }
                 Text {
                     Layout.fillWidth: true
                     visible: text !== ""
-                    text: Codex.provider?.address ?? ""
+                    text: CodexService.provider?.address ?? ""
                     wrapMode: Text.WrapAnywhere
                     font.pixelSize: 12
                     color: Theme.textSecondary
@@ -205,11 +204,11 @@ Button {
             }
 
             Separator {
-                visible: (Codex.account != null || Codex.provider != null) && (root.waiting || root.windows.some(Boolean))
+                visible: (CodexService.account != null || CodexService.provider != null) && (root.waiting || root.windows.some(Boolean))
             }
 
             Repeater {
-                model: Codex.waiting
+                model: CodexService.waiting
 
                 delegate: RowLayout {
                     id: waitingThread
@@ -238,7 +237,7 @@ Button {
             Text {
                 Layout.fillWidth: true
                 visible: text !== ""
-                text: Codex.error
+                text: CodexService.error
                 color: Theme.warning
                 wrapMode: Text.Wrap
             }
@@ -288,7 +287,7 @@ Button {
             ColumnLayout {
                 id: resetSection
                 property bool expanded: false
-                readonly property var credits: (Codex.resetCredits?.credits ?? []).filter(credit => credit.status === "available")
+                readonly property var credits: (CodexService.resetCredits?.credits ?? []).filter(credit => credit.status === "available")
                 readonly property var groups: {
                     const groups = new Map();
                     for (const credit of credits) {
@@ -303,7 +302,7 @@ Button {
                             }));
                 }
                 Layout.fillWidth: true
-                visible: Codex.resetCredits != null
+                visible: CodexService.resetCredits != null
                 spacing: 6
 
                 WrapperMouseArea {
@@ -331,7 +330,7 @@ Button {
                                 color: Theme.textPrimary
                             }
                             Text {
-                                text: `${Codex.resetCredits?.availableCount ?? 0} available`
+                                text: `${CodexService.resetCredits?.availableCount ?? 0} available`
                                 font.pixelSize: 12
                                 color: root.expiryColor(root.expiryLevel)
                             }
@@ -379,7 +378,7 @@ Button {
                                     color: root.expiryColor(creditRow.expiryLevel)
                                 }
                                 Text {
-                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), Clock.dateTimeFormat)
+                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), ClockService.dateTimeFormat)
                                     font.pixelSize: 12
                                     color: root.expiryColor(creditRow.expiryLevel)
                                 }
@@ -397,10 +396,10 @@ Button {
 
             RefreshControl {
                 Layout.alignment: Qt.AlignRight
-                updatedAt: Codex.updatedAt
-                refreshing: Codex.refreshing
-                enabled: Codex.connected
-                onRefreshRequested: Codex.refresh(true)
+                updatedAt: CodexService.updatedAt
+                refreshing: CodexService.refreshing
+                enabled: CodexService.connected
+                onRefreshRequested: CodexService.refresh(true)
             }
         }
     }

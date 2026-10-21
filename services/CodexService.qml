@@ -372,7 +372,7 @@ Singleton {
     }
 
     Connections {
-        target: Sleep
+        target: SleepService
 
         function onResumed() {
             root.refresh(true);
@@ -380,7 +380,7 @@ Singleton {
     }
 
     Connections {
-        target: Network
+        target: NetworkService
 
         function onReady() {
             root.refreshQuota();

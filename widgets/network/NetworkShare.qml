@@ -3,14 +3,14 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Networking as Net
+import Quickshell.Networking
 import qs.components
 import qs.config
 import qs.services
 
 ColumnLayout {
     id: root
-    required property Net.WifiNetwork network
+    required property WifiNetwork network
     required property var profile
     property var result: null
     property string error
@@ -23,7 +23,7 @@ ColumnLayout {
         const lifetime = root.lifetime;
         Promise.resolve().then(() => {
             if (lifetime.active)
-                return Network.queryShare(root.network, root.profile);
+                return NetworkService.queryShare(root.network, root.profile);
         }).then(result => {
             if (lifetime.active)
                 root.result = result;
