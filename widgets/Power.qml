@@ -13,12 +13,17 @@ BarButton {
     property var pendingAction: null
     readonly property var menuEntries: [
         {
-            icon: "system-lock-screen-symbolic",
-            label: "Lock",
-            command: ["loginctl", "lock-session"]
+            icon: "preferences-desktop-wallpaper-symbolic",
+            label: "Shuffle",
+            command: ["systemctl", "--user", "start", "update-wallpaper.service"]
         },
         {
             separator: true
+        },
+        {
+            icon: "system-lock-screen-symbolic",
+            label: "Lock",
+            command: ["loginctl", "lock-session"]
         },
         {
             icon: "system-suspend-symbolic",
