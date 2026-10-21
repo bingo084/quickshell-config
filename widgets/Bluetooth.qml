@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell
 import Quickshell.Bluetooth
 import qs.components
 import qs.components.bar
@@ -9,7 +10,15 @@ import qs.widgets.bluetooth
 Button {
     id: root
     visible: BluetoothPopup.adapter !== null
-    onClicked: BluetoothPopup.toggle(root)
+    acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+    onClicked: mouse => {
+        if (mouse.button === Qt.LeftButton) {
+            BluetoothPopup.toggle(root);
+        } else {
+            PopupHost.close();
+            Quickshell.execDetached(["blueman-manager"]);
+        }
+    }
 
     content: Icon {
         name: {

@@ -15,6 +15,7 @@ RowLayout {
             id: trayButton
             required property SystemTrayItem modelData
 
+            visible: modelData.id !== "nm-applet"
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             horizontalPadding: 3
             onClicked: mouse => {
