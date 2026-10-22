@@ -14,6 +14,8 @@ Controls.TextField {
     font.pixelSize: 13
     color: Theme.textPrimary
     placeholderTextColor: Theme.textSecondary
+    selectionColor: Theme.accent
+    selectedTextColor: Theme.textOnAccent
     echoMode: password && !revealButton.revealed ? TextInput.Password : TextInput.Normal
 
     Button {

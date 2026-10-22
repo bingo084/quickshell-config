@@ -18,7 +18,7 @@ Flickable {
     contentWidth: width
     contentHeight: groups.implicitHeight
     clip: true
-    Controls.ScrollBar.vertical: Controls.ScrollBar {
+    Controls.ScrollBar.vertical: ScrollBar {
         id: scrollbar
     }
 

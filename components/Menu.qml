@@ -28,7 +28,9 @@ Controls.Menu {
         spacing: 1
         clip: true
         interactive: contentHeight > height
-        Controls.ScrollIndicator.vertical: Controls.ScrollIndicator {}
+        Controls.ScrollIndicator.vertical: Controls.ScrollIndicator {
+            palette.mid: Qt.alpha(Theme.textPrimary, 0.35)
+        }
     }
 
     background: Rectangle {
