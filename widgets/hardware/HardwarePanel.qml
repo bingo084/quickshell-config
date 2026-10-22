@@ -191,7 +191,9 @@ ColumnLayout {
                 implicitHeight: 78
                 margin: 12
                 radius: 6
-                color: Theme.barBackground
+                color: Theme.cardBackground
+                border.width: 1
+                border.color: Theme.cardBorder
 
                 ColumnLayout {
                     Text {
@@ -236,7 +238,9 @@ ColumnLayout {
                 implicitHeight: 252
                 margin: 12
                 radius: 6
-                color: Theme.barBackground
+                color: Theme.cardBackground
+                border.width: 1
+                border.color: Theme.cardBorder
 
                 Trend {
                     series: root.metric?.series ?? []

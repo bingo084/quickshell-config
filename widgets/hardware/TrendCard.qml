@@ -14,7 +14,9 @@ WrapperMouseArea {
     WrapperRectangle {
         margin: 12
         radius: 6
-        color: Theme.barBackground
+        color: Theme.cardBackground
+        border.width: 1
+        border.color: Theme.cardBorder
         ColumnLayout {
             spacing: 6
 

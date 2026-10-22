@@ -26,7 +26,7 @@ Controls.Control {
 
     background: Rectangle {
         radius: 6
-        color: Qt.tint(Theme.meterBackground, Theme.hoveredBackground)
+        color: Theme.controlBackground
     }
 
     contentItem: Item {

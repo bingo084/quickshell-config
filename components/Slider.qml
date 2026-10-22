@@ -40,8 +40,8 @@ Controls.Slider {
         implicitHeight: 12
         radius: width / 2
         scale: root.pressed ? 7 / 6 : 1
-        color: root.palette.highlight
-        border.width: root.visualFocus ? 2 : 0
-        border.color: Theme.textPrimary
+        color: "#ffffff"
+        border.width: root.visualFocus ? 2 : 1
+        border.color: root.visualFocus ? Theme.accent : Qt.alpha("#000000", 0.18)
     }
 }

@@ -27,7 +27,9 @@ Controls.Switch {
             height: parent.height - 2 * y
             width: height
             radius: height / 2
-            color: root.checked ? Theme.textOnAccent : Theme.textPrimary
+            color: "#ffffff"
+            border.width: 1
+            border.color: Qt.alpha("#000000", 0.12)
 
             Behavior on x {
                 NumberAnimation {

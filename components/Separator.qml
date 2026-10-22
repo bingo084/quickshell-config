@@ -5,5 +5,5 @@ import qs.config
 Rectangle {
     Layout.fillWidth: true
     implicitHeight: 1
-    color: Qt.alpha(Theme.popupBorder, 0.9)
+    color: Qt.alpha(Theme.textPrimary, 0.11)
 }

@@ -106,7 +106,7 @@ PopupWindow {
         implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
         radius: Theme.popupRadius
         color: Theme.popupTint
-        border.color: Qt.alpha(Theme.dark ? "#ffffff" : "#000000", Theme.dark ? 0.16 : 0.10)
+        border.color: Theme.popupBorder
         border.width: 1
         clip: true
         opacity: 0

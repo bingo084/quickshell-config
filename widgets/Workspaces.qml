@@ -30,10 +30,13 @@ RowLayout {
             implicitHeight: 30
             radius: 4
             color: isActive ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
+            border.width: isActive ? 1 : 0
+            border.color: Theme.popupBorder
             Text {
                 anchors.centerIn: parent
                 text: workspace.index
-                color: workspace.isActive ? Theme.textOnSelected : Theme.textPrimary
+                color: Theme.textPrimary
+                font.weight: workspace.isActive ? Font.DemiBold : Font.Normal
             }
 
             MouseArea {

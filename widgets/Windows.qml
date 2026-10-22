@@ -62,6 +62,8 @@ RowLayout {
                         margin: 5
                         radius: 4
                         color: area.model.isFocused ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
+                        border.width: area.model.isFocused ? 1 : 0
+                        border.color: Theme.popupBorder
 
                         RowLayout {
                             Icon {
@@ -79,7 +81,8 @@ RowLayout {
                                 Layout.fillWidth: true
                                 elide: Text.ElideRight
                                 text: _format(area.model.title, area.model.appId)
-                                color: area.model.isFocused ? Theme.textOnSelected : Theme.textPrimary
+                                color: Theme.textPrimary
+                                font.weight: area.model.isFocused ? Font.DemiBold : Font.Normal
 
                                 function _format(title: string, appId: string): string {
                                     if (appId === "google-chrome") {

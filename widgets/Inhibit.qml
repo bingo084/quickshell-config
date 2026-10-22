@@ -73,8 +73,7 @@ BarButton {
                 animated: popup.visible
                 currentIndex: model.findIndex(mode => mode.value === InhibitService.mode)
                 onActivated: index => InhibitService.setMode(model[index].value)
-                palette.highlight: InhibitService.mode === "off" ? Theme.popupBackground : Qt.tint(Theme.popupBackground, Qt.alpha(modeColor, 0.4))
-                palette.mid: InhibitService.mode === "off" ? Theme.popupBorder : Qt.alpha(modeColor, 0.4)
+                palette.mid: Theme.popupBorder
                 palette.highlightedText: modeColor
                 model: [
                     {
