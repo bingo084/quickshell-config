@@ -14,6 +14,11 @@ BarButton {
     readonly property var menuEntries: [
         {
             icon: "preferences-desktop-wallpaper-symbolic",
+            label: "Wallpaper",
+            command: ["sh", "-c", "url=$(jq -er '.url // empty' \"$HOME/.cache/wallpaper.json\") && exec xdg-open \"$url\""]
+        },
+        {
+            icon: "media-playlist-shuffle-symbolic",
             label: "Shuffle",
             command: ["systemctl", "--user", "start", "update-wallpaper.service"]
         },
