@@ -13,6 +13,8 @@ Singleton {
     property var provider
     property var updatedAt
     readonly property bool refreshing: Object.values(state.pending).some(request => ["config/read", "account/read", "account/rateLimits/read", "thread/loaded/list"].includes(request.method))
+    readonly property bool resetting: Object.values(state.pending).some(request => request.method === "account/rateLimitResetCredit/consume")
+    property var resetResult
     property string error
     property bool connected: false
     property var threads: ({})
@@ -27,6 +29,8 @@ Singleton {
         property var syncing: ({})
         property var questions: ({})
         property var restoring: ({})
+        property var resetKeys: ({})
+        property int quotaRequest: 0
     }
 
     function request(method, params = {}) {
@@ -55,10 +59,26 @@ Singleton {
         request("thread/loaded/list");
     }
 
-    function refreshQuota() {
+    function refreshQuota(force = false) {
         const pending = Object.values(state.pending).some(request => request.method === "account/rateLimits/read");
-        if (connected && account?.type === "chatgpt" && !pending)
-            request("account/rateLimits/read");
+        if (connected && account?.type === "chatgpt" && (force || !pending))
+            state.quotaRequest = request("account/rateLimits/read");
+    }
+
+    function useReset(creditId: string) {
+        if (!connected || account?.type !== "chatgpt" || refreshing || resetting)
+            return;
+        const credit = resetCredits?.credits?.find(credit => credit.id === creditId && credit.status === "available");
+        if (!credit)
+            return;
+        resetResult = null;
+        // Retrying an uncertain result must not consume another reset.
+        const key = state.resetKeys[creditId] ?? `quickshell-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        state.resetKeys[creditId] = key;
+        request("account/rateLimitResetCredit/consume", {
+            creditId,
+            idempotencyKey: key
+        });
     }
 
     function waitingThreads() {
@@ -255,6 +275,8 @@ Singleton {
         delete remaining[message.id];
         state.pending = remaining;
         const method = pending.method;
+        if (method === "account/rateLimits/read" && message.id !== state.quotaRequest)
+            return;
         const threadId = pending.params.threadId;
         if (method === "thread/resume" || method === "thread/unsubscribe")
             delete state.syncing[threadId];
@@ -263,6 +285,15 @@ Singleton {
         if (restoringRequest && restoring?.requestId !== message.id)
             return;
         if (message.error) {
+            if (method === "account/rateLimitResetCredit/consume") {
+                resetResult = {
+                    creditId: pending.params.creditId,
+                    error: message.error.message
+                };
+                console.warn("Codex reset:", message.error.message);
+                refreshQuota(true);
+                return;
+            }
             if (restoringRequest || method === "thread/resume")
                 delete state.restoring[threadId];
             if (method === "thread/resume" && message.error.message.includes("no rollout found")) {
@@ -301,6 +332,14 @@ Singleton {
             resetCredits = result.rateLimitResetCredits;
             updatedAt = new Date();
             error = "";
+            break;
+        case "account/rateLimitResetCredit/consume":
+            resetResult = {
+                creditId: pending.params.creditId,
+                outcome: result.outcome
+            };
+            delete state.resetKeys[pending.params.creditId];
+            refreshQuota(true);
             break;
         case "thread/loaded/list":
             {
@@ -412,6 +451,12 @@ Singleton {
             onRead: line => console.warn(line)
         }
         onExited: {
+            const reset = Object.values(state.pending).find(request => request.method === "account/rateLimitResetCredit/consume");
+            if (reset)
+                root.resetResult = {
+                    creditId: reset.params.creditId,
+                    error: "Connection lost. Refresh and retry this reset."
+                };
             root.connected = false;
             root.threads = {};
             state.pending = {};

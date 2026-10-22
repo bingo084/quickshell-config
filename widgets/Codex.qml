@@ -139,10 +139,14 @@ BarButton {
         id: popup
         anchorItem: root
         contentWidth: 280
+        contentMargin: 16
         onVisibleChanged: {
             if (visible) {
                 root.now = new Date();
                 CodexService.refresh();
+            } else {
+                resetSection.selectedId = "";
+                CodexService.resetResult = null;
             }
         }
 
@@ -287,6 +291,8 @@ BarButton {
             ColumnLayout {
                 id: resetSection
                 property bool expanded: false
+                property string selectedId
+                readonly property bool canReset: CodexService.connected && !CodexService.refreshing && !CodexService.resetting
                 readonly property var credits: (CodexService.resetCredits?.credits ?? []).filter(credit => credit.status === "available")
                 readonly property var groups: {
                     const groups = new Map();
@@ -301,45 +307,46 @@ BarButton {
                                 credits
                             }));
                 }
-                Layout.fillWidth: true
                 visible: CodexService.resetCredits != null
-                spacing: 6
+                spacing: 12
 
-                WrapperMouseArea {
-                    id: resetArea
+                Connections {
+                    target: CodexService
+                    function onResetResultChanged() {
+                        if (CodexService.resetResult?.outcome)
+                            resetSection.selectedId = "";
+                    }
+                }
+
+                Button {
                     Layout.fillWidth: true
                     Layout.leftMargin: -4
                     Layout.rightMargin: -4
                     implicitHeight: 26
+                    padding: 4
+                    radius: 4
+                    opacity: 1
                     enabled: resetSection.credits.length > 0
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
                     onClicked: resetSection.expanded = !resetSection.expanded
 
-                    WrapperRectangle {
-                        margin: 4
-                        radius: 4
-                        color: resetArea.pressed ? Theme.pressedBackground : resetArea.containsMouse ? Theme.hoveredBackground : "transparent"
-
-                        RowLayout {
-                            spacing: 6
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Usage limit resets"
-                                font.pixelSize: 12
-                                color: Theme.textPrimary
-                            }
-                            Text {
-                                text: `${CodexService.resetCredits?.availableCount ?? 0} available`
-                                font.pixelSize: 12
-                                color: root.expiryColor(root.expiryLevel)
-                            }
-                            Icon {
-                                implicitSize: 12
-                                visible: resetSection.credits.length > 0
-                                color: Theme.textSecondary
-                                name: resetSection.expanded ? "pan-down-symbolic" : "pan-end-symbolic"
-                            }
+                    contentItem: RowLayout {
+                        spacing: 6
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Usage limit resets"
+                            font.pixelSize: 12
+                            color: Theme.textPrimary
+                        }
+                        Text {
+                            text: `${CodexService.resetCredits?.availableCount ?? 0} available`
+                            font.pixelSize: 12
+                            color: root.expiryColor(root.expiryLevel)
+                        }
+                        Icon {
+                            implicitSize: 12
+                            visible: resetSection.credits.length > 0
+                            color: Theme.textSecondary
+                            name: resetSection.expanded ? "pan-down-symbolic" : "pan-end-symbolic"
                         }
                     }
                 }
@@ -352,10 +359,10 @@ BarButton {
                         required property var modelData
 
                         visible: resetSection.expanded
-                        Layout.fillWidth: true
-                        spacing: 6
+                        spacing: 0
                         Text {
                             Layout.fillWidth: true
+                            Layout.bottomMargin: 4
                             visible: text !== ""
                             text: creditGroup.modelData.title
                             font.pixelSize: 12
@@ -366,31 +373,109 @@ BarButton {
                         Repeater {
                             model: creditGroup.modelData.credits
 
-                            delegate: RowLayout {
+                            delegate: ColumnLayout {
                                 id: creditRow
                                 required property var modelData
                                 readonly property int expiryLevel: root.creditLevel(modelData)
+                                readonly property bool confirming: resetSection.selectedId === modelData.id
 
-                                Text {
+                                spacing: 6
+
+                                Button {
                                     Layout.fillWidth: true
-                                    text: creditRow.modelData.expiresAt == null ? "No expiration" : creditRow.expiryLevel > 0 ? "Expires soon" : "Expires"
-                                    font.pixelSize: 12
-                                    color: root.expiryColor(creditRow.expiryLevel)
-                                }
-                                Text {
-                                    text: creditRow.modelData.expiresAt == null ? "" : Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), ClockService.dateTimeFormat)
-                                    font.pixelSize: 12
-                                    color: root.expiryColor(creditRow.expiryLevel)
+                                    Layout.leftMargin: -4
+                                    Layout.rightMargin: -4
+                                    padding: 4
+                                    enabled: !CodexService.resetting
+                                    onClicked: {
+                                        if (!creditRow.confirming)
+                                            CodexService.resetResult = null;
+                                        resetSection.selectedId = creditRow.confirming ? "" : creditRow.modelData.id;
+                                    }
+
+                                    contentItem: RowLayout {
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: creditRow.modelData.expiresAt == null ? "No expiration" : "Expires " + Qt.formatDateTime(new Date(creditRow.modelData.expiresAt * 1000), ClockService.dateTimeFormat)
+                                            font.pixelSize: 12
+                                            color: root.expiryColor(creditRow.expiryLevel)
+                                        }
+                                        Icon {
+                                            implicitSize: 12
+                                            name: creditRow.confirming ? "pan-down-symbolic" : "pan-end-symbolic"
+                                            color: Theme.textSecondary
+                                        }
+                                    }
                                 }
 
-                                Tooltip {
-                                    anchorItem: creditRow
-                                    text: creditRow.modelData.description ?? ""
-                                    enabled: text !== ""
+                                WrapperRectangle {
+                                    Layout.fillWidth: true
+                                    visible: creditRow.confirming
+                                    margin: 10
+                                    radius: 5
+                                    color: Theme.controlBackground
+
+                                    ColumnLayout {
+                                        spacing: 8
+                                        Text {
+                                            text: "Use this reset?"
+                                            color: Theme.textPrimary
+                                        }
+                                        Text {
+                                            Layout.fillWidth: true
+                                            visible: text !== ""
+                                            text: creditRow.modelData.description ?? ""
+                                            wrapMode: Text.Wrap
+                                            font.pixelSize: 12
+                                            color: Theme.textSecondary
+                                        }
+                                        RowLayout {
+                                            Layout.fillWidth: false
+                                            Layout.alignment: Qt.AlignRight
+                                            spacing: 4
+                                            uniformCellSizes: true
+                                            Button {
+                                                Layout.fillWidth: true
+                                                Layout.minimumWidth: implicitWidth
+                                                text: "Cancel"
+                                                enabled: !CodexService.resetting
+                                                onClicked: resetSection.selectedId = ""
+                                            }
+                                            Button {
+                                                id: resetButton
+                                                Layout.fillWidth: true
+                                                Layout.minimumWidth: Math.ceil(resetLabelMetrics.advanceWidth) + leftPadding + rightPadding
+                                                text: CodexService.resetting ? "Resetting…" : "Use reset"
+                                                variant: Button.Accent
+                                                enabled: resetSection.canReset
+                                                onClicked: CodexService.useReset(creditRow.modelData.id)
+
+                                                TextMetrics {
+                                                    id: resetLabelMetrics
+                                                    font: resetButton.font
+                                                    text: "Resetting…"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: CodexService.resetResult != null
+                    text: CodexService.resetResult?.error ?? ({
+                            reset: "Usage limits reset.",
+                            alreadyRedeemed: "This reset was already used. Usage limits refreshed.",
+                            nothingToReset: "No usage limit is eligible for a reset right now.",
+                            noCredit: "No reset credits are available."
+                        })[CodexService.resetResult?.outcome] ?? ""
+                    wrapMode: Text.Wrap
+                    font.pixelSize: 12
+                    color: CodexService.resetResult?.error || CodexService.resetResult?.outcome === "noCredit" ? Theme.warning : Theme.textSecondary
                 }
             }
 
