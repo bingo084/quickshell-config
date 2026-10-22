@@ -2,6 +2,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.widgets
@@ -16,7 +17,10 @@ ShellRoot {
             required property ShellScreen modelData
 
             screen: modelData
-            color: Theme.barBackground
+            color: Theme.barTint
+            BackgroundEffect.blurRegion: Region {
+                item: bar.contentItem
+            }
             focusable: PopupHost.opened && PopupHost.bar === bar.contentItem && (PopupHost.activePopup?.focusable ?? false)
             anchors {
                 left: true
