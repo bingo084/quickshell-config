@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
@@ -11,6 +12,7 @@ PopupWindow {
     id: root
     property Popup activePopup: null
     property bool opened: false
+    property bool frozen: false
     readonly property Item bar: activePopup?.anchorItem?.QsWindow.contentItem ?? null
 
     grabFocus: true
@@ -28,7 +30,9 @@ PopupWindow {
     mask: Region {
         item: background
     }
-    BackgroundEffect.blurRegion: Region {
+    BackgroundEffect.blurRegion: root.frozen ? null : blurRegion
+    Region {
+        id: blurRegion
         item: background
         radius: background.radius
     }
@@ -40,6 +44,9 @@ PopupWindow {
     }
 
     function open(popup: Popup, anchorItem = popup.anchorItem) {
+        captureTimeout.stop();
+        closeFrame.active = false;
+        frozen = false;
         const previous = activePopup;
         background.forceActiveFocus();
         if (previous !== null && previous.anchorItem?.QsWindow.window !== anchorItem.QsWindow.window)
@@ -56,10 +63,22 @@ PopupWindow {
     }
 
     function close() {
-        opened = false;
+        if (!opened || closeFrame.active)
+            return;
+        backgroundFade.stop();
+        contentFade.stop();
+        closeFrame.startOpacity = background.opacity;
+        closeFrame.x = Math.max(0, background.x - shadow.blur);
+        closeFrame.width = Math.min(root.width, background.x + background.width + shadow.blur) - closeFrame.x;
+        closeFrame.height = Math.min(root.height, background.height + shadow.blur + shadow.offset.y);
+        closeFrame.active = true;
+        captureTimeout.restart();
     }
 
     function release() {
+        captureTimeout.stop();
+        closeFrame.active = false;
+        frozen = false;
         opened = false;
         root.visible = false;
         backgroundFade.stop();
@@ -69,12 +88,14 @@ PopupWindow {
     }
 
     RectangularShadow {
+        id: shadow
         anchors.fill: background
         radius: background.radius
         blur: 22
         offset.y: 5
         color: Qt.alpha("#000000", Theme.dark ? 0.33 : 0.12)
         opacity: background.opacity
+        visible: !root.frozen
     }
 
     Rectangle {
@@ -89,10 +110,11 @@ PopupWindow {
         border.width: 1
         clip: true
         opacity: 0
-        enabled: root.opened
+        visible: !root.frozen
+        enabled: root.opened && !closeFrame.active
 
         Behavior on implicitHeight {
-            enabled: root.opened
+            enabled: root.opened && !backgroundFade.running
             NumberAnimation {
                 duration: 120
                 easing.type: Easing.OutCubic
@@ -116,6 +138,39 @@ PopupWindow {
                 else
                     child.opacity = 1;
             }
+        }
+    }
+
+    Loader {
+        id: closeFrame
+        property real startOpacity: 1
+        active: false
+        clip: true
+        opacity: background.opacity / Math.max(startOpacity, 0.001)
+        sourceComponent: Item {
+            ScreencopyView {
+                captureSource: root.screen as QtObject
+                width: root.screen.width // qmllint disable missing-property
+                height: root.screen.height // qmllint disable missing-property
+                x: -closeFrame.x
+                y: -Math.round((root.bar.height + 4) * root.devicePixelRatio) / root.devicePixelRatio
+                onHasContentChanged: {
+                    if (!hasContent)
+                        return;
+                    captureTimeout.stop();
+                    root.frozen = true;
+                    root.opened = false;
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: captureTimeout
+        interval: 300
+        onTriggered: {
+            console.warn("Popup closing capture timed out");
+            root.release();
         }
     }
 
