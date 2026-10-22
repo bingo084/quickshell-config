@@ -13,6 +13,7 @@ Singleton {
     readonly property color hoveredBackground: Qt.alpha(textPrimary, 0.08)
     readonly property color pressedBackground: Qt.alpha(textPrimary, 0.12)
     readonly property color popupBackground: ColorService.data.surface_container
+    readonly property color popupTint: Qt.alpha(dark ? "#262629" : "#ffffff", dark ? 0.78 : 0.80)
     readonly property color popupBorder: ColorService.data.outline_variant
     readonly property color accent: ColorService.data.primary
     readonly property color textOnAccent: ColorService.data.on_primary

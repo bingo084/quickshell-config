@@ -1,7 +1,9 @@
 pragma Singleton
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.config
 
@@ -25,6 +27,10 @@ PopupWindow {
     // qmllint enable missing-property unresolved-type unqualified
     mask: Region {
         item: background
+    }
+    BackgroundEffect.blurRegion: Region {
+        item: background
+        radius: background.radius
     }
 
     onClosed: root.release()
@@ -62,6 +68,15 @@ PopupWindow {
         activePopup = null;
     }
 
+    RectangularShadow {
+        anchors.fill: background
+        radius: background.radius
+        blur: 22
+        offset.y: 5
+        color: Qt.alpha("#000000", Theme.dark ? 0.33 : 0.12)
+        opacity: background.opacity
+    }
+
     Rectangle {
         id: background
         readonly property real margin: root.activePopup?.contentMargin ?? 12
@@ -69,8 +84,8 @@ PopupWindow {
         implicitWidth: (root.activePopup?.contentWidth ?? 0) + 2 * (margin + border.width)
         implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
         radius: Theme.popupRadius
-        color: Theme.popupBackground
-        border.color: Theme.popupBorder
+        color: Theme.popupTint
+        border.color: Qt.alpha(Theme.dark ? "#ffffff" : "#000000", Theme.dark ? 0.16 : 0.10)
         border.width: 1
         clip: true
         opacity: 0
