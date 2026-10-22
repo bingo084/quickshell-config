@@ -27,6 +27,10 @@ PanelWindow {
         bottom: true
     }
     exclusionMode: ExclusionMode.Ignore
+    BackgroundEffect.blurRegion: Region {
+        item: background
+        radius: background.radius
+    }
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     onVisibleChanged: {
@@ -35,11 +39,12 @@ PanelWindow {
     }
 
     Rectangle {
+        id: background
         anchors.centerIn: parent
         anchors.verticalCenterOffset: -(parent.height - height) / 4
         width: 320
         height: 150
-        color: Theme.popupBackground
+        color: Theme.popupTint
         border.color: Theme.popupBorder
         radius: Theme.popupRadius
 

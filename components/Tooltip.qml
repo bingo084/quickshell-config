@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.config
 
@@ -26,6 +27,10 @@ PopupWindow {
     }
     // qmllint enable missing-property unresolved-type unqualified
     mask: Region {}
+    BackgroundEffect.blurRegion: Region {
+        item: background
+        radius: background.radius
+    }
 
     onActiveChanged: {
         if (!active)
@@ -54,7 +59,7 @@ PopupWindow {
         width: root.width
         margin: 6
         radius: Theme.barItemRadius
-        color: Theme.popupBackground
+        color: Theme.popupTint
         border.color: Theme.popupBorder
         border.width: 1
 
