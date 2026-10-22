@@ -1,5 +1,5 @@
-pragma Singleton
 pragma ComponentBehavior: Bound
+pragma Singleton
 
 import QtQml.Models
 import QtQml.XmlListModel
