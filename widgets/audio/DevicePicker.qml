@@ -92,7 +92,7 @@ Flickable {
                             spacing: 6
                             Icon {
                                 implicitSize: 16
-                                color: entry.checked ? Theme.textOnSelected : Theme.textPrimary
+                                color: entry.checked ? Theme.accent : Theme.textPrimary
                                 name: AudioService.portIconName(entry.modelData, group.modelData)
                             }
                             Text {
@@ -100,7 +100,7 @@ Flickable {
                                 font.pixelSize: 12
                                 Layout.fillWidth: true
                                 text: entry.text
-                                color: entry.checked ? Theme.textOnSelected : Theme.textPrimary
+                                color: entry.checked ? Theme.accent : Theme.textPrimary
                                 elide: Text.ElideRight
                             }
                             Text {
@@ -111,7 +111,7 @@ Flickable {
                             }
                             Icon {
                                 implicitSize: 14
-                                color: Theme.textOnSelected
+                                color: Theme.accent
                                 visible: entry.checked
                                 name: "object-select-symbolic"
                             }

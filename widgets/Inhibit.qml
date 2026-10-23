@@ -218,7 +218,7 @@ BarButton {
             font: control.font
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            color: control.highlighted ? Theme.textOnSelected : Theme.textPrimary
+            color: control.highlighted ? Theme.accent : Theme.textPrimary
         }
         background: Rectangle {
             radius: 4

@@ -185,7 +185,7 @@ BarButton {
                             text: (CodexService.account?.planType ?? "").replace(/_/g, " ")
                             font.capitalization: Font.Capitalize
                             font.pixelSize: 12
-                            color: Theme.textOnSelected
+                            color: Theme.accent
                         }
                     }
                 }

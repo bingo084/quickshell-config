@@ -21,7 +21,7 @@ Controls.Button {
 
     padding: size > 0 ? (size - icon.width) / 2 : 6
     opacity: enabled ? 1 : 0.5
-    palette.buttonText: checked ? Theme.textOnSelected : variant === Button.Accent ? Theme.textOnAccent : Theme.textPrimary
+    palette.buttonText: checked ? Theme.accent : variant === Button.Accent ? Theme.textOnAccent : Theme.textPrimary
     icon.color: palette.buttonText
     icon.width: 16
     icon.height: 16

@@ -21,7 +21,7 @@ Controls.Control {
     font.pixelSize: 12
     palette.buttonText: Theme.textSecondary
     palette.highlight: Theme.selectedBackground
-    palette.highlightedText: Theme.textOnSelected
+    palette.highlightedText: Theme.accent
     palette.mid: Theme.accent
 
     background: Rectangle {
