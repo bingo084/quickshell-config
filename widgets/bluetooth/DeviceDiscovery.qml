@@ -92,7 +92,7 @@ ColumnLayout {
         visible: root.scanning
         implicitHeight: 2
         radius: 1
-        color: Qt.alpha(Theme.textSecondary, 0.1)
+        color: Theme.trackBackground
         clip: true
 
         Rectangle {
@@ -100,7 +100,7 @@ ColumnLayout {
             width: track.width * 0.24
             height: track.height
             radius: 1
-            color: Qt.alpha(Theme.textSecondary, 0.65)
+            color: Theme.textTertiary
 
             NumberAnimation on x {
                 from: -light.width

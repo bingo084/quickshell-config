@@ -14,7 +14,7 @@ ProgressBar {
     implicitWidth: 200
     implicitHeight: 4
     padding: 0
-    palette.highlight: Theme.levelColor(root.level, Theme.accent)
+    palette.highlight: Theme.levelColor(root.level)
     palette.mid: Theme.trackBackground
 
     background: Rectangle {
@@ -50,7 +50,7 @@ ProgressBar {
                 const bottom = Math.round((origin.y + parent.height) * dpr);
                 return (bottom - top + 2 * Math.round(root.tickOverhang * dpr)) / dpr;
             }
-            color: Qt.alpha(Theme.textPrimary, 0.8)
+            color: Theme.textSecondary
 
             // mapToItem() needs a dependency on the ancestors' geometry.
             TransformWatcher {
