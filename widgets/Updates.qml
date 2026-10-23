@@ -112,63 +112,6 @@ BarButton {
                 }
             }
 
-            ColumnLayout {
-                visible: UpdateService.news.length > 0
-                spacing: 8
-
-                Text {
-                    text: "Arch news"
-                    font.pixelSize: 13
-                    font.bold: true
-                    color: Theme.textSecondary
-                }
-                Repeater {
-                    model: UpdateService.news
-                    delegate: RowLayout {
-                        id: article
-                        required property var modelData
-                        spacing: 8
-
-                        Link {
-                            Layout.fillWidth: true
-                            Layout.preferredWidth: 1
-                            text: article.modelData.title
-                            url: article.modelData.url
-                            wrapMode: Text.Wrap
-                        }
-                        Text {
-                            id: newsDate
-                            Layout.alignment: Qt.AlignTop
-                            text: Qt.formatDateTime(article.modelData.date, ClockService.dateFormat)
-                            font.pixelSize: 11
-                            color: Theme.textTertiary
-
-                            Tooltip {
-                                anchorItem: newsDate
-                                text: Qt.formatDateTime(article.modelData.date, ClockService.fullDateTimeFormat)
-                            }
-                        }
-                    }
-                }
-                Separator {
-                    visible: UpdateService.count > 0
-                }
-            }
-
-            Text {
-                Layout.fillWidth: true
-                Layout.preferredWidth: 1
-                visible: UpdateService.error !== ""
-                text: UpdateService.error
-                color: Theme.warning
-                wrapMode: Text.Wrap
-            }
-            Text {
-                visible: UpdateService.count === 0 && UpdateService.error === ""
-                text: "No updates"
-                color: Theme.textSecondary
-            }
-
             ListView {
                 id: packageList
                 readonly property int oldVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, versionMetrics.advanceWidth(pkg.oldVersion)), 0)))
@@ -177,7 +120,67 @@ BarButton {
                 implicitWidth: 400
                 model: UpdateService.packages
                 section.property: "source"
-                section.criteria: ViewSection.FullString
+
+                header: ColumnLayout {
+                    width: packageList.contentWidth
+
+                    ColumnLayout {
+                        visible: UpdateService.news.length > 0
+                        spacing: 8
+
+                        Text {
+                            text: "Arch news"
+                            font.pixelSize: 13
+                            font.bold: true
+                            color: Theme.textSecondary
+                        }
+                        Repeater {
+                            model: UpdateService.news
+                            delegate: RowLayout {
+                                id: article
+                                required property var modelData
+                                spacing: 8
+
+                                Link {
+                                    Layout.fillWidth: true
+                                    Layout.preferredWidth: 1
+                                    text: article.modelData.title
+                                    url: article.modelData.url
+                                    wrapMode: Text.Wrap
+                                }
+                                Text {
+                                    id: newsDate
+                                    Layout.alignment: Qt.AlignTop
+                                    text: Qt.formatDateTime(article.modelData.date, ClockService.dateFormat)
+                                    font.pixelSize: 11
+                                    color: Theme.textTertiary
+
+                                    Tooltip {
+                                        anchorItem: newsDate
+                                        text: Qt.formatDateTime(article.modelData.date, ClockService.fullDateTimeFormat)
+                                    }
+                                }
+                            }
+                        }
+                        Separator {
+                            visible: UpdateService.count > 0
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        visible: UpdateService.error !== ""
+                        text: UpdateService.error
+                        color: Theme.warning
+                        wrapMode: Text.Wrap
+                    }
+                    Text {
+                        visible: UpdateService.count === 0 && UpdateService.error === ""
+                        text: "No updates"
+                        color: Theme.textSecondary
+                    }
+                }
 
                 FontMetrics {
                     id: versionMetrics
