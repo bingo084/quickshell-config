@@ -14,7 +14,7 @@ Item {
 
     Canvas {
         id: graph
-        readonly property color gridColor: Theme.meterBackground
+        readonly property color gridColor: Theme.trackBackground
         readonly property color lineColor: Theme.accent
         readonly property color secondLineColor: Theme.textSecondary
 

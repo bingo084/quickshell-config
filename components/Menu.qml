@@ -29,13 +29,13 @@ Controls.Menu {
         clip: true
         interactive: contentHeight > height
         Controls.ScrollIndicator.vertical: Controls.ScrollIndicator {
-            palette.mid: Qt.alpha(Theme.textPrimary, 0.35)
+            palette.mid: Theme.scrollThumb
         }
     }
 
     background: Rectangle {
         radius: Theme.popupRadius
-        color: Theme.popupBackground
-        border.color: Theme.popupBorder
+        color: Theme.menuBackground
+        border.color: Theme.border
     }
 }

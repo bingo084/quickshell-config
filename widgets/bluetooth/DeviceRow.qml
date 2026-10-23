@@ -17,7 +17,7 @@ WrapperRectangle {
     signal detailsRequested
 
     radius: 7
-    color: body.down ? Theme.pressedBackground : body.hovered ? Theme.hoveredBackground : "transparent"
+    color: body.down ? Theme.pressOverlay : body.hovered ? Theme.hoverOverlay : "transparent"
 
     Behavior on color {
         ColorAnimation {

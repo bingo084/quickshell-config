@@ -23,7 +23,7 @@ RowLayout {
             required property int index
             required property bool isActive
             required property string output
-            readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
+            readonly property color overlayColor: area.pressed ? Theme.pressOverlay : area.containsMouse ? Theme.hoverOverlay : "transparent"
 
             visible: output === root.screen?.name
             implicitWidth: 32
@@ -31,7 +31,7 @@ RowLayout {
             radius: 4
             color: isActive ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
             border.width: isActive ? 1 : 0
-            border.color: Theme.popupBorder
+            border.color: Theme.border
             Text {
                 anchors.centerIn: parent
                 text: workspace.index

@@ -60,7 +60,7 @@ Flickable {
                 }
                 background: Rectangle {
                     radius: 4
-                    color: group.ports.length === 0 && heading.hovered ? Theme.hoveredBackground : "transparent"
+                    color: group.ports.length === 0 && heading.hovered ? Theme.hoverOverlay : "transparent"
                 }
                 HoverHandler {
                     cursorShape: group.ports.length === 0 ? Qt.PointingHandCursor : Qt.ArrowCursor

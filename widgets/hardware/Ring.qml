@@ -16,7 +16,7 @@ Item {
     Canvas {
         id: ring
 
-        readonly property color trackColor: Theme.meterBackground
+        readonly property color trackColor: Theme.trackBackground
         readonly property color fillColor: Theme.levelColor(root.level, Theme.accent)
 
         anchors.fill: parent

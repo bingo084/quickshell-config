@@ -56,14 +56,14 @@ RowLayout {
                     }
 
                     WrapperRectangle {
-                        readonly property color overlayColor: area.pressed ? Theme.pressedBackground : area.containsMouse ? Theme.hoveredBackground : "transparent"
+                        readonly property color overlayColor: area.pressed ? Theme.pressOverlay : area.containsMouse ? Theme.hoverOverlay : "transparent"
 
                         implicitHeight: 30
                         margin: 5
                         radius: 4
                         color: area.model.isFocused ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
                         border.width: area.model.isFocused ? 1 : 0
-                        border.color: Theme.popupBorder
+                        border.color: Theme.border
 
                         RowLayout {
                             Icon {

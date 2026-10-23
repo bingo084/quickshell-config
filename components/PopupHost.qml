@@ -93,7 +93,7 @@ PopupWindow {
         radius: background.radius
         blur: 22
         offset.y: 5
-        color: Qt.alpha("#000000", Theme.dark ? 0.33 : 0.12)
+        color: Theme.shadow
         opacity: background.opacity
         visible: !root.frozen
     }
@@ -105,8 +105,8 @@ PopupWindow {
         implicitWidth: (root.activePopup?.contentWidth ?? 0) + 2 * (margin + border.width)
         implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
         radius: Theme.popupRadius
-        color: Theme.popupTint
-        border.color: Theme.popupBorder
+        color: Theme.popupBackground
+        border.color: Theme.border
         border.width: 1
         clip: true
         opacity: 0

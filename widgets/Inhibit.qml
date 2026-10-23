@@ -46,7 +46,7 @@ BarButton {
             radius: width / 2
             visible: InhibitService.mode !== "off"
             color: InhibitService.mode === "awake" ? Theme.warning : Theme.critical
-            border.color: Theme.barBackground
+            border.color: Theme.surface
             border.width: unit
 
             Rectangle {
@@ -73,7 +73,7 @@ BarButton {
                 animated: popup.visible
                 currentIndex: model.findIndex(mode => mode.value === InhibitService.mode)
                 onActivated: index => InhibitService.setMode(model[index].value)
-                palette.mid: Theme.popupBorder
+                palette.mid: Theme.border
                 palette.highlightedText: modeColor
                 model: [
                     {
@@ -226,7 +226,7 @@ BarButton {
             radius: 4
             border.width: control.visualFocus ? 1 : 0
             border.color: Theme.accent
-            color: Qt.tint(control.highlighted ? Theme.selectedBackground : Theme.controlBackground, control.down ? Theme.pressedBackground : control.hovered ? Theme.hoveredBackground : "transparent")
+            color: Qt.tint(control.highlighted ? Theme.selectedBackground : Theme.controlBackground, control.down ? Theme.pressOverlay : control.hovered ? Theme.hoverOverlay : "transparent")
         }
     }
 }

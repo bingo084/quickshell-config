@@ -19,7 +19,7 @@ PanelWindow {
     signal confirmed
 
     visible: false
-    color: "#66000000"
+    color: Theme.scrim
     anchors {
         left: true
         top: true
@@ -44,8 +44,8 @@ PanelWindow {
         anchors.verticalCenterOffset: -(parent.height - height) / 4
         width: 320
         height: 150
-        color: Theme.popupTint
-        border.color: Theme.popupBorder
+        color: Theme.popupBackground
+        border.color: Theme.border
         radius: Theme.popupRadius
 
         ColumnLayout {
@@ -68,7 +68,7 @@ PanelWindow {
                     implicitWidth: 90
                     implicitHeight: 30
                     radius: 6
-                    color: cancelArea.containsMouse ? Theme.hoveredBackground : "transparent"
+                    color: cancelArea.containsMouse ? Theme.hoverOverlay : "transparent"
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary
@@ -87,7 +87,7 @@ PanelWindow {
                     implicitWidth: 90
                     implicitHeight: 30
                     radius: 6
-                    color: confirmArea.containsMouse ? Theme.hoveredBackground : "transparent"
+                    color: confirmArea.containsMouse ? Theme.hoverOverlay : "transparent"
                     Text {
                         anchors.centerIn: parent
                         color: Theme.textPrimary

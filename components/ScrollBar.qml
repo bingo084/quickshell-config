@@ -3,8 +3,8 @@ import QtQuick.Controls
 import qs.config
 
 ScrollBar {
-    palette.mid: Qt.alpha(Theme.textPrimary, hovered ? 0.55 : 0.35)
-    palette.dark: Qt.alpha(Theme.textPrimary, 0.7)
+    palette.mid: hovered ? Theme.scrollThumbHover : Theme.scrollThumb
+    palette.dark: Theme.scrollThumbPress
 
     Behavior on palette.mid {
         ColorAnimation {

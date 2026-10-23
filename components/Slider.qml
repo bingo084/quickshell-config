@@ -11,7 +11,7 @@ Controls.Slider {
     wheelEnabled: true
     opacity: enabled ? 1 : 0.5
     palette.highlight: Theme.accent
-    palette.mid: Theme.meterBackground
+    palette.mid: Theme.trackBackground
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
@@ -40,7 +40,7 @@ Controls.Slider {
         implicitHeight: 12
         radius: width / 2
         scale: root.pressed ? 7 / 6 : 1
-        color: "#ffffff"
+        color: Theme.handleBackground
         border.width: root.visualFocus ? 2 : 1
         border.color: root.visualFocus ? Theme.accent : Qt.alpha("#000000", 0.18)
     }

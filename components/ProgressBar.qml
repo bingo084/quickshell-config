@@ -15,7 +15,7 @@ ProgressBar {
     implicitHeight: 4
     padding: 0
     palette.highlight: Theme.levelColor(root.level, Theme.accent)
-    palette.mid: Theme.meterBackground
+    palette.mid: Theme.trackBackground
 
     background: Rectangle {
         radius: height / 2

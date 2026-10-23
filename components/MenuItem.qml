@@ -70,7 +70,7 @@ Controls.MenuItem {
 
     background: Rectangle {
         radius: 6
-        color: root.down ? Theme.pressedBackground : root.hovered || root.highlighted ? Theme.hoveredBackground : "transparent"
+        color: root.down ? Theme.pressOverlay : root.hovered || root.highlighted ? Theme.hoverOverlay : "transparent"
 
         Behavior on color {
             ColorAnimation {

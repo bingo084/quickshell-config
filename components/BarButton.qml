@@ -13,7 +13,7 @@ WrapperMouseArea {
     WrapperRectangle {
         id: background
         radius: Theme.barItemRadius
-        color: root.pressed ? Theme.pressedBackground : root.containsMouse ? Theme.hoveredBackground : "transparent"
+        color: root.pressed ? Theme.pressOverlay : root.containsMouse ? Theme.hoverOverlay : "transparent"
         margin: 6
         leftMargin: root.horizontalPadding
         rightMargin: root.horizontalPadding

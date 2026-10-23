@@ -40,6 +40,6 @@ Controls.TextField {
         implicitHeight: 32
         radius: 5
         color: Theme.controlBackground
-        border.color: root.activeFocus ? Theme.accent : Theme.popupBorder
+        border.color: root.activeFocus ? Theme.accent : Theme.border
     }
 }

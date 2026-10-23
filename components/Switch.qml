@@ -18,7 +18,7 @@ Controls.Switch {
         x: root.width - root.rightPadding - width
         y: root.topPadding + (root.availableHeight - height) / 2
         radius: height / 2
-        color: root.checked ? Theme.accent : Theme.meterBackground
+        color: root.checked ? Theme.accent : Theme.trackBackground
         border.color: root.visualFocus ? Theme.accent : "transparent"
 
         Rectangle {
@@ -27,7 +27,7 @@ Controls.Switch {
             height: parent.height - 2 * y
             width: height
             radius: height / 2
-            color: "#ffffff"
+            color: Theme.handleBackground
             border.width: 1
             border.color: Qt.alpha("#000000", 0.12)
 

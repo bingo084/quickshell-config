@@ -57,7 +57,7 @@ Controls.Button {
         id: background
         radius: 5
         color: {
-            const overlay = root.down ? Theme.pressedBackground : root.hovered ? Theme.hoveredBackground : "transparent";
+            const overlay = root.down ? Theme.pressOverlay : root.hovered ? Theme.hoverOverlay : "transparent";
             if (root.checked)
                 return Qt.tint(Theme.selectedBackground, overlay);
             switch (root.variant) {
@@ -76,7 +76,7 @@ Controls.Button {
                 return root.variant === Button.Accent && !root.checked ? Theme.textOnAccent : Theme.accent;
             if (root.checked)
                 return Theme.accent;
-            return root.variant === Button.Bordered ? Theme.popupBorder : "transparent";
+            return root.variant === Button.Bordered ? Theme.border : "transparent";
         }
 
         Behavior on color {
