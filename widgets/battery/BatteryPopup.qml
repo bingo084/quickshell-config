@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Services.UPower
 import qs.components
@@ -46,140 +45,124 @@ Popup {
     }
 
     Flickable {
-        id: viewport
-        implicitHeight: Math.min(panel.implicitHeight, 460)
-        contentWidth: width
-        contentHeight: panel.implicitHeight
-        clip: true
-
-        ScrollBar.vertical: ScrollBar {
-            id: scrollBar
+        Text {
+            text: "Battery"
+            font.pixelSize: 14
+            font.bold: true
+            color: Theme.textPrimary
         }
 
         ColumnLayout {
-            id: panel
-            width: viewport.width - (viewport.contentHeight > viewport.height ? scrollBar.implicitWidth + 4 : 0)
-            spacing: 14
+            visible: root.battery !== null
+            spacing: 8
 
-            Text {
-                text: "Battery"
-                font.pixelSize: 14
-                font.bold: true
-                color: Theme.textPrimary
-            }
-
-            ColumnLayout {
-                visible: root.battery !== null
-                spacing: 8
-
-                RowLayout {
-                    Layout.fillWidth: false
-                    spacing: 6
-                    Icon {
-                        name: "laptop-symbolic"
-                        color: Theme.textSecondary
-                    }
-                    Text {
-                        id: batteryName
-                        text: "Laptop battery"
-                        font.pixelSize: 13
-                        color: Theme.textPrimary
-
-                        Tooltip {
-                            anchorItem: batteryName
-                            enabled: text !== ""
-                            text: root.battery?.model ?? ""
-                        }
-                    }
-                }
-
-                RowLayout {
-                    spacing: 12
-                    Text {
-                        Layout.fillWidth: true
-                        text: Math.round((root.battery?.percentage ?? 0) * 100) + "%"
-                        font.pixelSize: 30
-                        font.bold: true
-                        color: Theme.textPrimary
-                    }
-                    Gauge {
-                        implicitWidth: 48
-                        implicitHeight: 23
-                        fraction: root.battery?.percentage ?? 0
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    text: root.status
+            RowLayout {
+                Layout.fillWidth: false
+                spacing: 6
+                Icon {
+                    name: "laptop-symbolic"
                     color: Theme.textSecondary
-                    font.pixelSize: 12
-                    wrapMode: Text.Wrap
                 }
-            }
+                Text {
+                    id: batteryName
+                    text: "Laptop battery"
+                    font.pixelSize: 13
+                    color: Theme.textPrimary
 
-            Text {
-                visible: root.battery === null
-                text: UPower.displayDevice.ready ? "No laptop battery" : "Loading battery…"
-                font.pixelSize: 13
-                color: Theme.textSecondary
+                    Tooltip {
+                        anchorItem: batteryName
+                        enabled: text !== ""
+                        text: root.battery?.model ?? ""
+                    }
+                }
             }
 
             RowLayout {
-                visible: root.stats.length > 0
-                uniformCellSizes: true
-                Repeater {
-                    model: root.stats
-                    ColumnLayout {
-                        id: stat
-                        required property var modelData
-                        spacing: 4
-                        Text {
-                            Layout.fillWidth: true
-                            text: stat.modelData[0]
-                            font.pixelSize: 11
-                            color: Theme.textSecondary
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: stat.modelData[1]
-                            font.pixelSize: 12
-                            color: Theme.textPrimary
-                        }
-                    }
+                spacing: 12
+                Text {
+                    Layout.fillWidth: true
+                    text: Math.round((root.battery?.percentage ?? 0) * 100) + "%"
+                    font.pixelSize: 30
+                    font.bold: true
+                    color: Theme.textPrimary
+                }
+                Gauge {
+                    implicitWidth: 48
+                    implicitHeight: 23
+                    fraction: root.battery?.percentage ?? 0
                 }
             }
 
-            Separator {
-                visible: root.peripherals.length > 0
-            }
-            Text {
-                visible: root.peripherals.length > 0
-                text: "Devices"
-                font.pixelSize: 12
-                color: Theme.textSecondary
-            }
-            Devices {
-                devices: root.peripherals
-            }
-
-            Separator {}
-            Text {
-                text: "Power mode"
-                font.pixelSize: 12
-                color: Theme.textSecondary
-            }
-            PowerModes {
-                animated: root.visible
-            }
             Text {
                 Layout.fillWidth: true
-                visible: PowerProfiles.degradationReason !== PerformanceDegradationReason.None
-                text: PowerProfiles.degradationReason === PerformanceDegradationReason.LapDetected ? "Performance limited while on lap" : "Performance limited by temperature"
-                font.pixelSize: 11
-                color: Theme.warning
+                text: root.status
+                color: Theme.textSecondary
+                font.pixelSize: 12
                 wrapMode: Text.Wrap
             }
+        }
+
+        Text {
+            visible: root.battery === null
+            text: UPower.displayDevice.ready ? "No laptop battery" : "Loading battery…"
+            font.pixelSize: 13
+            color: Theme.textSecondary
+        }
+
+        RowLayout {
+            visible: root.stats.length > 0
+            uniformCellSizes: true
+            Repeater {
+                model: root.stats
+                ColumnLayout {
+                    id: stat
+                    required property var modelData
+                    spacing: 4
+                    Text {
+                        Layout.fillWidth: true
+                        text: stat.modelData[0]
+                        font.pixelSize: 11
+                        color: Theme.textSecondary
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: stat.modelData[1]
+                        font.pixelSize: 12
+                        color: Theme.textPrimary
+                    }
+                }
+            }
+        }
+
+        Separator {
+            visible: root.peripherals.length > 0
+        }
+        Text {
+            visible: root.peripherals.length > 0
+            text: "Devices"
+            font.pixelSize: 12
+            color: Theme.textSecondary
+        }
+        Devices {
+            devices: root.peripherals
+        }
+
+        Separator {}
+        Text {
+            text: "Power mode"
+            font.pixelSize: 12
+            color: Theme.textSecondary
+        }
+        PowerModes {
+            animated: root.visible
+        }
+        Text {
+            Layout.fillWidth: true
+            visible: PowerProfiles.degradationReason !== PerformanceDegradationReason.None
+            text: PowerProfiles.degradationReason === PerformanceDegradationReason.LapDetected ? "Performance limited while on lap" : "Performance limited by temperature"
+            font.pixelSize: 11
+            color: Theme.warning
+            wrapMode: Text.Wrap
         }
     }
 }

@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Bluetooth
 import qs.components
@@ -20,18 +19,13 @@ ColumnLayout {
 
     ListView {
         id: deviceList
-        Layout.fillWidth: true
         visible: root.adapter?.state === BluetoothAdapterState.Enabled && count > 0
-        implicitHeight: Math.min(contentHeight, 310)
-        clip: true
-        spacing: 4
         model: root.devices
-        ScrollBar.vertical: ScrollBar {}
 
         delegate: Button {
             id: entry
             required property BluetoothDevice modelData
-            width: deviceList.width
+            width: deviceList.contentWidth
             onClicked: root.pairRequested(modelData)
 
             contentItem: RowLayout {

@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 pragma Singleton
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
@@ -177,17 +176,12 @@ Singleton {
 
             ListView {
                 id: deviceList
-                Layout.fillWidth: true
                 visible: root.selected === null && !root.adding && root.adapter?.state === BluetoothAdapterState.Enabled && root.devices.length > 0
-                implicitHeight: Math.min(contentHeight, 310)
-                clip: true
-                spacing: 4
                 model: root.devices
-                ScrollBar.vertical: ScrollBar {}
 
                 delegate: DeviceRow {
                     required property BluetoothDevice modelData
-                    width: deviceList.width
+                    width: deviceList.contentWidth
                     device: modelData
                     controlSize: popup.controlSize
                     onDetailsRequested: root.selected = modelData
@@ -251,16 +245,10 @@ Singleton {
             }
 
             Flickable {
-                Layout.fillWidth: true
                 visible: root.selected !== null
-                implicitHeight: Math.min(details.implicitHeight, 460)
-                contentHeight: details.implicitHeight
-                clip: true
-                ScrollBar.vertical: ScrollBar {}
 
                 Loader {
-                    id: details
-                    width: parent.width
+                    Layout.fillWidth: true
                     active: root.selected !== null
                     sourceComponent: DeviceDetails {
                         device: root.selected

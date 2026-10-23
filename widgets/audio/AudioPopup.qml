@@ -57,63 +57,55 @@ Popup {
 
             VolumeScroll {
                 id: mainViewport
-                Layout.fillWidth: true
-                implicitHeight: Math.min(mainBody.implicitHeight, 420)
-                contentHeight: mainBody.implicitHeight
+                spacing: 10
 
+                DeviceSection {
+                    id: outputSection
+                    node: AudioService.sink
+                    controlSize: root.controlSize
+                    devices: AudioService.sinks
+                    title: "Output"
+                    wheelArea: mainViewport
+                    onChooseDevice: root.openPicker("output")
+                }
+                Separator {
+                    visible: outputSection.visible && inputSection.visible
+                }
+                DeviceSection {
+                    id: inputSection
+                    node: AudioService.source
+                    controlSize: root.controlSize
+                    devices: AudioService.sources
+                    title: "Input"
+                    wheelArea: mainViewport
+                    onChooseDevice: root.openPicker("input")
+                }
+                Separator {
+                    visible: appsSection.visible && (outputSection.visible || inputSection.visible)
+                }
                 ColumnLayout {
-                    id: mainBody
-                    width: mainViewport.contentWidthAvailable
+                    id: appsSection
                     spacing: 10
+                    visible: AudioService.streams.length > 0
 
-                    DeviceSection {
-                        id: outputSection
-                        node: AudioService.sink
-                        controlSize: root.controlSize
-                        devices: AudioService.sinks
-                        title: "Output"
-                        wheelArea: mainViewport
-                        onChooseDevice: root.openPicker("output")
+                    SectionLabel {
+                        text: "Apps"
                     }
-                    Separator {
-                        visible: outputSection.visible && inputSection.visible
-                    }
-                    DeviceSection {
-                        id: inputSection
-                        node: AudioService.source
-                        controlSize: root.controlSize
-                        devices: AudioService.sources
-                        title: "Input"
-                        wheelArea: mainViewport
-                        onChooseDevice: root.openPicker("input")
-                    }
-                    Separator {
-                        visible: appsSection.visible && (outputSection.visible || inputSection.visible)
-                    }
-                    ColumnLayout {
-                        id: appsSection
-                        spacing: 10
-                        visible: AudioService.streams.length > 0
-
-                        SectionLabel {
-                            text: "Apps"
-                        }
-                        Repeater {
-                            model: AudioService.streams
-                            StreamRow {
-                                required property PwNode modelData
-                                node: modelData
-                                controlSize: root.controlSize
-                                wheelArea: mainViewport
-                            }
+                    Repeater {
+                        model: AudioService.streams
+                        StreamRow {
+                            required property PwNode modelData
+                            node: modelData
+                            controlSize: root.controlSize
+                            wheelArea: mainViewport
                         }
                     }
-                    Text {
-                        visible: !outputSection.visible && !inputSection.visible && !appsSection.visible
-                        Layout.leftMargin: 6
-                        color: Theme.textSecondary
-                        text: "No audio devices"
-                    }
+                }
+                Text {
+                    visible: !outputSection.visible && !inputSection.visible && !appsSection.visible
+                    Layout.leftMargin: 6
+                    color: Theme.textSecondary
+                    text: "No audio devices"
                 }
             }
         }

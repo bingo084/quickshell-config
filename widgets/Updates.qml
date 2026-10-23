@@ -175,13 +175,9 @@ BarButton {
                 readonly property int newVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, newVersionMetrics.advanceWidth(pkg.newVersion)), 0)))
 
                 implicitWidth: 400
-                implicitHeight: Math.min(contentHeight, 320)
-                clip: true
-                spacing: 4
                 model: UpdateService.packages
                 section.property: "source"
                 section.criteria: ViewSection.FullString
-                ScrollBar.vertical: ScrollBar {}
 
                 FontMetrics {
                     id: versionMetrics
@@ -195,7 +191,7 @@ BarButton {
                 section.delegate: Text {
                     required property string section
 
-                    width: packageList.width
+                    width: packageList.contentWidth
                     height: 28
                     verticalAlignment: Text.AlignVCenter
                     font.pixelSize: 13
@@ -209,7 +205,7 @@ BarButton {
                     required property var modelData
                     readonly property string updateLevel: UpdateService.updateLevel(modelData.oldVersion, modelData.newVersion)
 
-                    width: packageList.width
+                    width: packageList.contentWidth
                     height: 24
                     spacing: 8
                     Link {

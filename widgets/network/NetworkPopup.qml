@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 pragma Singleton
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Networking
@@ -358,17 +357,12 @@ Singleton {
 
                 ListView {
                     id: networkList
-                    Layout.fillWidth: true
                     visible: NetworkService.adapter !== null && Networking.wifiEnabled && Networking.wifiHardwareEnabled
-                    implicitHeight: Math.min(contentHeight, 310)
-                    clip: true
-                    spacing: 4
                     model: root.networks
-                    ScrollBar.vertical: ScrollBar {}
 
                     delegate: NetworkRow {
                         required property WifiNetwork modelData
-                        width: networkList.width
+                        width: networkList.contentWidth
                         network: modelData
                         controlSize: popup.controlSize
                         joining: root.pending === modelData
@@ -430,16 +424,10 @@ Singleton {
             }
 
             Flickable {
-                Layout.fillWidth: true
                 visible: root.page === "details"
-                implicitHeight: Math.min(details.implicitHeight, 460)
-                contentHeight: details.implicitHeight
-                clip: true
-                ScrollBar.vertical: ScrollBar {}
 
                 NetworkDetails {
                     id: details
-                    width: parent.width
                     network: root.page === "details" || root.page === "share" ? root.selected : null
                     controlSize: popup.controlSize
                     opened: popup.visible && root.page === "details"

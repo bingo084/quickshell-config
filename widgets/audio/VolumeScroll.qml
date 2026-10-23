@@ -1,20 +1,12 @@
 import QtQuick
-import QtQuick.Controls
 import qs.components
 
 Flickable {
     id: root
     property Item wheelOwner: null
     readonly property bool wheelLocked: wheelPause.running
-    readonly property real contentWidthAvailable: width - (contentHeight > height ? scrollbar.implicitWidth + 4 : 0)
 
     interactive: wheelOwner === null
-    contentWidth: width
-    clip: true
-    boundsBehavior: Flickable.StopAtBounds
-    ScrollBar.vertical: ScrollBar {
-        id: scrollbar
-    }
 
     // Keep one wheel gesture on its initial target, even when the pointer moves.
     function beginWheel(control: Item) {
