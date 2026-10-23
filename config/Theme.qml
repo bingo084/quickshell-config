@@ -5,8 +5,7 @@ import Quickshell
 import qs.services
 
 Singleton {
-    readonly property color surface: ColorService.data.surface
-    readonly property bool dark: surface.hslLightness < 0.5
+    readonly property bool dark: Qt.color(ColorService.data.surface).hslLightness < 0.5
 
     readonly property color barBackground: Qt.alpha(dark ? "#262629" : "#ffffff", 0.7)
     readonly property color popupBackground: Qt.alpha(dark ? "#262629" : "#ffffff", 0.8)

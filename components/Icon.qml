@@ -71,7 +71,5 @@ Item {
         radius: 3
         visible: root.showBadge
         color: root.badgeColor
-        border.color: Theme.surface
-        border.width: 1
     }
 }

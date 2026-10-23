@@ -46,15 +46,13 @@ BarButton {
             radius: width / 2
             visible: InhibitService.mode !== "off"
             color: InhibitService.mode === "awake" ? Theme.warning : Theme.critical
-            border.color: Theme.surface
-            border.width: unit
 
             Rectangle {
                 x: (parent.width - width) / 2
                 y: (parent.height - height) / 2
                 width: 5 * statusBadge.unit
                 height: statusBadge.unit
-                color: statusBadge.border.color
+                color: Qt.alpha(Theme.barBackground, 1)
             }
         }
     }
