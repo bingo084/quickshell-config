@@ -29,7 +29,7 @@ Controls.Switch {
             radius: height / 2
             color: Theme.handleBackground
             border.width: 1
-            border.color: Qt.alpha("#000000", 0.12)
+            border.color: Theme.handleBorder
 
             Behavior on x {
                 NumberAnimation {

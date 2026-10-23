@@ -17,14 +17,16 @@ Singleton {
     readonly property color textSecondary: dark ? "#b9b9bf" : "#626269"
     readonly property color textTertiary: dark ? "#9898a0" : "#76767e"
 
+    readonly property color controlBackground: Qt.alpha(textPrimary, 0.055)
+    readonly property color selectedBackground: Qt.alpha("#ffffff", dark ? 0.13 : 0.8)
+    readonly property color textOnSelected: accent
     readonly property color hoverOverlay: Qt.alpha(textPrimary, 0.06)
     readonly property color pressOverlay: Qt.alpha(textPrimary, 0.12)
 
-    readonly property color controlBackground: Qt.alpha(textPrimary, dark ? 0.10 : 0.055)
-    readonly property color selectedBackground: Qt.alpha("#ffffff", dark ? 0.13 : 0.8)
-    readonly property color textOnSelected: accent
     readonly property color trackBackground: Qt.alpha(textPrimary, 0.12)
     readonly property color handleBackground: "#ffffff"
+    readonly property color handleBorder: Qt.alpha("#000000", 0.15)
+
     readonly property color scrollThumb: Qt.alpha(textPrimary, 0.35)
     readonly property color scrollThumbHover: Qt.alpha(textPrimary, 0.55)
     readonly property color scrollThumbPress: Qt.alpha(textPrimary, 0.7)
@@ -32,6 +34,7 @@ Singleton {
     readonly property color border: Qt.alpha(textPrimary, dark ? 0.16 : 0.13)
     readonly property color cardBorder: Qt.alpha(textPrimary, dark ? 0.06 : 0.055)
     readonly property color separator: Qt.alpha(textPrimary, 0.11)
+
     readonly property color shadow: Qt.alpha("#000000", dark ? 0.33 : 0.12)
     readonly property color scrim: "#66000000"
 

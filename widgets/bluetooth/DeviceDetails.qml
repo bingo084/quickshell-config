@@ -150,7 +150,7 @@ ColumnLayout {
         visible: root.confirming
         margin: 12
         radius: 8
-        color: Qt.alpha(Theme.textPrimary, 0.04)
+        color: Theme.controlBackground
 
         ColumnLayout {
             spacing: 8

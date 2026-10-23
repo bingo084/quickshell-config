@@ -42,6 +42,6 @@ Controls.Slider {
         scale: root.pressed ? 7 / 6 : 1
         color: Theme.handleBackground
         border.width: root.visualFocus ? 2 : 1
-        border.color: root.visualFocus ? Theme.accent : Qt.alpha("#000000", 0.18)
+        border.color: root.visualFocus ? Theme.accent : Theme.handleBorder
     }
 }
