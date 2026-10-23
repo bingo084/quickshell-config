@@ -98,10 +98,6 @@ BarButton {
         id: popup
         anchorItem: root
         contentMargin: 6
-        onVisibleChanged: {
-            if (!visible)
-                root.pendingAction = null;
-        }
 
         ColumnLayout {
             spacing: 1
