@@ -29,7 +29,7 @@ Singleton {
     readonly property color controlBackground: Qt.alpha(textPrimary, 0.055)
     readonly property color selectedBackground: Qt.alpha("#ffffff", dark ? 0.13 : 0.8)
 
-    readonly property color hoverOverlay: Qt.alpha(textPrimary, 0.06)
+    readonly property color hoverOverlay: Qt.alpha(textPrimary, 0.10)
     readonly property color pressOverlay: Qt.alpha(textPrimary, 0.12)
 
     readonly property color trackBackground: Qt.alpha(textPrimary, 0.12)
