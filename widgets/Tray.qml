@@ -21,12 +21,12 @@ RowLayout {
                 PopupHost.close();
                 if (mouse.button === Qt.LeftButton) {
                     if (modelData.hasMenu && modelData.onlyMenu) {
-                        menu.popup(trayButton, 0, trayButton.height);
+                        TrayMenu.toggle(modelData.menu, trayButton);
                     } else {
                         modelData.activate();
                     }
                 } else if (mouse.button === Qt.RightButton && modelData.hasMenu) {
-                    menu.popup(trayButton, 0, trayButton.height);
+                    TrayMenu.toggle(modelData.menu, trayButton);
                 } else if (mouse.button === Qt.MiddleButton) {
                     modelData.secondaryActivate();
                 }
@@ -35,10 +35,6 @@ RowLayout {
                 color: "transparent"
                 theme: "hicolor"
                 source: trayButton.modelData.icon
-            }
-            TrayMenu {
-                id: menu
-                handle: trayButton.modelData.menu
             }
         }
     }

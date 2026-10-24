@@ -8,6 +8,7 @@ Controls.MenuItem {
     property string iconName
     property bool reserveIcon: true
     property bool radio
+    property bool hasSubMenu: subMenu !== null
     property int checkState: checked ? Qt.Checked : Qt.Unchecked
 
     Layout.fillWidth: true
@@ -42,13 +43,13 @@ Controls.MenuItem {
         Item {
             implicitWidth: 16
             implicitHeight: 16
-            visible: root.checked || root.subMenu !== null
+            visible: root.checked || root.hasSubMenu
 
             Icon {
                 anchors.centerIn: parent
-                implicitSize: root.subMenu ? 12 : 16
-                visible: !root.radio || root.subMenu !== null
-                name: root.subMenu ? "go-next-symbolic" : root.checkState === Qt.PartiallyChecked ? "list-remove-symbolic" : "object-select-symbolic"
+                implicitSize: root.hasSubMenu ? 12 : 16
+                visible: !root.radio || root.hasSubMenu
+                name: root.hasSubMenu ? "go-next-symbolic" : root.checkState === Qt.PartiallyChecked ? "list-remove-symbolic" : "object-select-symbolic"
             }
 
             Rectangle {
@@ -56,7 +57,7 @@ Controls.MenuItem {
                 width: 6
                 height: width
                 radius: width / 2
-                visible: root.radio && root.subMenu === null
+                visible: root.radio && !root.hasSubMenu
                 color: Theme.textPrimary
             }
         }
