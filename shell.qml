@@ -22,7 +22,7 @@ ShellRoot {
             BackgroundEffect.blurRegion: Region {
                 item: bar.contentItem
             }
-            focusable: (TrayMenu.handle !== null && TrayMenu.bar === bar.contentItem) || (PopupHost.opened && PopupHost.bar === bar.contentItem && (PopupHost.activePopup?.focusable ?? false))
+            focusable: (TrayMenu.handle !== null && TrayMenu.bar === bar.contentItem) || (PopupHost.activePopup !== null && PopupHost.bar === bar.contentItem)
             anchors {
                 left: true
                 top: true

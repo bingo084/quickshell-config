@@ -216,7 +216,6 @@ Singleton {
         anchorItem: null
         contentWidth: 316
         contentMargin: 13
-        focusable: true
         onVisibleChanged: {
             if (visible && !root.busy) {
                 root.page = "list";

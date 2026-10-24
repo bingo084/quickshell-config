@@ -93,7 +93,6 @@ Singleton {
         anchorItem: null
         contentWidth: 316
         contentMargin: 13
-        focusable: true
         onAnchorItemChanged: {
             if (anchorItem === null && visible)
                 close();
