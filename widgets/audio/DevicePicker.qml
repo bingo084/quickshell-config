@@ -78,7 +78,7 @@ Flickable {
                         required property var modelData
 
                         Layout.fillWidth: true
-                        checked: group.modelData !== null && (group.modelData.type === PwNodeType.AudioSource ? AudioService.source : AudioService.sink) === group.modelData && AudioService.activePort(group.modelData)?.name === modelData.name
+                        checked: group !== null && group.modelData !== null && (group.modelData.type === PwNodeType.AudioSource ? AudioService.source : AudioService.sink) === group.modelData && AudioService.activePort(group.modelData)?.name === modelData.name
                         enabled: modelData.availability !== "not available"
                         text: modelData.description
                         tooltip.enabled: portName.truncated
