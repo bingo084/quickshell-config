@@ -18,7 +18,6 @@ Singleton {
 
     readonly property color barBackground: Qt.alpha(dark ? "#262629" : "#ffffff", 0.7)
     readonly property color popupBackground: Qt.alpha(dark ? "#262629" : "#ffffff", 0.8)
-    readonly property color menuBackground: dark ? "#242427" : "#ffffff"
 
     readonly property color border: Qt.alpha(textPrimary, dark ? 0.16 : 0.13)
     readonly property color separator: Qt.alpha(textPrimary, 0.11)
