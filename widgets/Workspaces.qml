@@ -47,7 +47,7 @@ RowLayout {
                 anchors.centerIn: parent
                 text: workspace.index
                 color: Theme.textPrimary
-                font.weight: workspace.isActive ? Font.DemiBold : Font.Normal
+                font.weight: workspace.isActive ? Font.Bold : Font.Normal
             }
 
             MouseArea {

@@ -95,7 +95,7 @@ RowLayout {
                                 elide: Text.ElideRight
                                 text: _format(area.model.title, area.model.appId)
                                 color: Theme.textPrimary
-                                font.weight: area.model.isFocused ? Font.DemiBold : Font.Normal
+                                font.weight: area.model.isFocused ? Font.Bold : Font.Normal
 
                                 function _format(title: string, appId: string): string {
                                     if (appId === "google-chrome") {
