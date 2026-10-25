@@ -133,7 +133,7 @@ PopupWindow {
         visible: root.phase !== PopupHost.Closing
         enabled: root.phase === PopupHost.Open
 
-        PopupShadow {
+        Shadow {
             id: shadow
             anchors.fill: background
             radius: background.radius

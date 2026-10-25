@@ -184,7 +184,7 @@ Popup {
                         root.trim(index);
                 }
 
-                PopupShadow {
+                Shadow {
                     parent: scene
                     anchors.fill: card
                     radius: card.radius
