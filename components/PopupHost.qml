@@ -64,13 +64,13 @@ PopupWindow {
         }
         if (popup.overlay !== null)
             popup.overlay.parent = stage;
-        background.forceActiveFocus();
         if (popup.anchorItem !== anchorItem)
             popup.anchorItem = anchorItem;
         activePopup = popup;
         center = anchorItem.mapToItem(root.bar, anchorItem.width / 2, 0).x;
         phase = PopupHost.Open;
         root.visible = true;
+        popup.content.forceActiveFocus();
     }
 
     function close() {

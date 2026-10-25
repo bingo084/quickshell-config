@@ -105,8 +105,6 @@ Popup {
         onEntered: root.enter(0)
         onActivated: (entry, row) => root.activate(0, entry, row)
         onScrolled: root.trim(0)
-        onParentChanged: if (parent !== null)
-            forceActiveFocus()
         Keys.onPressed: event => {
             const page = levels.count === 0 ? menuPage : (pages.itemAt(levels.count - 1) as WrapperRectangle)?.child as TrayMenuPage;
             if (!page)
