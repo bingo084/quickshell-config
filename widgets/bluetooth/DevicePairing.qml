@@ -127,7 +127,7 @@ ColumnLayout {
         Layout.fillWidth: true
         text: root.device?.name || root.device?.address || ""
         font.pixelSize: 15
-        font.bold: true
+        font.weight: Font.DemiBold
         color: Theme.textPrimary
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.Wrap

@@ -45,7 +45,7 @@ BarButton {
                 text: "Brightness"
                 color: Theme.textPrimary
                 font.pixelSize: 14
-                font.bold: true
+                font.weight: Font.DemiBold
             }
 
             RowLayout {

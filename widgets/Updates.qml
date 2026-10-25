@@ -85,7 +85,7 @@ BarButton {
                     Layout.fillWidth: true
                     text: "Updates"
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     color: Theme.textPrimary
                 }
                 RefreshControl {
@@ -131,7 +131,7 @@ BarButton {
                         Text {
                             text: "Arch news"
                             font.pixelSize: 13
-                            font.bold: true
+                            font.weight: Font.Medium
                             color: Theme.textSecondary
                         }
                         Repeater {
@@ -188,7 +188,7 @@ BarButton {
 
                 FontMetrics {
                     id: newVersionMetrics
-                    font.bold: true
+                    font.weight: Font.Bold
                 }
 
                 section.delegate: Text {
@@ -198,7 +198,7 @@ BarButton {
                     height: 28
                     verticalAlignment: Text.AlignVCenter
                     font.pixelSize: 13
-                    font.bold: true
+                    font.weight: Font.Medium
                     color: Theme.textSecondary
                     text: section + " · " + UpdateService.packages.filter(pkg => pkg.source === section).length
                 }
@@ -218,7 +218,7 @@ BarButton {
                         rightPadding: marker.visible ? marker.width + packageRow.spacing : 0
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
-                        font.bold: packageRow.updateLevel !== "normal"
+                        font.weight: packageRow.updateLevel !== "normal" ? Font.DemiBold : Font.Normal
                         color: packageRow.updateLevel === "major" ? Theme.critical : Theme.textPrimary
                         text: packageRow.modelData.name
                         url: UpdateService.link(packageRow.modelData.name)

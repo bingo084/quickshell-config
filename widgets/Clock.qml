@@ -65,7 +65,7 @@ BarButton {
                     leftPadding: 10
                     text: popup.choosingMonth ? String(popup.displayedDate.getFullYear()) : popup.locale.toString(popup.displayedDate, "MMMM yyyy")
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     onClicked: popup.choosingMonth = !popup.choosingMonth
                     tooltip.text: popup.choosingMonth ? "Back to calendar" : "Choose month and year"
                     contentItem: Text {

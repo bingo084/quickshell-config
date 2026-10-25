@@ -7,4 +7,5 @@ Text {
     Layout.leftMargin: 6
     color: Theme.textSecondary
     font.pixelSize: 11
+    font.weight: Font.Medium
 }

@@ -112,7 +112,7 @@ Singleton {
                         text: "Bluetooth"
                         color: Theme.textPrimary
                         font.pixelSize: 14
-                        font.bold: true
+                        font.weight: Font.DemiBold
                     }
 
                     Switch {
@@ -168,7 +168,7 @@ Singleton {
                 Text {
                     text: root.pairingDevice !== null ? "Pair device" : root.selected !== null ? "Device details" : "Add device"
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     color: Theme.textPrimary
                 }
             }

@@ -42,7 +42,7 @@ Flickable {
                         Layout.fillWidth: true
                         text: group.modelData.description || group.modelData.nickname || group.modelData.name
                         font.pixelSize: 12
-                        font.bold: true
+                        font.weight: Font.Medium
                         color: Theme.textPrimary
                         elide: Text.ElideRight
                         Tooltip {

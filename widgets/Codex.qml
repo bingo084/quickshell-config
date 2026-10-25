@@ -257,7 +257,6 @@ BarButton {
                     Text {
                         text: `${root.windowLabel(detail.modelData)} limit`
                         font.weight: Font.Medium
-                        font.styleName: ""
                         color: Theme.textPrimary
                     }
 
@@ -335,6 +334,7 @@ BarButton {
                             Layout.fillWidth: true
                             text: "Usage limit resets"
                             font.pixelSize: 12
+                            font.weight: Font.Medium
                             color: Theme.textPrimary
                         }
                         Text {
@@ -366,6 +366,7 @@ BarButton {
                             visible: text !== ""
                             text: creditGroup.modelData.title
                             font.pixelSize: 12
+                            font.weight: Font.Medium
                             color: Theme.textPrimary
                             wrapMode: Text.Wrap
                         }

@@ -40,7 +40,7 @@ Popup {
                     Layout.fillWidth: true
                     color: Theme.textPrimary
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     text: "Audio"
                 }
                 Button {
@@ -126,7 +126,7 @@ Popup {
                     Layout.fillWidth: true
                     text: root.page === "input" ? "Input" : "Output"
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     color: Theme.textPrimary
                 }
             }

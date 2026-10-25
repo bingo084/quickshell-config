@@ -48,7 +48,7 @@ Popup {
         Text {
             text: "Battery"
             font.pixelSize: 14
-            font.bold: true
+            font.weight: Font.DemiBold
             color: Theme.textPrimary
         }
 
@@ -83,7 +83,7 @@ Popup {
                     Layout.fillWidth: true
                     text: Math.round((root.battery?.percentage ?? 0) * 100) + "%"
                     font.pixelSize: 30
-                    font.bold: true
+                    font.weight: Font.Medium
                     color: Theme.textPrimary
                 }
                 Gauge {

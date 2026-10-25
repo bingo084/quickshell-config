@@ -45,7 +45,7 @@ ColumnLayout {
                 width: Math.min(implicitWidth, parent.width - 2 * (editButton.width + editButton.anchors.leftMargin))
                 text: root.device?.name || root.device?.address || ""
                 font.pixelSize: 15
-                font.bold: true
+                font.weight: Font.DemiBold
                 color: Theme.textPrimary
                 elide: Text.ElideRight
                 horizontalAlignment: Text.AlignHCenter

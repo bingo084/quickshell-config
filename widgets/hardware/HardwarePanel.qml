@@ -125,7 +125,7 @@ ColumnLayout {
             visible: root.selected < 0
             color: Theme.textPrimary
             font.pixelSize: 15
-            font.weight: Font.Medium
+            font.weight: Font.DemiBold
             text: "Hardware"
         }
         Button {

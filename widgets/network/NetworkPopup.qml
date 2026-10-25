@@ -245,7 +245,7 @@ Singleton {
                     text: root.page === "share" ? "Share network" : root.page === "details" ? "Network details" : root.page === "hidden" ? "Join other network" : root.page === "password" ? "Join network" : "Wi-Fi"
                     color: Theme.textPrimary
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                 }
 
                 Switch {

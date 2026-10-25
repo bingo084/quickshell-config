@@ -53,7 +53,7 @@ ColumnLayout {
         text: root.network?.name ?? ""
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 15
-        font.bold: true
+        font.weight: Font.DemiBold
         color: Theme.textPrimary
         wrapMode: Text.Wrap
     }

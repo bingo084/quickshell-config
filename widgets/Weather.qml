@@ -91,7 +91,7 @@ BarButton {
                     Layout.fillWidth: true
                     color: Theme.textPrimary
                     font.pixelSize: 14
-                    font.bold: true
+                    font.weight: Font.DemiBold
                     elide: Text.ElideRight
                     visible: text !== ""
                     text: {

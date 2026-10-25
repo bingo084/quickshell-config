@@ -39,7 +39,7 @@ ColumnLayout {
         Layout.topMargin: 4
         text: root.network?.name ?? ""
         font.pixelSize: 15
-        font.bold: true
+        font.weight: Font.DemiBold
         color: Theme.textPrimary
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.Wrap
