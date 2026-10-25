@@ -27,10 +27,12 @@ RowLayout {
             Repeater {
                 model: workspace.visible ? NiriService.sortedWindows : 0
 
-                WrapperMouseArea {
+                MouseArea {
                     id: area
                     required property var model
 
+                    implicitWidth: background.implicitWidth
+                    implicitHeight: background.implicitHeight
                     Layout.fillWidth: true
                     Layout.maximumWidth: 200
                     visible: workspace.model.id === model.workspaceId
@@ -55,7 +57,18 @@ RowLayout {
                         text: title.text
                     }
 
+                    Shadow {
+                        anchors.fill: background
+                        radius: background.radius
+                        blur: 6
+                        offset.y: 1
+                        color: Theme.selectedShadow
+                        visible: area.model.isFocused
+                    }
+
                     WrapperRectangle {
+                        id: background
+                        width: area.width
                         readonly property color overlayColor: area.pressed ? Theme.pressOverlay : area.containsMouse ? Theme.hoverOverlay : "transparent"
 
                         implicitHeight: 30
@@ -65,7 +78,7 @@ RowLayout {
                         border.width: area.model.isFocused ? 1 : 0
                         border.color: Theme.border
 
-                        RowLayout {
+                        child: RowLayout {
                             Icon {
                                 readonly property var iconByTitle: ({
                                         "飞书": "/usr/share/icons/hicolor/256x256/apps/bytedance-feishu.png"

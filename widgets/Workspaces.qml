@@ -32,6 +32,17 @@ RowLayout {
             color: isActive ? Qt.tint(Theme.selectedBackground, overlayColor) : overlayColor
             border.width: isActive ? 1 : 0
             border.color: Theme.border
+
+            Shadow {
+                anchors.fill: workspace
+                radius: workspace.radius
+                blur: 6
+                offset.y: 1
+                color: Theme.selectedShadow
+                visible: workspace.isActive
+                z: -1
+            }
+
             Text {
                 anchors.centerIn: parent
                 text: workspace.index

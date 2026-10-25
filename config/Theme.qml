@@ -25,7 +25,8 @@ Singleton {
     readonly property color cardBorder: Qt.alpha(textPrimary, dark ? 0.06 : 0.055)
 
     readonly property color controlBackground: Qt.alpha(textPrimary, 0.055)
-    readonly property color selectedBackground: Qt.alpha("#ffffff", dark ? 0.13 : 0.8)
+    readonly property color selectedBackground: Qt.alpha("#ffffff", dark ? 0.13 : 0.95)
+    readonly property color selectedShadow: Qt.alpha("#000000", 0.18)
 
     readonly property color hoverOverlay: Qt.alpha(textPrimary, 0.10)
     readonly property color pressOverlay: Qt.alpha(textPrimary, 0.12)
