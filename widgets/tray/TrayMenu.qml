@@ -3,37 +3,28 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Wayland
+import Quickshell.Widgets
+import qs.components
 
-PopupWindow {
+Popup {
     id: root
     property QsMenuHandle handle: null
-    property Item anchorItem: null
-    property real center
-    readonly property Item bar: anchorItem?.QsWindow.contentItem ?? null
-    readonly property var regions: Array.from({
+    anchorItem: null
+    contentMargin: 6
+    contentWidth: menuPage.implicitWidth
+    minimumWidth: 120
+    maximumWidth: 320
+    ready: menuPage.ready
+    regions: Array.from({
         length: pages.count
-    }, (_, index) => (pages.itemAt(index) as TrayMenuPage)?.region).filter(region => region !== undefined)
+    }, (_, index) => (pages.itemAt(index) as WrapperRectangle)?.region).filter(region => region !== undefined) // qmllint disable missing-property
 
-    grabFocus: true
-    color: "transparent"
-    implicitWidth: bar?.width ?? 0
-    implicitHeight: Math.max(0, (screen?.height ?? 0) - (bar?.height ?? 0) - 4) // qmllint disable missing-property redundant-optional-chaining
-    // qmllint disable missing-property unresolved-type unqualified
-    anchor {
-        item: root.bar
-        edges: Edges.Bottom
-        gravity: Edges.Bottom
-        margins.bottom: -4
+    onVisibleChanged: {
+        if (!visible) {
+            trim(0);
+            handle = null;
+        }
     }
-    // qmllint enable missing-property unresolved-type unqualified
-    mask: Region {
-        regions: root.regions
-    }
-    BackgroundEffect.blurRegion: Region {
-        regions: root.regions
-    }
-    onClosed: root.close()
     onHandleChanged: {
         if (visible && handle === null)
             root.close();
@@ -48,47 +39,34 @@ PopupWindow {
             close();
             return;
         }
-        if (bar !== item.QsWindow.contentItem)
-            close();
         trim(0);
-        anchorItem = item;
         handle = menu;
-        center = item.mapToItem(bar, item.width / 2, 0).x;
-        levels.append({
-            menuHandle: menu,
-            anchorRow: root.contentItem
-        });
-        focusScope.forceActiveFocus();
-        visible = true;
-    }
-
-    function close() {
-        visible = false;
-        trim(0);
-        handle = null;
-        anchorItem = null;
+        open(item);
     }
 
     function trim(count: int) {
+        hoverSwitch.stop();
         while (levels.count > count)
             levels.remove(levels.count - 1);
     }
 
     function select(level: int, entry: QsMenuEntry, row: Item) {
+        hoverSwitch.stop();
         if (entry?.enabled && entry.hasChildren) {
-            if (levels.count > level + 1 && levels.get(level + 1).menuHandle === entry)
+            if (levels.count > level && levels.get(level).menuHandle === entry)
                 return;
-            trim(level + 1);
+            trim(level);
             levels.append({
                 menuHandle: entry,
                 anchorRow: row
             });
         } else {
-            trim(level + 1);
+            trim(level);
         }
     }
 
     function activate(level: int, entry: QsMenuEntry, row: Item) {
+        hoverSwitch.stop();
         if (!entry.enabled)
             return;
         if (entry.hasChildren) {
@@ -99,28 +77,50 @@ PopupWindow {
         close();
     }
 
-    ListModel {
-        id: levels
+    function hover(level: int, entry: QsMenuEntry, row: Item) {
+        hoverSwitch.stop();
+        if (levels.count <= level) {
+            select(level, entry, row);
+            return;
+        }
+        if (levels.get(level).menuHandle === entry)
+            return;
+        hoverSwitch.level = level;
+        hoverSwitch.entry = entry;
+        hoverSwitch.row = row;
+        hoverSwitch.restart();
     }
 
-    Item {
-        id: focusScope
-        anchors.fill: parent
-        focus: true
+    function enter(level: int) {
+        if (hoverSwitch.running && level > hoverSwitch.level)
+            hoverSwitch.stop();
+    }
+
+    content: TrayMenuPage {
+        id: menuPage
+        menuHandle: root.handle
+        maximumHeight: Math.max(0, PopupHost.height - 2 * PopupHost.card.inset)
+        onSelected: (entry, row) => root.select(0, entry, row)
+        onHovered: (entry, row) => root.hover(0, entry, row)
+        onEntered: root.enter(0)
+        onActivated: (entry, row) => root.activate(0, entry, row)
+        onScrolled: root.trim(0)
+        onParentChanged: if (parent !== null)
+            forceActiveFocus()
         Keys.onPressed: event => {
-            const page = pages.itemAt(levels.count - 1) as TrayMenuPage;
+            const page = levels.count === 0 ? menuPage : (pages.itemAt(levels.count - 1) as WrapperRectangle)?.child as TrayMenuPage;
             if (!page)
                 return;
             if (event.key === Qt.Key_Down)
-                page.move(1);
+                page.navigate(1);
             else if (event.key === Qt.Key_Up)
-                page.move(-1);
+                page.navigate(-1);
             else if (event.key === Qt.Key_Right && page.currentEntry?.hasChildren) {
                 page.activateCurrent();
-                const child = pages.itemAt(levels.count - 1) as TrayMenuPage;
-                child?.move(1);
+                const child = (pages.itemAt(levels.count - 1) as WrapperRectangle)?.child as TrayMenuPage;
+                child?.navigate(1);
             } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Escape) {
-                if (levels.count > 1)
+                if (levels.count > 0)
                     root.trim(levels.count - 1);
                 else
                     root.close();
@@ -130,38 +130,85 @@ PopupWindow {
                 return;
             event.accepted = true;
         }
+    }
+
+    overlay: Item {
+        id: scene
+        anchors.fill: parent
+
+        Timer {
+            id: hoverSwitch
+            property int level
+            property QsMenuEntry entry: null
+            property Item row: null
+            interval: 180
+            onTriggered: root.select(level, entry, row)
+        }
+
+        ListModel {
+            id: levels
+        }
 
         Repeater {
             id: pages
             model: levels
-            delegate: TrayMenuPage {
-                id: page
+            delegate: WrapperRectangle {
+                id: card
                 required property int index
+                required property QsMenuHandle menuHandle
                 required property Item anchorRow
-                readonly property TrayMenuPage parentPage: index > 0 ? pages.itemAt(index - 1) as TrayMenuPage : null
-                maximumHeight: root.height
+                readonly property Item parentCard: index <= 0 ? PopupHost.card : pages.itemAt(index - 1)
+                readonly property Region region: Region {
+                    item: card.visible ? card : null
+                    radius: card.radius
+                }
+
+                margin: PopupHost.card.inset
+                contentInsideBorder: false
+                implicitWidth: Math.max(120, Math.min(320, child.implicitWidth + 2 * margin))
+                radius: PopupHost.card.radius
+                color: PopupHost.card.color
+                border.width: 1
+                border.color: PopupHost.card.border.color
+                visible: (child as TrayMenuPage)?.ready ?? false
                 x: {
-                    if (parentPage === null)
-                        return Math.max(0, Math.min(root.width - width, root.center - width / 2));
-                    const right = parentPage.x + parentPage.width + 4;
-                    const left = parentPage.x - width - 4;
-                    const previous = index > 1 ? pages.itemAt(index - 2) : null;
-                    const preferLeft = previous !== null && parentPage.x < previous.x;
-                    return (preferLeft || right + width > root.width) && left >= 0 ? left : Math.max(0, Math.min(root.width - width, right));
+                    const right = parentCard.x + parentCard.width + 4;
+                    const left = parentCard.x - width - 4;
+                    const previous = index > 0 ? (index === 1 ? PopupHost.card : pages.itemAt(index - 2)) : null;
+                    const preferLeft = previous !== null && parentCard.x < previous.x;
+                    return (preferLeft || right + width > scene.width) && left >= 0 ? left : Math.max(0, Math.min(scene.width - width, right));
                 }
-                y: Math.max(0, Math.min(root.height - height, index > 0 && anchorRow ? anchorRow.mapToItem(focusScope, 0, 0).y - page.topMargin : 0))
-                onSelected: (entry, row) => {
-                    if (index >= 0)
-                        root.select(index, entry, row);
-                }
-                onActivated: (entry, row) => root.activate(index, entry, row)
-                onScrolled: {
-                    if (index >= 0)
-                        root.trim(index + 1);
-                }
+                y: Math.max(0, Math.min(scene.height - height, anchorRow ? anchorRow.mapToItem(scene, 0, 0).y - margin : 0))
                 onAnchorRowChanged: {
-                    if (index > 0 && anchorRow === null)
+                    if (index >= 0 && anchorRow === null)
                         root.trim(index);
+                }
+
+                PopupShadow {
+                    parent: scene
+                    anchors.fill: card
+                    radius: card.radius
+                    visible: card.visible
+                    z: -1
+                }
+
+                child: TrayMenuPage {
+                    menuHandle: card.menuHandle
+                    maximumHeight: Math.max(0, PopupHost.height - 2 * card.margin)
+                    onSelected: (entry, row) => {
+                        if (card.index >= 0)
+                            root.select(card.index + 1, entry, row);
+                    }
+                    onHovered: (entry, row) => {
+                        if (card.index >= 0)
+                            root.hover(card.index + 1, entry, row);
+                    }
+                    onEntered: root.enter(card.index + 1)
+                    onActivated: (entry, row) => root.activate(card.index + 1, entry, row)
+                    onScrolled: {
+                        if (card.index >= 0)
+                            root.trim(card.index + 1);
+                    }
                 }
             }
         }

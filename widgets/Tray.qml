@@ -18,18 +18,15 @@ RowLayout {
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             horizontalPadding: 3
             onClicked: mouse => {
-                PopupHost.close();
-                if (mouse.button === Qt.LeftButton) {
-                    if (modelData.hasMenu && modelData.onlyMenu) {
-                        TrayMenu.toggle(modelData.menu, trayButton);
-                    } else {
-                        modelData.activate();
-                    }
-                } else if (mouse.button === Qt.RightButton && modelData.hasMenu) {
+                if (modelData.hasMenu && (mouse.button === Qt.RightButton || (mouse.button === Qt.LeftButton && modelData.onlyMenu))) {
                     TrayMenu.toggle(modelData.menu, trayButton);
-                } else if (mouse.button === Qt.MiddleButton) {
-                    modelData.secondaryActivate();
+                    return;
                 }
+                PopupHost.close();
+                if (mouse.button === Qt.LeftButton)
+                    modelData.activate();
+                else if (mouse.button === Qt.MiddleButton)
+                    modelData.secondaryActivate();
             }
             content: Icon {
                 color: "transparent"

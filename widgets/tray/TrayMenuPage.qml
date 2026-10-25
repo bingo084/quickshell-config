@@ -4,46 +4,54 @@ import QtQml.Models as Models
 import QtQuick
 import QtQuick.Controls as Controls
 import Quickshell
-import Quickshell.Widgets
 import qs.components
 import qs.config
 
-WrapperRectangle {
+ListView {
     id: root
     required property QsMenuHandle menuHandle
-    required property real maximumHeight
     property QsMenuEntry currentEntry: null
     property int pendingMove
     readonly property var entries: opener.children.values
     readonly property bool hasIcons: entries.some(entry => entry.icon !== "")
-    readonly property Region region: Region {
-        item: root.visible ? root : null
-        radius: root.radius
-    }
+    property int waitingFor: 0
+    readonly property bool hasItems: entries.length > 0 && items.count === entries.length
+    readonly property bool ready: hasItems || waitingFor >= 200
     signal selected(QsMenuEntry entry, Item row)
     signal activated(QsMenuEntry entry, Item row)
+    signal hovered(QsMenuEntry entry, Item row)
+    signal entered
     signal scrolled
 
-    implicitWidth: {
-        const widths = Array.from({
-            length: items.count
-        }, (_, index) => (items.get(index) as Item).implicitWidth);
-        const measuredWidth = Math.max(0, ...widths) + root.leftMargin + root.rightMargin;
-        return Math.max(120, Math.min(320, measuredWidth));
+    implicitHeight: Math.min(maximumHeight, hasItems ? contentHeight : (notice.visible ? notice.implicitHeight : 0))
+    implicitWidth: Math.max(notice.visible ? notice.implicitWidth : 0, ...Array.from({
+        length: items.count
+    }, (_, index) => (items.get(index) as Item).implicitWidth))
+    model: items
+    currentIndex: -1
+    spacing: 1
+    contentWidth: -1
+    visible: ready
+    onContentYChanged: root.scrolled()
+
+    onMenuHandleChanged: {
+        waitingFor = 0;
+        currentEntry = null;
+        pendingMove = 0;
+        positionViewAtBeginning();
     }
-    margin: 7
-    contentInsideBorder: false
-    radius: Theme.popupRadius
-    color: Theme.popupBackground
-    border.width: 1
-    border.color: Theme.border
-    visible: entries.length > 0
+
+    onHasItemsChanged: waitingFor = 0
 
     onEntriesChanged: {
         if (currentEntry !== null && !entries.includes(currentEntry))
             select(null, null);
-        if (pendingMove !== 0 && entries.length > 0)
-            Qt.callLater(root.move, pendingMove);
+        if (pendingMove !== 0 && entries.length > 0) {
+            Qt.callLater(() => {
+                if (root.pendingMove !== 0)
+                    root.navigate(root.pendingMove);
+            });
+        }
     }
 
     function select(entry: QsMenuEntry, row: Item) {
@@ -51,7 +59,7 @@ WrapperRectangle {
         selected(entry, row);
     }
 
-    function move(direction: int) {
+    function navigate(direction: int) {
         if (entries.length === 0) {
             pendingMove = direction;
             return;
@@ -64,16 +72,40 @@ WrapperRectangle {
         if (index < 0)
             index = direction > 0 ? -1 : 0;
         currentEntry = selectable[(index + direction + selectable.length) % selectable.length];
-        scroll.positionViewAtIndex(entries.indexOf(currentEntry), ListView.Contain);
+        root.positionViewAtIndex(entries.indexOf(currentEntry), ListView.Contain);
     }
 
     function activateCurrent() {
         const index = entries.indexOf(currentEntry);
         if (index < 0)
             return;
-        scroll.positionViewAtIndex(index, ListView.Contain);
-        scroll.forceLayout();
-        activated(currentEntry, scroll.itemAtIndex(index));
+        root.positionViewAtIndex(index, ListView.Contain);
+        root.forceLayout();
+        activated(currentEntry, root.itemAtIndex(index));
+    }
+
+    Timer {
+        interval: 200
+        repeat: true
+        running: root.menuHandle !== null && !root.hasItems && root.waitingFor < 5000
+        onTriggered: root.waitingFor = Math.min(5000, root.waitingFor + interval)
+    }
+
+    Text {
+        id: notice
+        parent: root
+        anchors.fill: parent
+        padding: 8
+        verticalAlignment: Text.AlignVCenter
+        color: Theme.textSecondary
+        text: root.waitingFor < 5000 ? "Loading menu…" : "No menu items received"
+        visible: !root.hasItems && root.waitingFor >= 200
+        elide: Text.ElideRight
+    }
+
+    HoverHandler {
+        onHoveredChanged: if (hovered)
+            root.entered()
     }
 
     QsMenuOpener {
@@ -93,7 +125,7 @@ WrapperRectangle {
         delegate: Loader {
             id: row
             required property QsMenuEntry modelData
-            width: scroll.width - (scroll.Controls.ScrollBar.vertical.size < 1 ? scroll.Controls.ScrollBar.vertical.implicitWidth + 4 : 0)
+            width: root.width - (root.Controls.ScrollBar.vertical.size < 1 ? root.Controls.ScrollBar.vertical.implicitWidth + 4 : 0)
             sourceComponent: modelData ? (modelData.isSeparator ? divider : action) : null
 
             Component {
@@ -114,8 +146,10 @@ WrapperRectangle {
                     highlighted: root?.currentEntry === entry
                     focusPolicy: Qt.NoFocus
                     onHoveredChanged: {
-                        if (actionItem.hovered)
-                            root.select(entry, row);
+                        if (actionItem.hovered) {
+                            root.currentEntry = entry;
+                            root.hovered(entry, row);
+                        }
                     }
                     onHasSubMenuChanged: {
                         if (entry !== null && root?.currentEntry === entry)
@@ -136,15 +170,5 @@ WrapperRectangle {
                 }
             }
         }
-    }
-
-    child: ListView {
-        id: scroll
-        model: items
-        currentIndex: -1
-        maximumHeight: Math.max(0, root.maximumHeight - root.topMargin - root.bottomMargin)
-        spacing: 1
-        contentWidth: -1
-        onContentYChanged: root.scrolled()
     }
 }

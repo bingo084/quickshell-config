@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 pragma Singleton
 
 import QtQuick
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -10,9 +9,16 @@ import qs.config
 
 PopupWindow {
     id: root
+    enum Phase {
+        Hidden,
+        Open,
+        Capturing,
+        Closing
+    }
     property Popup activePopup: null
-    property bool opened: false
-    property bool frozen: false
+    property int phase: PopupHost.Hidden
+    readonly property bool opened: phase === PopupHost.Open || phase === PopupHost.Capturing
+    property real center
     readonly property Item bar: activePopup?.anchorItem?.QsWindow.contentItem ?? null
 
     grabFocus: true
@@ -27,116 +33,162 @@ PopupWindow {
         margins.bottom: -4
     }
     // qmllint enable missing-property unresolved-type unqualified
-    mask: Region {
-        item: background
+    readonly property alias card: background
+    readonly property Region region: Region {
+        regions: [cardRegion, ...(root.activePopup?.regions ?? [])]
     }
-    BackgroundEffect.blurRegion: root.frozen ? null : blurRegion
+    mask: root.region
+    BackgroundEffect.blurRegion: root.phase === PopupHost.Closing ? null : root.region
     Region {
-        id: blurRegion
+        id: cardRegion
         item: background
         radius: background.radius
     }
 
     onClosed: root.release()
-    onOpenedChanged: {
-        backgroundFade.to = opened ? 1 : 0;
-        backgroundFade.restart();
+    onPhaseChanged: {
+        if (phase === PopupHost.Open || phase === PopupHost.Closing) {
+            surfaceFade.to = phase === PopupHost.Open ? 1 : 0;
+            surfaceFade.restart();
+        }
     }
 
     function open(popup: Popup, anchorItem = popup.anchorItem) {
-        captureTimeout.stop();
-        closeFrame.active = false;
-        frozen = false;
         const previous = activePopup;
-        background.forceActiveFocus();
         if (previous !== null && previous.anchorItem?.QsWindow.window !== anchorItem.QsWindow.window)
             root.visible = false;
-        if (previous !== null && previous !== popup)
+        if (previous !== null && previous !== popup) {
             previous.content.parent = null;
+            if (previous.overlay !== null)
+                previous.overlay.parent = null;
+        }
+        if (popup.overlay !== null)
+            popup.overlay.parent = stage;
+        background.forceActiveFocus();
         if (popup.anchorItem !== anchorItem)
             popup.anchorItem = anchorItem;
         activePopup = popup;
-        const center = anchorItem.mapToItem(root.bar, anchorItem.width / 2, 0).x;
-        background.x = Math.max(0, Math.min(root.bar.width - background.width, center - background.width / 2));
-        opened = true;
+        center = anchorItem.mapToItem(root.bar, anchorItem.width / 2, 0).x;
+        phase = PopupHost.Open;
         root.visible = true;
     }
 
     function close() {
-        if (!opened || closeFrame.active)
+        if (phase !== PopupHost.Open)
             return;
-        backgroundFade.stop();
+        surfaceFade.stop();
         contentFade.stop();
-        closeFrame.startOpacity = background.opacity;
-        closeFrame.x = Math.max(0, background.x - shadow.blur);
-        closeFrame.width = Math.min(root.width, background.x + background.width + shadow.blur) - closeFrame.x;
-        closeFrame.height = Math.min(root.height, background.height + shadow.blur + shadow.offset.y);
-        closeFrame.active = true;
-        captureTimeout.restart();
+        const rects = [Qt.rect(background.x, background.y, background.width, background.height)];
+        const extra = activePopup.overlay?.childrenRect;
+        if (extra && extra.width > 0 && extra.height > 0)
+            rects.push(extra);
+        const left = Math.min(...rects.map(rect => rect.x));
+        const top = Math.min(...rects.map(rect => rect.y));
+        const right = Math.max(...rects.map(rect => rect.x + rect.width));
+        const bottom = Math.max(...rects.map(rect => rect.y + rect.height));
+        closeFrame.startOpacity = stage.opacity;
+        closeFrame.x = Math.max(0, left - shadow.blur);
+        closeFrame.y = Math.max(0, top - shadow.blur);
+        closeFrame.width = Math.min(root.width, right + shadow.blur) - closeFrame.x;
+        closeFrame.height = Math.min(root.height, bottom + shadow.blur + shadow.offset.y) - closeFrame.y;
+        phase = PopupHost.Capturing;
     }
 
     function release() {
-        captureTimeout.stop();
-        closeFrame.active = false;
-        frozen = false;
-        opened = false;
+        phase = PopupHost.Hidden;
         root.visible = false;
-        backgroundFade.stop();
-        if (activePopup !== null)
+        surfaceFade.stop();
+        if (activePopup !== null) {
             activePopup.content.parent = null;
+            if (activePopup.overlay !== null)
+                activePopup.overlay.parent = null;
+        }
         activePopup = null;
     }
 
-    RectangularShadow {
-        id: shadow
-        anchors.fill: background
-        radius: background.radius
-        blur: 22
-        offset.y: 5
-        color: Theme.shadow
-        opacity: background.opacity
-        visible: !root.frozen
+    Connections {
+        target: root.activePopup
+        function onReadyChanged() {
+            contentWrapper.reveal();
+            Qt.callLater(background.updateGeometry);
+        }
+        function onContentWidthChanged() {
+            Qt.callLater(background.updateGeometry);
+        }
+        function onMinimumWidthChanged() {
+            Qt.callLater(background.updateGeometry);
+        }
+        function onMaximumWidthChanged() {
+            Qt.callLater(background.updateGeometry);
+        }
+        function onContentMarginChanged() {
+            Qt.callLater(background.updateGeometry);
+        }
     }
 
-    Rectangle {
-        id: background
-        readonly property real margin: root.activePopup?.contentMargin ?? 12
-
-        implicitWidth: (root.activePopup?.contentWidth ?? 0) + 2 * (margin + border.width)
-        implicitHeight: contentWrapper.implicitHeight + 2 * (margin + border.width)
-        radius: Theme.popupRadius
-        color: Theme.popupBackground
-        border.color: Theme.border
-        border.width: 1
-        clip: true
+    Item {
+        id: stage
+        anchors.fill: parent
         opacity: 0
-        visible: !root.frozen
-        enabled: root.opened && !closeFrame.active
+        visible: root.phase !== PopupHost.Closing
+        enabled: root.phase === PopupHost.Open
 
-        Behavior on implicitHeight {
-            enabled: root.opened && !backgroundFade.running
-            NumberAnimation {
-                duration: 120
-                easing.type: Easing.OutCubic
-            }
+        PopupShadow {
+            id: shadow
+            anchors.fill: background
+            radius: background.radius
         }
 
-        WrapperItem {
-            id: contentWrapper
-            x: background.margin + background.border.width
-            y: x
-            width: background.width - 2 * x
-            child: root.activePopup?.content ?? null
+        Rectangle {
+            id: background
+            property real margin: 12
+            readonly property real inset: margin + border.width
 
-            onChildChanged: {
-                contentFade.stop();
-                contentFade.target = child;
-                if (child === null)
+            x: Math.max(0, Math.min(root.width - width, root.center - width / 2))
+            radius: Theme.popupRadius
+            color: Theme.popupBackground
+            border.color: Theme.border
+            border.width: 1
+            clip: true
+
+            Behavior on implicitHeight {
+                enabled: root.opened && !surfaceFade.running
+                NumberAnimation {
+                    duration: 120
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            function updateGeometry() {
+                const popup = root.activePopup;
+                if (!popup?.ready)
                     return;
-                if (root.opened || root.visible)
-                    contentFade.restart();
-                else
-                    child.opacity = 1;
+                margin = popup.contentMargin;
+                implicitWidth = Math.max(popup.minimumWidth, Math.min(popup.maximumWidth, popup.contentWidth + 2 * inset));
+                implicitHeight = contentWrapper.implicitHeight + 2 * inset;
+            }
+
+            WrapperItem {
+                id: contentWrapper
+                x: background.inset
+                y: x
+                width: background.width - 2 * x
+                child: root.activePopup?.content ?? null
+                onChildChanged: {
+                    reveal();
+                    Qt.callLater(background.updateGeometry);
+                }
+                onImplicitHeightChanged: Qt.callLater(background.updateGeometry)
+
+                function reveal() {
+                    contentFade.stop();
+                    if (!root.activePopup?.ready)
+                        opacity = 0;
+                    else if (root.opened)
+                        contentFade.restart();
+                    else
+                        opacity = 1;
+                }
             }
         }
     }
@@ -144,30 +196,27 @@ PopupWindow {
     Loader {
         id: closeFrame
         property real startOpacity: 1
-        active: false
+        active: root.phase === PopupHost.Capturing || root.phase === PopupHost.Closing
         clip: true
-        opacity: background.opacity / Math.max(startOpacity, 0.001)
+        opacity: stage.opacity / Math.max(startOpacity, 0.001)
         sourceComponent: Item {
             ScreencopyView {
                 captureSource: root.screen as QtObject
                 width: root.screen.width // qmllint disable missing-property
                 height: root.screen.height // qmllint disable missing-property
                 x: -closeFrame.x
-                y: -Math.round((root.bar.height + 4) * root.devicePixelRatio) / root.devicePixelRatio
+                y: -closeFrame.y - Math.round((root.bar.height + 4) * root.devicePixelRatio) / root.devicePixelRatio
                 onHasContentChanged: {
-                    if (!hasContent)
-                        return;
-                    captureTimeout.stop();
-                    root.frozen = true;
-                    root.opened = false;
+                    if (hasContent && root.phase === PopupHost.Capturing)
+                        root.phase = PopupHost.Closing;
                 }
             }
         }
     }
 
     Timer {
-        id: captureTimeout
         interval: 300
+        running: root.phase === PopupHost.Capturing
         onTriggered: {
             console.warn("Popup closing capture timed out");
             root.release();
@@ -175,8 +224,8 @@ PopupWindow {
     }
 
     NumberAnimation {
-        id: backgroundFade
-        target: background
+        id: surfaceFade
+        target: stage
         property: "opacity"
         duration: 120
         easing.type: Easing.OutCubic
@@ -188,6 +237,7 @@ PopupWindow {
 
     NumberAnimation {
         id: contentFade
+        target: contentWrapper
         property: "opacity"
         from: 0
         to: 1

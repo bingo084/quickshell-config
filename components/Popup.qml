@@ -7,6 +7,11 @@ Scope {
     default property Item content
     property real contentMargin: 12
     property real contentWidth: content.implicitWidth
+    property real minimumWidth: 0
+    property real maximumWidth: Infinity
+    property Item overlay: null
+    property list<Region> regions
+    property bool ready: true
     readonly property bool visible: PopupHost.activePopup === root && PopupHost.opened
 
     function open(anchorItem = root.anchorItem) {

@@ -6,7 +6,6 @@ import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.widgets
-import qs.widgets.tray
 
 ShellRoot {
     Variants {
@@ -22,7 +21,7 @@ ShellRoot {
             BackgroundEffect.blurRegion: Region {
                 item: bar.contentItem
             }
-            focusable: (TrayMenu.handle !== null && TrayMenu.bar === bar.contentItem) || (PopupHost.activePopup !== null && PopupHost.bar === bar.contentItem)
+            focusable: PopupHost.activePopup !== null && PopupHost.bar === bar.contentItem
             anchors {
                 left: true
                 top: true
