@@ -13,10 +13,11 @@ WrapperRectangle {
     required property BluetoothDevice device
     required property int controlSize
     property int padding: 6
-    readonly property bool busy: device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting
+    readonly property bool busy: device !== null && (device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting)
     signal detailsRequested
 
     radius: 7
+    enabled: device !== null
     color: body.down ? Theme.pressOverlay : body.hovered ? Theme.hoverOverlay : "transparent"
 
     Behavior on color {
@@ -36,7 +37,7 @@ WrapperRectangle {
             padding: root.padding
             background: null
             opacity: enabled || root.busy ? 1 : 0.5
-            enabled: root.device.adapter?.state === BluetoothAdapterState.Enabled && !root.device.blocked && !root.busy
+            enabled: root.device?.adapter?.state === BluetoothAdapterState.Enabled && !root.device.blocked && !root.busy
             onClicked: root.device.connected ? root.device.disconnect() : root.device.connect()
 
             contentItem: RowLayout {
@@ -44,7 +45,7 @@ WrapperRectangle {
 
                 Icon {
                     size: root.controlSize
-                    name: (root.device.icon || "bluetooth") + "-symbolic"
+                    name: (root.device?.icon || "bluetooth") + "-symbolic"
                     pulsing: root.busy
                     color: Theme.textSecondary
                 }
@@ -55,7 +56,7 @@ WrapperRectangle {
                     Text {
                         id: nameLabel
                         Layout.fillWidth: true
-                        text: root.device.name || root.device.address
+                        text: root.device?.name || root.device?.address || ""
                         color: Theme.textPrimary
                         font.pixelSize: 13
                         elide: Text.ElideRight
@@ -70,8 +71,8 @@ WrapperRectangle {
                     Text {
                         id: statusLabel
                         Layout.fillWidth: true
-                        text: (root.device.blocked ? "Blocked" : BluetoothDeviceState.toString(root.device.state)) + (root.device.batteryAvailable ? " · " + Math.round(root.device.battery * 100) + "%" : "")
-                        color: root.device.blocked ? Theme.warning : Theme.textSecondary
+                        text: root.device === null ? "" : (root.device.blocked ? "Blocked" : BluetoothDeviceState.toString(root.device.state)) + (root.device.batteryAvailable ? " · " + Math.round(root.device.battery * 100) + "%" : "")
+                        color: root.device?.blocked ? Theme.warning : Theme.textSecondary
                         font.pixelSize: 11
                         elide: Text.ElideRight
 
