@@ -16,7 +16,6 @@ RowLayout {
 
             visible: modelData.id !== "nm-applet"
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-            horizontalPadding: 3
             onClicked: mouse => {
                 if (modelData.hasMenu && (mouse.button === Qt.RightButton || (mouse.button === Qt.LeftButton && modelData.onlyMenu))) {
                     TrayMenu.toggle(modelData.menu, trayButton);
