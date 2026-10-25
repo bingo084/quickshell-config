@@ -17,7 +17,7 @@ ShellRoot {
             required property ShellScreen modelData
 
             screen: modelData
-            color: Theme.barBackground
+            color: Theme.background
             BackgroundEffect.blurRegion: Region {
                 item: bar.contentItem
             }

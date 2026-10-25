@@ -59,7 +59,7 @@ PopupWindow {
         width: root.width
         margin: 6
         radius: Theme.barItemRadius
-        color: Theme.popupBackground
+        color: Theme.background
         border.color: Theme.border
         border.width: 1
 

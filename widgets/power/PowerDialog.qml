@@ -44,7 +44,7 @@ PanelWindow {
         anchors.verticalCenterOffset: -(parent.height - height) / 4
         width: 320
         height: 150
-        color: Theme.popupBackground
+        color: Theme.background
         border.color: Theme.border
         radius: Theme.popupRadius
 

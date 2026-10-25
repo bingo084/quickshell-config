@@ -146,7 +146,7 @@ PopupWindow {
 
             x: Math.max(0, Math.min(root.width - width, root.center - width / 2))
             radius: Theme.popupRadius
-            color: Theme.popupBackground
+            color: Theme.background
             border.color: Theme.border
             border.width: 1
             clip: true

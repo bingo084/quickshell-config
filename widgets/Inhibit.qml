@@ -52,7 +52,7 @@ BarButton {
                 y: (parent.height - height) / 2
                 width: 5 * statusBadge.unit
                 height: statusBadge.unit
-                color: Qt.alpha(Theme.barBackground, 1)
+                color: Qt.alpha(Theme.background, 1)
             }
         }
     }
