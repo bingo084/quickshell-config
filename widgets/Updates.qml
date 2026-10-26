@@ -76,6 +76,8 @@ BarButton {
     Popup {
         id: popup
         anchorItem: root
+        minimumWidth: 360
+        maximumWidth: 480
 
         ColumnLayout {
             RowLayout {
@@ -114,10 +116,21 @@ BarButton {
 
             ListView {
                 id: packageList
-                readonly property int oldVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, versionMetrics.advanceWidth(pkg.oldVersion)), 0)))
-                readonly property int newVersionWidth: Math.min(100, Math.ceil(UpdateService.packages.reduce((width, pkg) => Math.max(width, newVersionMetrics.advanceWidth(pkg.newVersion)), 0)))
+                readonly property int versionWidth: 100
+                readonly property int nameWidth: {
+                    let width = 0;
+                    for (const pkg of UpdateService.packages) {
+                        const level = UpdateService.updateLevel(pkg.oldVersion, pkg.newVersion);
+                        const metrics = level === "normal" ? regularMetrics : demiBoldMetrics;
+                        let nameWidth = metrics.advanceWidth(pkg.name);
+                        if (UpdateService.importantPackages.includes(pkg.name))
+                            nameWidth += regularMetrics.advanceWidth("★") + 8;
+                        width = Math.max(width, nameWidth);
+                    }
+                    return Math.ceil(width);
+                }
 
-                implicitWidth: 400
+                implicitWidth: nameWidth + 2 * versionWidth + 16 + (contentHeight > maximumHeight ? ScrollBar.vertical.implicitWidth + 4 : 0)
                 model: UpdateService.packages
                 section.property: "source"
 
@@ -183,12 +196,12 @@ BarButton {
                 }
 
                 FontMetrics {
-                    id: versionMetrics
+                    id: regularMetrics
                 }
 
                 FontMetrics {
-                    id: newVersionMetrics
-                    font.weight: Font.Bold
+                    id: demiBoldMetrics
+                    font.weight: Font.DemiBold
                 }
 
                 section.delegate: Text {
@@ -240,7 +253,7 @@ BarButton {
 
                         Text {
                             id: oldVersion
-                            Layout.preferredWidth: packageList.oldVersionWidth
+                            Layout.preferredWidth: packageList.versionWidth
                             horizontalAlignment: Text.AlignRight
                             elide: Text.ElideRight
                             textFormat: Text.StyledText
@@ -249,7 +262,7 @@ BarButton {
                         }
                         Text {
                             id: newVersion
-                            Layout.preferredWidth: packageList.newVersionWidth
+                            Layout.preferredWidth: packageList.versionWidth
                             horizontalAlignment: Text.AlignRight
                             elide: Text.ElideRight
                             textFormat: Text.StyledText
