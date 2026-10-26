@@ -23,7 +23,7 @@ Flickable {
             width: root.contentWidth
             spacing: 14
         },
-        WheelScroll {
+        SmoothScroll {
             flickable: root
         }
     ]

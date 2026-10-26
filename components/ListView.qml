@@ -14,7 +14,7 @@ ListView {
     boundsBehavior: Flickable.StopAtBounds
     spacing: 4
 
-    WheelScroll {
+    SmoothScroll {
         flickable: root
     }
 
