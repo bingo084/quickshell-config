@@ -14,8 +14,7 @@ Popup {
     property string page: ""
     readonly property PwNode selectedNode: page === "input" ? AudioService.source : AudioService.sink
 
-    contentWidth: 316
-    contentMargin: 13
+    preferredWidth: 360
     onVisibleChanged: {
         if (visible) {
             page = "";

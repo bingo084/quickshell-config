@@ -36,7 +36,7 @@ BarButton {
         readonly property bool showingCurrentMonth: displayedDate.getFullYear() === ClockService.date.getFullYear() && displayedDate.getMonth() === ClockService.date.getMonth()
 
         anchorItem: root
-        contentWidth: 294
+        preferredWidth: 320
         onVisibleChanged: if (visible)
             reset()
 

@@ -11,7 +11,6 @@ Popup {
     property QsMenuHandle handle: null
     anchorItem: null
     contentMargin: 6
-    contentWidth: menuPage.implicitWidth
     minimumWidth: 120
     maximumWidth: 320
     ready: menuPage.ready

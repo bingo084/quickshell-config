@@ -34,8 +34,7 @@ Popup {
         return parts.join(" · ");
     }
 
-    contentWidth: 316
-    contentMargin: 14
+    preferredWidth: 320
 
     function formatDuration(seconds: real): string {
         const total = Math.ceil(seconds / 60);
@@ -54,7 +53,9 @@ Popup {
 
         ColumnLayout {
             visible: root.battery !== null
-            spacing: 8
+            Layout.topMargin: 4
+            Layout.bottomMargin: 4
+            spacing: 12
 
             RowLayout {
                 Layout.fillWidth: false
@@ -100,6 +101,31 @@ Popup {
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
             }
+
+            RowLayout {
+                visible: root.stats.length > 0
+                uniformCellSizes: true
+                Repeater {
+                    model: root.stats
+                    ColumnLayout {
+                        id: stat
+                        required property var modelData
+                        spacing: 4
+                        Text {
+                            Layout.fillWidth: true
+                            text: stat.modelData[0]
+                            font.pixelSize: 11
+                            color: Theme.textSecondary
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: stat.modelData[1]
+                            font.pixelSize: 12
+                            color: Theme.textPrimary
+                        }
+                    }
+                }
+            }
         }
 
         Text {
@@ -109,52 +135,35 @@ Popup {
             color: Theme.textSecondary
         }
 
-        RowLayout {
-            visible: root.stats.length > 0
-            uniformCellSizes: true
-            Repeater {
-                model: root.stats
-                ColumnLayout {
-                    id: stat
-                    required property var modelData
-                    spacing: 4
-                    Text {
-                        Layout.fillWidth: true
-                        text: stat.modelData[0]
-                        font.pixelSize: 11
-                        color: Theme.textSecondary
-                    }
-                    Text {
-                        Layout.fillWidth: true
-                        text: stat.modelData[1]
-                        font.pixelSize: 12
-                        color: Theme.textPrimary
-                    }
-                }
-            }
-        }
-
         Separator {
             visible: root.peripherals.length > 0
         }
-        Text {
+        ColumnLayout {
             visible: root.peripherals.length > 0
-            text: "Devices"
-            font.pixelSize: 12
-            color: Theme.textSecondary
-        }
-        Devices {
-            devices: root.peripherals
+            spacing: 8
+
+            Text {
+                text: "Devices"
+                font.pixelSize: 12
+                color: Theme.textSecondary
+            }
+            Devices {
+                devices: root.peripherals
+            }
         }
 
         Separator {}
-        Text {
-            text: "Power mode"
-            font.pixelSize: 12
-            color: Theme.textSecondary
-        }
-        PowerModes {
-            animated: root.visible
+        ColumnLayout {
+            spacing: 8
+
+            Text {
+                text: "Power mode"
+                font.pixelSize: 12
+                color: Theme.textSecondary
+            }
+            PowerModes {
+                animated: root.visible
+            }
         }
         Text {
             Layout.fillWidth: true

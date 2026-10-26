@@ -91,8 +91,7 @@ Singleton {
         readonly property int controlSize: 32
 
         anchorItem: null
-        contentWidth: 316
-        contentMargin: 13
+        preferredWidth: 360
         onAnchorItemChanged: {
             if (anchorItem === null && visible)
                 close();

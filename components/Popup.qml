@@ -6,7 +6,7 @@ Scope {
     required property Item anchorItem
     default property Item content
     property real contentMargin: 12
-    property real contentWidth: content.implicitWidth
+    property real preferredWidth: 0
     property real minimumWidth: 0
     property real maximumWidth: Infinity
     property Item overlay: null

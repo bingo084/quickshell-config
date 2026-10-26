@@ -214,8 +214,7 @@ Singleton {
         id: popup
         readonly property int controlSize: 32
         anchorItem: null
-        contentWidth: 316
-        contentMargin: 13
+        preferredWidth: 360
         onVisibleChanged: {
             if (visible && !root.busy) {
                 root.page = "list";

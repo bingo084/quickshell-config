@@ -112,7 +112,7 @@ PopupWindow {
             contentWrapper.reveal();
             Qt.callLater(background.updateGeometry);
         }
-        function onContentWidthChanged() {
+        function onPreferredWidthChanged() {
             Qt.callLater(background.updateGeometry);
         }
         function onMinimumWidthChanged() {
@@ -164,7 +164,8 @@ PopupWindow {
                 if (!popup?.ready)
                     return;
                 margin = popup.contentMargin;
-                implicitWidth = Math.max(popup.minimumWidth, Math.min(popup.maximumWidth, popup.contentWidth + 2 * inset));
+                const width = popup.preferredWidth > 0 ? popup.preferredWidth : contentWrapper.implicitWidth + 2 * inset;
+                implicitWidth = Math.max(popup.minimumWidth, Math.min(popup.maximumWidth, width));
                 implicitHeight = contentWrapper.implicitHeight + 2 * inset;
             }
 
@@ -178,6 +179,7 @@ PopupWindow {
                     reveal();
                     Qt.callLater(background.updateGeometry);
                 }
+                onImplicitWidthChanged: Qt.callLater(background.updateGeometry)
                 onImplicitHeightChanged: Qt.callLater(background.updateGeometry)
 
                 function reveal() {

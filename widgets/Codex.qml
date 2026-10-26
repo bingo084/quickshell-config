@@ -138,8 +138,7 @@ BarButton {
     Popup {
         id: popup
         anchorItem: root
-        contentWidth: 280
-        contentMargin: 16
+        preferredWidth: 320
         onVisibleChanged: {
             if (visible) {
                 root.now = new Date();
@@ -150,8 +149,8 @@ BarButton {
             }
         }
 
-        ColumnLayout {
-            spacing: 10
+        Flickable {
+            spacing: 12
 
             ColumnLayout {
                 id: accountInfo
@@ -161,7 +160,7 @@ BarButton {
                         amazonBedrock: "Amazon Bedrock"
                     })[CodexService.account?.type] ?? ""
                 visible: CodexService.account != null || CodexService.provider != null
-                spacing: 4
+                spacing: 6
 
                 RowLayout {
                     Text {
@@ -251,9 +250,11 @@ BarButton {
 
                 delegate: ColumnLayout {
                     id: detail
+                    required property int index
                     required property var modelData
 
-                    spacing: 4
+                    Layout.topMargin: index > 0 ? 3 : 0
+                    spacing: 6
                     Text {
                         text: `${root.windowLabel(detail.modelData)} limit`
                         font.weight: Font.Medium
@@ -362,7 +363,7 @@ BarButton {
                         spacing: 0
                         Text {
                             Layout.fillWidth: true
-                            Layout.bottomMargin: 4
+                            Layout.bottomMargin: 6
                             visible: text !== ""
                             text: creditGroup.modelData.title
                             font.pixelSize: 12
@@ -412,7 +413,7 @@ BarButton {
                                 WrapperRectangle {
                                     Layout.fillWidth: true
                                     visible: creditRow.confirming
-                                    margin: 10
+                                    margin: 12
                                     radius: 5
                                     color: Theme.controlBackground
 
@@ -433,7 +434,7 @@ BarButton {
                                         RowLayout {
                                             Layout.fillWidth: false
                                             Layout.alignment: Qt.AlignRight
-                                            spacing: 4
+                                            spacing: 6
                                             uniformCellSizes: true
                                             Button {
                                                 Layout.fillWidth: true

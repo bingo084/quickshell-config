@@ -57,7 +57,7 @@ BarButton {
     Popup {
         id: popup
         anchorItem: root
-        contentWidth: 440
+        preferredWidth: 480
         onVisibleChanged: {
             if (visible)
                 panel.selected = -1;

@@ -35,7 +35,7 @@ BarButton {
     Popup {
         id: popup
         anchorItem: root
-        contentWidth: 280
+        preferredWidth: 320
 
         ColumnLayout {
             spacing: 8
