@@ -12,15 +12,21 @@ Flickable {
     implicitHeight: Math.min(contentHeight, maximumHeight)
     contentWidth: width - (contentHeight > height ? scrollbar.implicitWidth + 4 : 0)
     contentHeight: body.implicitHeight
+    contentItem.z: 1
     clip: true
     boundsBehavior: Flickable.StopAtBounds
 
-    data: ColumnLayout {
-        id: body
-        parent: root.contentItem
-        width: root.contentWidth
-        spacing: 14
-    }
+    data: [
+        ColumnLayout {
+            id: body
+            parent: root.contentItem
+            width: root.contentWidth
+            spacing: 14
+        },
+        WheelScroll {
+            flickable: root
+        }
+    ]
 
     Controls.ScrollBar.vertical: ScrollBar {
         id: scrollbar
