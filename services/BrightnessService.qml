@@ -12,6 +12,7 @@ Singleton {
     readonly property real maximum: Number(maximumFile.text().trim() || NaN)
     readonly property bool available: brightnessFile.readOk && maximumFile.readOk && Number.isFinite(root.maximum) && root.maximum > 0 && root.current >= 0 && root.current <= root.maximum
     readonly property real level: root.available ? root.current / root.maximum : 0
+    readonly property string iconName: `display-brightness-${root.level < 1 / 3 ? "low" : root.level < 2 / 3 ? "medium" : "high"}-symbolic`
     readonly property real minimumLevel: root.available ? root.minimum / root.maximum : 0
     property string output
 

@@ -22,9 +22,7 @@ BarButton {
     content: RowLayout {
         spacing: 4
         Icon {
-            id: brightnessIcon
-            readonly property string strength: BrightnessService.level < 1 / 3 ? "low" : BrightnessService.level < 2 / 3 ? "medium" : "high"
-            name: `display-brightness-${strength}-symbolic`
+            name: BrightnessService.iconName
         }
         Text {
             color: Theme.textPrimary
@@ -55,7 +53,7 @@ BarButton {
 
                 Icon {
                     size: 32
-                    name: brightnessIcon.name
+                    name: BrightnessService.iconName
                 }
 
                 Slider {

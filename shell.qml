@@ -8,6 +8,8 @@ import qs.config
 import qs.widgets
 
 ShellRoot {
+    Osd {}
+
     Variants {
         model: Quickshell.screens
 
