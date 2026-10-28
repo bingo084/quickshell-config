@@ -101,6 +101,9 @@ RowLayout {
                                     if (appId === "google-chrome") {
                                         return title.replace(/ - Google Chrome$/, "");
                                     }
+                                    if (appId === "firefox") {
+                                        return title.replace(/ — Mozilla Firefox$/, "");
+                                    }
                                     return title;
                                 }
                             }
