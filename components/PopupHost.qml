@@ -139,7 +139,7 @@ PopupWindow {
             radius: background.radius
         }
 
-        Rectangle {
+        ClippingRectangle {
             id: background
             property real margin: 12
             readonly property real inset: margin + border.width
@@ -149,7 +149,7 @@ PopupWindow {
             color: Theme.background
             border.color: Theme.border
             border.width: 1
-            clip: true
+            contentUnderBorder: true
 
             Behavior on implicitHeight {
                 enabled: root.opened && !surfaceFade.running
