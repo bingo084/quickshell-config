@@ -31,6 +31,7 @@ ListView {
     currentIndex: -1
     spacing: 1
     contentWidth: -1
+    Controls.ScrollBar.vertical.padding: 0
     visible: ready
     onContentYChanged: root.scrolled()
 
@@ -125,7 +126,7 @@ ListView {
         delegate: Loader {
             id: row
             required property QsMenuEntry modelData
-            width: root.width - (root.Controls.ScrollBar.vertical.size < 1 ? root.Controls.ScrollBar.vertical.implicitWidth + 4 : 0)
+            width: root.width
             sourceComponent: modelData ? (modelData.isSeparator ? divider : action) : null
 
             Component {

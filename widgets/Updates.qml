@@ -130,7 +130,7 @@ BarButton {
                     return Math.ceil(width);
                 }
 
-                implicitWidth: nameWidth + 2 * versionWidth + 16 + (contentHeight > maximumHeight ? ScrollBar.vertical.implicitWidth + 4 : 0)
+                implicitWidth: nameWidth + 2 * versionWidth + 16
                 model: UpdateService.packages
                 section.property: "source"
 

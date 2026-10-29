@@ -8,7 +8,7 @@ ListView {
 
     Layout.fillWidth: true
     implicitHeight: Math.min(contentHeight, maximumHeight)
-    contentWidth: width - (contentHeight > height ? scrollbar.implicitWidth + 4 : 0)
+    contentWidth: width
     contentItem.z: 1
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -19,6 +19,6 @@ ListView {
     }
 
     Controls.ScrollBar.vertical: ScrollBar {
-        id: scrollbar
+        viewport: root
     }
 }

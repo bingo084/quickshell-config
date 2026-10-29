@@ -10,7 +10,7 @@ Flickable {
 
     Layout.fillWidth: true
     implicitHeight: Math.min(contentHeight, maximumHeight)
-    contentWidth: width - (contentHeight > height ? scrollbar.implicitWidth + 4 : 0)
+    contentWidth: width
     contentHeight: body.implicitHeight
     contentItem.z: 1
     clip: true
@@ -29,6 +29,6 @@ Flickable {
     ]
 
     Controls.ScrollBar.vertical: ScrollBar {
-        id: scrollbar
+        viewport: root
     }
 }
