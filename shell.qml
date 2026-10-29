@@ -65,6 +65,7 @@ ShellRoot {
                     rightMargin: 10
                 }
                 Traffic {}
+                Media {}
                 Weather {}
                 Codex {}
                 Updates {}
