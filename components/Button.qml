@@ -17,6 +17,7 @@ Controls.Button {
     property string iconName
     readonly property var resolvedIcon: IconService.resolve(root.iconName)
     property alias radius: background.radius
+    property alias cursorShape: pointer.cursorShape
     property alias tooltip: hint
 
     padding: size > 0 ? (size - icon.width) / 2 : 6
@@ -44,6 +45,7 @@ Controls.Button {
     }
 
     HoverHandler {
+        id: pointer
         cursorShape: Qt.PointingHandCursor
     }
 

@@ -9,6 +9,7 @@ import qs.widgets
 
 ShellRoot {
     Osd {}
+    Notifications {}
 
     Variants {
         model: Quickshell.screens
