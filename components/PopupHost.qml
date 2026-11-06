@@ -18,27 +18,31 @@ PopupWindow {
     property Popup activePopup: null
     property int phase: PopupHost.Hidden
     readonly property bool opened: phase === PopupHost.Open || phase === PopupHost.Capturing
+    readonly property bool backgroundVisible: activePopup?.backgroundVisible ?? true
     property real center
     readonly property Item bar: activePopup?.anchorItem?.QsWindow.contentItem ?? null
 
     grabFocus: true
     implicitWidth: root.bar?.width ?? 0
-    implicitHeight: Math.max(0, (root.screen?.height ?? 0) - (root.bar?.height ?? 0) - 4) // qmllint disable missing-property redundant-optional-chaining
+    implicitHeight: Math.max(0, (root.screen?.height ?? 0) - (root.bar?.height ?? 0)) // qmllint disable missing-property redundant-optional-chaining
     color: "transparent"
     // qmllint disable missing-property unresolved-type unqualified
     anchor {
         item: root.bar
         edges: Edges.Bottom
         gravity: Edges.Bottom
-        margins.bottom: -4
     }
     // qmllint enable missing-property unresolved-type unqualified
     readonly property alias card: background
-    readonly property Region region: Region {
+    readonly property Region inputRegion: Region {
         regions: [cardRegion, ...(root.activePopup?.regions ?? [])]
     }
-    mask: root.region
-    BackgroundEffect.blurRegion: root.phase === PopupHost.Closing ? null : root.region
+    mask: root.inputRegion
+    BackgroundEffect.blurRegion: root.phase === PopupHost.Closing ? null : blurRegion
+    Region {
+        id: blurRegion
+        regions: root.backgroundVisible ? [root.inputRegion] : root.activePopup?.regions ?? []
+    }
     Region {
         id: cardRegion
         item: background
@@ -126,6 +130,9 @@ PopupWindow {
         function onContentMarginChanged() {
             Qt.callLater(background.updateGeometry);
         }
+        function onBackgroundVisibleChanged() {
+            Qt.callLater(background.updateGeometry);
+        }
     }
 
     Item {
@@ -137,6 +144,7 @@ PopupWindow {
 
         Shadow {
             id: shadow
+            visible: root.backgroundVisible
             anchors.fill: background
             radius: background.radius
         }
@@ -147,10 +155,11 @@ PopupWindow {
             readonly property real inset: margin + border.width
 
             x: Math.max(0, Math.min(root.width - width, root.center - width / 2))
-            radius: Theme.popupRadius
-            color: Theme.background
+            y: root.activePopup?.topMargin ?? 4
+            radius: root.backgroundVisible ? Theme.popupRadius : 0
+            color: root.backgroundVisible ? Theme.background : "transparent"
             border.color: Theme.border
-            border.width: 1
+            border.width: root.backgroundVisible ? 1 : 0
             contentUnderBorder: true
 
             Behavior on implicitHeight {
@@ -206,7 +215,7 @@ PopupWindow {
                 width: root.screen.width // qmllint disable missing-property
                 height: root.screen.height // qmllint disable missing-property
                 x: -closeFrame.x
-                y: -closeFrame.y - Math.round((root.bar.height + 4) * root.devicePixelRatio) / root.devicePixelRatio
+                y: -closeFrame.y - Math.round(root.bar.height * root.devicePixelRatio) / root.devicePixelRatio
                 onHasContentChanged: {
                     if (hasContent && root.phase === PopupHost.Capturing)
                         root.phase = PopupHost.Closing;
