@@ -2,6 +2,7 @@ pragma Singleton
 
 import Niri
 import QtQml
+import Quickshell
 
 Niri {
     id: niri
@@ -23,6 +24,19 @@ Niri {
     Component.onCompleted: connect()
     onConnected: console.log("Connected to niri")
     onErrorOccurred: error => console.error("Niri error:", error)
+
+    function focusedScreen(): ShellScreen {
+        const workspaces = niri.workspaces;
+        for (let i = 0; i < workspaces.count; i++) {
+            const workspace = workspaces.get(i);
+            if (!workspace.isFocused)
+                continue;
+            const screen = Quickshell.screens.find(screen => screen.name === workspace.output);
+            if (screen)
+                return screen;
+        }
+        return Quickshell.screens[0] ?? null;
+    }
 
     function maximizeColumn(id: int) {
         const focusResult = niri.focusWindow(id);

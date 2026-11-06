@@ -27,16 +27,6 @@ Scope {
         view.showOsd();
     }
 
-    function audioScreen(): ShellScreen {
-        const workspaces = NiriService.workspaces;
-        for (let i = 0; i < workspaces.count; i++) {
-            const workspace = workspaces.get(i);
-            if (workspace.isFocused)
-                return Quickshell.screens.find(screen => screen.name === workspace.output) ?? null;
-        }
-        return Quickshell.screens[0] ?? null;
-    }
-
     function syncAudio() {
         const previous = audioState;
         const current = AudioService.ready ? {
@@ -48,7 +38,7 @@ Scope {
         if (!current || !previous || current.node !== previous.node)
             return;
         if (current.percent !== previous.percent || current.muted !== previous.muted)
-            show("volume", audioScreen());
+            show("volume", NiriService.focusedScreen());
     }
 
     function syncBrightness() {
