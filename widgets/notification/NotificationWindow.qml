@@ -9,13 +9,13 @@ import qs.components
 
 PanelWindow { // qmllint disable uncreatable-type
     id: window
-    required property var popups
-    required property string output
-    signal finished(QtObject popup)
+    required property var banners
+    readonly property string output: screen.name // qmllint disable missing-property
+    signal finished(QtObject record)
     readonly property real padding: 28
-    readonly property bool hasPopups: {
-        for (let i = 0; i < popups.count; i++) {
-            if (popups.get(i).popup.output === output)
+    readonly property bool hasBanners: {
+        for (let i = 0; i < banners.count; i++) {
+            if (banners.get(i).record.output === output)
                 return true;
         }
         return false;
@@ -26,14 +26,14 @@ PanelWindow { // qmllint disable uncreatable-type
         right: true
         bottom: true
     }
-    margins.top: 38
+    margins.top: 38 // qmllint disable missing-property
     implicitWidth: stack.width + padding * 2
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     color: "transparent"
-    visible: hasPopups
+    visible: hasBanners
     mask: Region {
-        regions: scrollBar.size < 1 ? [scene, scrollBarRegion] : [scene]
+        regions: [scene, scrollBarRegion]
     }
     BackgroundEffect.blurRegion: scene
     Region {
@@ -49,7 +49,7 @@ PanelWindow { // qmllint disable uncreatable-type
     }
     Region {
         id: scrollBarRegion
-        item: scrollBar
+        item: scrollBar.size < 1 ? scrollBar : null
     }
     Region {
         id: scrollRegion
@@ -84,18 +84,16 @@ PanelWindow { // qmllint disable uncreatable-type
             spacing: 10
             Repeater {
                 id: cards
-                model: window.popups
+                model: window.banners
                 Loader {
                     id: loader
-                    required property var popup
-                    active: popup.output === window.output
-                    visible: active
+                    required property var record
+                    active: record.output === window.output
                     width: stack.width
-                    sourceComponent: NotificationCard {
-                        popup: loader.popup
-                        onFinished: window.finished(loader.popup)
+                    sourceComponent: NotificationBanner {
+                        record: loader.record
+                        onFinished: window.finished(loader.record)
                     }
-                    onHeightChanged: stack.forceLayout()
                 }
             }
         }

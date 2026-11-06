@@ -81,6 +81,7 @@ ShellRoot {
                 Battery {}
                 Clock {}
                 Tray {}
+                NotificationCenter {}
             }
         }
     }

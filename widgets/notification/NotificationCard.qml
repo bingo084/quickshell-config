@@ -6,108 +6,81 @@ import Quickshell
 import Quickshell.Services.Notifications
 import qs.components
 import qs.config
+import qs.services
 
 Button {
     id: root
-    required property var popup
-    readonly property Notification notification: popup.notification
-    readonly property var defaultAction: Array.from(notification.actions).find(action => action.identifier === "default")
-    readonly property var actions: Array.from(notification.actions).filter(action => action.identifier !== "default")
-    readonly property bool expandable: summary.truncated || body.truncated || actions.length > 0
-    readonly property real timeout: notification.urgency === NotificationUrgency.Critical || notification.expireTimeout === 0 ? 0 : notification.expireTimeout < 0 ? 6000 : notification.expireTimeout
-    signal finished
+    required property var record
+    property int stackCount: 1
+    property bool backgroundVisible: true
     property bool expanded: false
+    property bool completed: false
+    readonly property real expandOffset: 2
+    readonly property var snapshot: record.snapshot
+    readonly property var defaultAction: record.actions.find(action => action.identifier === "default")
+    readonly property var actions: record.actions.filter(action => action.identifier !== "default" || action.text.trim() !== "")
+    readonly property bool expandable: stackCount === 1 && (expanded || summary.truncated || body.truncated || actions.length > 0)
+    readonly property bool hovering: hovered || closeButton.hovered || closeButton.down
     readonly property Region region: Region {
+        regions: [cardRegion, closeButton.region]
+    }
+    signal dismissRequested(bool group)
+    signal actionInvoked
+
+    padding: 14
+    rightPadding: padding - expandOffset
+    height: implicitHeight
+    onClicked: {
+        if (stackCount > 1)
+            toggleExpanded();
+        else
+            activate();
+    }
+    Component.onCompleted: {
+        record.viewers++;
+        completed = true;
+    }
+    Component.onDestruction: {
+        if (record) {
+            record.viewers--;
+            Qt.callLater(record.release);
+        }
+    }
+    Behavior on height {
+        enabled: root.completed
+        NumberAnimation {
+            duration: 180
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    function activate(action = defaultAction) {
+        if (NotificationService.activate(record, action))
+            actionInvoked();
+    }
+
+    function toggleExpanded() {
+        expanded = !expanded;
+    }
+
+    function formatTime(date: date): string {
+        const minutes = Math.max(0, Math.floor((ClockService.date - date) / 60000));
+        if (minutes < 1)
+            return "Now";
+        if (minutes < 60)
+            return `${minutes}m`;
+        if (minutes < 1440)
+            return `${Math.floor(minutes / 60)}h`;
+        if (minutes < 10080)
+            return `${Math.floor(minutes / 1440)}d`;
+        return Qt.formatDate(date, "MMM d");
+    }
+
+    Region {
+        id: cardRegion
         item: root
         radius: plate.radius
     }
-
-    height: implicitHeight
-    Behavior on height {
-        NumberAnimation {
-            duration: 180
-            easing.type: Easing.OutCubic
-        }
-    }
-    padding: 14
-    opacity: 1
-    enabled: !popup.closing
-    cursorShape: defaultAction || expandable || expanded ? Qt.PointingHandCursor : Qt.ArrowCursor
-    onClicked: {
-        if (defaultAction)
-            defaultAction.invoke();
-        else if (expandable || expanded)
-            expanded = !expanded;
-    }
-    Component.onCompleted: {
-        if (popup.closing)
-            exit.start();
-        else
-            entrance.start();
-    }
-
-    Connections {
-        target: root.popup
-        function onClosingChanged() {
-            if (root.popup.closing) {
-                entrance.stop();
-                exit.start();
-            }
-        }
-        function onRefreshed() {
-            root.expanded = false;
-            if (root.timeout > 0 && !root.hovered && !root.popup.closing)
-                hideTimer.restart();
-            else
-                hideTimer.stop();
-        }
-    }
-
-    Timer {
-        id: hideTimer
-        interval: Math.max(1, root.timeout)
-        running: root.timeout > 0 && !root.hovered && !root.expanded && !root.popup.closing
-        onTriggered: root.notification.expire()
-    }
-
-    ParallelAnimation {
-        id: entrance
-        NumberAnimation {
-            target: root
-            property: "opacity"
-            from: 0
-            to: 1
-            duration: 180
-            easing.type: Easing.OutCubic
-        }
-        NumberAnimation {
-            target: root
-            property: "x"
-            from: 18
-            to: 0
-            duration: 180
-            easing.type: Easing.OutCubic
-        }
-    }
-    ParallelAnimation {
-        id: exit
-        NumberAnimation {
-            target: root
-            property: "opacity"
-            to: 0
-            duration: 160
-            easing.type: Easing.OutCubic
-        }
-        NumberAnimation {
-            target: root
-            property: "x"
-            to: 18
-            duration: 160
-            easing.type: Easing.OutCubic
-        }
-        onFinished: root.finished()
-    }
-
     Shadow {
         anchors.fill: plate
         radius: plate.radius
@@ -115,177 +88,151 @@ Button {
     }
     background: Rectangle {
         id: plate
-        color: Theme.background
+        color: root.backgroundVisible ? Theme.background : "transparent"
         radius: 18
-        border.width: 1
+        border.width: root.backgroundVisible ? 1 : 0
         border.color: Theme.border
     }
 
-    contentItem: Item {
-        implicitHeight: content.implicitHeight
-        clip: true
+    DismissButton {
+        id: closeButton
+        expandable: root.stackCount > 1
+        visible: root.record.active
+        x: root.width - width + 5
+        y: -5
+        z: 1
+        opacity: root.hovering ? 1 : 0
+        enabled: opacity > 0
+        onClicked: root.dismissRequested(root.stackCount > 1)
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
+    }
 
+    contentItem: Item {
+        implicitHeight: message.implicitHeight + (root.expanded && root.actions.length > 0 ? actionRow.implicitHeight + 8 : 0)
+        clip: true
         RowLayout {
-            id: content
-            width: parent.width
+            id: message
+            width: parent.width - root.expandOffset
             height: implicitHeight
             spacing: 12
-
-            Icon {
-                Layout.alignment: Qt.AlignTop
-                Layout.topMargin: {
-                    let textHeight = header.y + header.implicitHeight;
-                    if (summary.visible)
-                        textHeight += textColumn.spacing + summary.collapsedHeight;
-                    if (body.visible)
-                        textHeight += textColumn.spacing + body.collapsedHeight;
-                    return Math.max(0, (textHeight - implicitHeight) / 2);
+            Behavior on height {
+                enabled: root.completed
+                NumberAnimation {
+                    duration: 180
+                    easing.type: Easing.OutCubic
                 }
-                implicitSize: 40
-                name: root.notification.appIcon || "dialog-information-symbolic"
-                source: root.notification.image || (root.notification.appIcon.startsWith("/") ? "file://" + root.notification.appIcon : root.notification.appIcon.includes("://") ? root.notification.appIcon : "")
+            }
+            Icon {
+                id: appIcon
+                implicitSize: 36
+                name: root.snapshot.appIcon || "dialog-information-symbolic"
+                source: root.record.image || (root.snapshot.appIcon.startsWith("/") ? "file://" + root.snapshot.appIcon : root.snapshot.appIcon.includes("://") ? root.snapshot.appIcon : "")
                 theme: "hicolor"
-                color: root.notification.appIcon || root.notification.image ? "transparent" : Theme.textSecondary
+                color: root.snapshot.appIcon || root.record.image ? "transparent" : Theme.textSecondary
+                Tooltip {
+                    anchorItem: appIcon
+                    text: root.snapshot.appName
+                    enabled: text !== ""
+                }
             }
             ColumnLayout {
-                id: textColumn
                 Layout.fillWidth: true
+                Layout.minimumHeight: 0
+                Layout.alignment: Qt.AlignTop
                 spacing: 2
-
                 Text {
-                    visible: root.notification.urgency === NotificationUrgency.Critical
-                    text: "重要通知"
+                    visible: root.snapshot.urgency === NotificationUrgency.Critical
+                    text: "Urgent notification"
                     font.pixelSize: 10
                     font.weight: Font.DemiBold
                     color: Theme.textSecondary
                 }
                 RowLayout {
-                    id: header
                     Layout.fillWidth: true
-                    spacing: 6
-                    Text {
-                        Layout.fillWidth: true
-                        text: root.notification.appName
-                        font.pixelSize: 12
-                        font.weight: Font.Medium
-                        color: Theme.textPrimary
-                        elide: Text.ElideRight
+                    spacing: 4
+                    NotificationText {
+                        id: summary
+                        text: root.snapshot.summary || root.snapshot.appName
+                        font.weight: Font.DemiBold
+                        previewLines: body.visible ? 2 : 3
+                        expanded: root.expanded
                     }
-                    Text {
-                        text: Qt.formatTime(root.popup.receivedAt, "HH:mm")
+                    Button {
+                        id: timeButton
+                        Layout.alignment: Qt.AlignTop
+                        implicitWidth: Math.max(implicitHeight, Math.ceil(timeMetrics.advanceWidth))
+                        implicitHeight: 24
+                        padding: 0
+                        leftPadding: display === Button.IconOnly ? width - height : Math.max(0, width - implicitContentWidth)
+                        leftInset: width - height
+                        text: root.formatTime(root.record.receivedAt)
                         font.pixelSize: 10
-                        color: Theme.textTertiary
-                    }
-                    Button {
-                        visible: root.expandable || root.expanded
-                        size: 18
-                        icon.width: 12
-                        icon.height: 12
-                        iconName: root.expanded ? "pan-up-symbolic" : "pan-down-symbolic"
+                        palette.buttonText: Theme.textTertiary
+                        icon.width: 14
+                        icon.height: 14
+                        iconName: root.expanded ? "pan-up-symbolic" : "pan-end-symbolic"
                         icon.color: Theme.textSecondary
-                        opacity: root.hovered || root.expanded ? 1 : 0
-                        onClicked: root.expanded = !root.expanded
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 120
-                            }
+                        display: root.expandable && (root.hovering || hovered || visualFocus) ? Button.IconOnly : Button.TextOnly
+                        hoverEnabled: root.expandable
+                        cursorShape: root.expandable ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        tooltip.text: Qt.formatDateTime(root.record.receivedAt, ClockService.fullDateTimeFormat)
+                        transform: Translate {
+                            x: timeButton.display === Button.IconOnly ? root.expandOffset : 0
                         }
-                    }
-                    Button {
-                        size: 18
-                        icon.width: 12
-                        icon.height: 12
-                        iconName: "window-close-symbolic"
-                        icon.color: Theme.textSecondary
-                        opacity: root.hovered || root.down ? 1 : 0
-                        onClicked: root.notification.dismiss()
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 120
-                            }
+                        onClicked: {
+                            if (root.expandable)
+                                root.toggleExpanded();
+                        }
+                        TextMetrics {
+                            id: timeMetrics
+                            font: timeButton.font
+                            text: timeButton.text
                         }
                     }
                 }
-                ExpandableText {
-                    id: summary
-                    text: root.notification.summary
-                    font.weight: Font.DemiBold
-                    expanded: root.expanded
-                }
-                ExpandableText {
+                NotificationText {
                     id: body
-                    text: root.notification.body
+                    text: root.snapshot.body
                     expanded: root.expanded
-                }
-                Item {
-                    Layout.fillWidth: true
-                    visible: root.actions.length > 0
-                    implicitHeight: root.expanded ? actionRow.implicitHeight + 8 : 0
-
-                    RowLayout {
-                        id: actionRow
-                        width: parent.width
-                        y: 8
-                        opacity: root.expanded ? 1 : 0
-                        visible: opacity > 0
-                        enabled: root.expanded
-                        spacing: 6
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 100
-                            }
-                        }
-                        Repeater {
-                            model: root.actions
-                            Button {
-                                required property NotificationAction modelData
-                                Layout.fillWidth: true
-                                Layout.preferredWidth: 1
-                                text: modelData.text
-                                font.pixelSize: 12
-                                verticalPadding: 4
-                                variant: Button.Filled
-                                onClicked: modelData.invoke()
-                            }
-                        }
-                    }
                 }
             }
         }
-    }
-
-    component ExpandableText: Item {
-        id: textBlock
-        property alias text: preview.text
-        property alias font: preview.font
-        property bool expanded
-        readonly property alias truncated: preview.truncated
-        readonly property real collapsedHeight: preview.implicitHeight
-
-        Layout.fillWidth: true
-        visible: text.trim() !== ""
-        implicitHeight: expanded ? fullText.implicitHeight : collapsedHeight
-
-        Text {
-            id: preview
-            width: parent.width
-            textFormat: Text.PlainText
-            font.pixelSize: 13
-            color: Theme.textPrimary
-            wrapMode: Text.Wrap
-            maximumLineCount: 2
-            elide: Text.ElideRight
-            visible: !textBlock.expanded
-        }
-        Text {
-            id: fullText
-            width: parent.width
-            text: textBlock.text
-            textFormat: Text.PlainText
-            font: textBlock.font
-            color: preview.color
-            wrapMode: Text.Wrap
-            visible: textBlock.expanded
+        RowLayout {
+            id: actionRow
+            anchors.right: parent.right
+            anchors.rightMargin: root.expandOffset
+            y: message.height + 8
+            width: root.actions.length <= 2 ? Math.min(implicitWidth, message.width) : message.width
+            opacity: root.expanded && root.actions.length > 0 ? 1 : 0
+            visible: opacity > 0
+            enabled: root.expanded
+            spacing: 6
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 100
+                }
+            }
+            Repeater {
+                model: root.actions
+                Button {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: root.actions.length <= 2 ? implicitWidth : 1
+                    Layout.minimumWidth: root.actions.length <= 2 ? 96 : 0
+                    text: modelData.text
+                    font.pixelSize: 12
+                    leftPadding: 12
+                    rightPadding: leftPadding
+                    verticalPadding: 4
+                    variant: Button.Filled
+                    onClicked: root.activate(modelData)
+                }
+            }
         }
     }
 }
