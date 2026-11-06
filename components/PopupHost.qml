@@ -68,6 +68,7 @@ PopupWindow {
             popup.anchorItem = anchorItem;
         activePopup = popup;
         center = anchorItem.mapToItem(root.bar, anchorItem.width / 2, 0).x;
+        contentWrapper.reveal();
         phase = PopupHost.Open;
         root.visible = true;
         popup.content.forceActiveFocus();
@@ -98,6 +99,7 @@ PopupWindow {
         phase = PopupHost.Hidden;
         root.visible = false;
         surfaceFade.stop();
+        contentFade.stop();
         if (activePopup !== null) {
             activePopup.content.parent = null;
             if (activePopup.overlay !== null)
@@ -175,10 +177,7 @@ PopupWindow {
                 y: x
                 width: background.width - 2 * x
                 child: root.activePopup?.content ?? null
-                onChildChanged: {
-                    reveal();
-                    Qt.callLater(background.updateGeometry);
-                }
+                onChildChanged: Qt.callLater(background.updateGeometry)
                 onImplicitWidthChanged: Qt.callLater(background.updateGeometry)
                 onImplicitHeightChanged: Qt.callLater(background.updateGeometry)
 
